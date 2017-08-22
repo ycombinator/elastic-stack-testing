@@ -37,7 +37,7 @@ integration-testing/
  
   ${ANSIBLE_ROOTDIR}/group_vars/all.yml
  
-## Installation: Running Ansible Playbooks 
+## Running Ansible Playbooks 
 
 * cd playbooks 
 
