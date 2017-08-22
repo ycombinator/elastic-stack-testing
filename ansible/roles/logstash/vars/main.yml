@@ -1,0 +1,37 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Elasticsearch vars file
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Timeout
+logstash_timeout: 60
+
+# Extract package extension
+logstash_package_ext: "{{ logstash_package_url | splitext | last | regex_replace('.gz', '.tar.gz') }}"
+
+# Role variables to run multiple role files in groupse use, one include
+# Must have role name (key), action and args that map to individual task files
+logstash_roles:
+  install:
+    - { action: 'install',  args: {} }
+    - { action: 'conf',   args: {} }
+    - { action: 'startup',  args: {} }
+  uninstall:
+    - { action: 'shutdown',  args: {} }
+    - { action: 'uninstall',   args: {} }
+
+# Task files for group use, keep in sync with tasks/main.yml
+logstash_task_files:
+  - '{{ ansible_system | lower }}/{{ item.action }}/logstash_{{ item.action }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}/logstash_{{ item.action }}_{{ ait_logstash_pkg_ext }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}/logstash_{{ item.action }}_{{ ait_logstash_pkg_mgr | trim }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}/logstash_{{ item.action }}_{{ ait_logstash_srv_mgr | trim }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action.split("_")[0] }}/logstash_{{ item.action }}.yml'
+
+# logstash log search strings
+logstash_log_find:
+  started: '.*logstash index ready'
+  stopped: 'TBD'

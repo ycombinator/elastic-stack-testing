@@ -1,0 +1,15 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Stop elasticsearch
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Stop Elasticsearch daemon
+  shell: "ps -efw | grep elasticsearch | grep -v grep | awk '{print $2}' | xargs kill -SIGTERM"
+  args:
+    executable: /bin/bash
+  async: 5
+  poll: 0
+  tags: stop_elasticsearch

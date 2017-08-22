@@ -1,0 +1,15 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Start kibana
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Start kibana daemon
+  shell: "{{ kibana_exe }} &"
+  args:
+    executable: /bin/bash
+  async: 5
+  poll: 0
+  tags: start_kibana, start_kibana_exe

@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Shutdown elasticsearch
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Stop Elasticsearch service
+  service:
+    name: 'elasticsearch'
+    state: stopped
+  become: true
+  tags: stop_elasticsearch

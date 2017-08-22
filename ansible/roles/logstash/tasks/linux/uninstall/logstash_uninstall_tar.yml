@@ -1,0 +1,12 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Uninstall Linux logstash packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Remove logstash directory
+  file:
+    state: absent
+    path: '{{ logstash_rootdir | trim }}'
+  tags: uninstall_logstash

@@ -1,0 +1,39 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Elasticsearch vars file
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Timeout
+elasticsearch_timeout: 60
+
+# Extract package extension
+elasticsearch_package_ext: "{{ elasticsearch_package_url | splitext | last | regex_replace('.gz', '.tar.gz') }}"
+
+# Role variables to run multiple role files in groupse use, one include
+# Must have role name (key), action and args that map to individual task files
+elasticsearch_roles:
+  install:
+    - { action: 'install', args: {} }
+    - { action: 'config', args: {} }
+    - { action: 'startup', args: {} }
+    - { action: 'log_tail', args: {ait_log_searchstr: started} }
+    - { action: 'api_get_info', args: {} }
+  uninstall:
+    - { action: 'shutdown', args: {} }
+    - { action: 'uninstall', args: {} }
+
+# Task files for group use, keep in sync with tasks/main.yml
+elasticsearch_task_files:
+  - '{{ ansible_system | lower }}/{{ item.action }}/elasticsearch_{{ item.action }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}/elasticsearch_{{ item.action }}_{{ ait_elasticsearch_pkg_ext }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}/elasticsearch_{{ item.action }}_{{ ait_elasticsearch_pkg_mgr | trim }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}/elasticsearch_{{ item.action }}_{{ ait_elasticsearch_srv_mgr | trim }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action.split("_")[0] }}/elasticsearch_{{ item.action }}.yml'
+
+# elasticsearch log search strings
+elasticsearch_log_find:
+  started: 'Node.*started'
+  stopped: 'Node.*closed'

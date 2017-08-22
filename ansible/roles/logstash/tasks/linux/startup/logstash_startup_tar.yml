@@ -1,0 +1,15 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Start logstash
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Start logstash daemon
+  shell: '{{ logstash_exe }} -f {{ logstash_conf }} &'
+  args:
+    executable: /bin/bash
+  async: 5
+  poll: 0
+  tags: start_logstash, start_logstash_exe

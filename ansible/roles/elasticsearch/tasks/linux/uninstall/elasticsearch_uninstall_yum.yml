@@ -1,0 +1,13 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Uninstall Linux elasticsearch packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Uninstall Elasticsearch rpm package
+  yum:
+    name: 'elasticsearch'
+    state: absent
+  become: true
+  tags: uninstall_elasticsearch

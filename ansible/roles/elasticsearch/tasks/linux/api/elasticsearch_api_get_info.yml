@@ -1,0 +1,19 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Elasticsearch API request
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Run GET query on Elasticsearch
+  uri:
+    url: 'http://localhost:9200/?pretty'
+    method: GET
+    return_content: yes
+    status_code: 200
+  register: elastic_out
+  tags: start_elasticsearch, elasticsearch_query
+- debug:
+    msg: '{{ elastic_out.json.version.number }}'
+  tags: start_elasticsearch, elasticsearch_query

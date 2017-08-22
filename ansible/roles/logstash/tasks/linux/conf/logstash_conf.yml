@@ -1,0 +1,6 @@
+
+- name: Copy Logstash conf
+  template:
+    src: "{{ lookup('env','ANSIBLE_TEMPLATES') }}/logstash-conf.j2"
+    dest: '{{ logstash_conf }}'
+  tags: conf

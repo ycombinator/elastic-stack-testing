@@ -1,0 +1,35 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Variables for tar package
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Run as root
+elasticsearch_run_as_root: '{{ install_as_root }}'
+
+# Elasticsearch install directory
+elasticsearch_install_dir: "{{ install_dir }}"
+
+# Elasticsearch package
+elasticsearch_package: '{{ elasticsearch_install_dir }}/{{ elasticsearch_package_url | basename }}'
+
+# Elasticsearch root directory
+elasticsearch_rootdir: '{{ elasticsearch_package.split(elasticsearch_package_ext)[0] | trim }}'
+
+# Elasticsearch bin
+elasticsearch_bin_dir: '{{ elasticsearch_rootdir | trim }}/bin'
+elasticsearch_exe: '{{ elasticsearch_bin_dir }}/elasticsearch'
+elasticsearch_plugin_exe: '{{ elasticsearch_bin_dir }}/elasticsearch-plugin'
+
+# Elasticsearch config
+elasticsearch_config_dir: '{{ elasticsearch_rootdir | trim }}/config'
+elasticsearch_config_file: '{{ elasticsearch_config_dir }}/elasticsearch.yml'
+
+# Elasticsearch log
+elasticsearch_log_dir: '{{ elasticsearch_rootdir | trim }}/logs'
+elasticsearch_log_file: '{{ elasticsearch_log_dir }}/elasticsearch.log'
+
+# Elasticsearch pid file
+elasticsearch_pid_file: '{{ elasticsearch_rootdir | trim }}/pid.txt'

@@ -1,0 +1,26 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Variables for rpm package
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Run as root
+kibana_run_as_root: true
+
+# kibana package
+kibana_package: '/tmp/{{ kibana_package_url | basename }}'
+
+# kibana bin
+kibana_bin_dir: '/usr/share/kibana/bin'
+kibana_exe: '{{ kibana_bin_dir }}/kibana'
+kibana_plugin_exe: '{{ kibana_bin_dir }}/kibana-plugin'
+
+# kibana logs
+kibana_log_dir: '/tmp/log/kibana'
+kibana_log_file: '{{ kibana_log_dir }}/kibana.log'
+
+# kibana config
+kibana_config_dir: '/etc/kibana'
+kibana_config_file: '{{ kibana_config_dir }}/kibana.yml'

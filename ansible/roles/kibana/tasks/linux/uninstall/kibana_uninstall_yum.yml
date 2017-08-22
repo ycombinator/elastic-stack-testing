@@ -1,0 +1,13 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Uninstall Linux kibana packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Uninstall kibana rpm package
+  yum:
+    name: 'kibana'
+    state: absent
+  become: true
+  tags: uninstall_kibana

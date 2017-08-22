@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Shutdown elasticsearch
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Stop Elasticsearch systemd
+  systemd:
+      name: 'elasticsearch.service'
+      state: stopped
+  become: true
+  tags: stop_elasticsearch

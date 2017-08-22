@@ -1,0 +1,21 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Install Linux kibana packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Download kibana package
+  get_url:
+    url: '{{ kibana_package_url }}'
+    dest: '{{ kibana_package }}'
+    timeout: '{{ url_timeout }}'
+  tags: package_kibana
+
+- name: Install kibana rpm package
+  yum:
+    name: '{{ kibana_package }}'
+    state: present
+  become: true
+  tags: install_kibana

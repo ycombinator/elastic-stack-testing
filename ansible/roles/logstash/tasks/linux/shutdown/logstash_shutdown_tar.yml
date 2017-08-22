@@ -1,0 +1,15 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Stop logstash
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Stop logstash daemon
+  shell: "ps -efw | grep logstash | grep -v grep | awk '{print $2}' | xargs kill -SIGTERM"
+  args:
+    executable: /bin/bash
+  async: 5
+  poll: 0
+  tags: stop_logstash

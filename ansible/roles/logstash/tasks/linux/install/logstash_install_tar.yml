@@ -1,0 +1,21 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Install Linux logstash packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Download logstash package
+  get_url:
+    url: '{{ logstash_package_url }}'
+    dest: '{{ logstash_package }}'
+    timeout: '{{ url_timeout }}'
+  tags: package_logstash
+
+- name: Install logstash tar package
+  unarchive:
+    src: '{{ logstash_package }}'
+    dest: '{{ logstash_install_dir }}'
+    remote_src: True
+  tags: install_logstash

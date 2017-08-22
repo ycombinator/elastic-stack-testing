@@ -1,0 +1,20 @@
+#----------------------------------------------
+# Inventory 
+
+# ---------------------------------------------
+
+# ---------------------------------------------
+# Vagrant Linux
+vagrant_linux_host1 ansible_host=localhost
+
+# ---------------------------------------------
+# Vagrant Ubuntu Vars
+[vagrant_linux]
+vagrant_linux_host1
+
+[vagrant_linux:vars]
+ansible_connection=ssh
+ansible_port=2222
+ansible_user=vagrant
+ansible_password=vagrant
+validate_certs=false

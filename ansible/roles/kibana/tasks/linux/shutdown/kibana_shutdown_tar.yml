@@ -1,0 +1,15 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Stop kibana
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Stop kibana daemon
+  shell: "ps -efw | grep kibana | grep -v grep | awk '{print $2}' | xargs kill -SIGTERM"
+  args:
+    executable: /bin/bash
+  async: 5
+  poll: 0
+  tags: stop_kibana

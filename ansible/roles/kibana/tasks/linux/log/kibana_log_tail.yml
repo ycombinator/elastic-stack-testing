@@ -1,0 +1,27 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Log search
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Wait for log file to be present
+  wait_for:
+    path: '{{ kibana_log_file }}'
+    timeout: '{{ kibana_timeout }}'
+  become: '{{ kibana_run_as_root | default(omit) }}'
+  tags: kibana_log_check
+
+- name: Wait for kibana log string
+  shell: >-
+    timeout "{{ kibana_timeout }}"
+    sed -r '/{%- if ait_args is defined -%}
+                {{ kibana_log_find[ait_args.get('ait_log_searchstr')] }}
+             {%- elif ait_log_searchstr is defined -%}
+                {{ kibana_log_find[ait_log_searchstr] }}
+             {%- endif -%}/q' <(tail -n 0 -f "{{ kibana_log_file }}")
+  args:
+    executable: /bin/bash
+  become: '{{ kibana_run_as_root | default(omit) }}'
+  tags: kibana_log_check

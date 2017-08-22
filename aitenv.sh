@@ -1,0 +1,10 @@
+# AIT environment settings
+
+export AIT_ROOTDIR=$(pwd)
+export ANSIBLE_ROOTDIR=${AIT_ROOTDIR}/ansible
+export ANSIBLE_CONFIG=${ANSIBLE_ROOTDIR}
+export ANSIBLE_LIBRARY=${ANSIBLE_ROOTDIR}/library
+export ANSIBLE_GROUP_VARS=${ANSIBLE_ROOTDIR}/group_vars
+export ANSIBLE_HOST_VARS=${ANSIBLE_ROOTDIR}/host_vars
+export ANSIBLE_ROLES=${ANSIBLE_ROOTDIR}/roles
+export ANSIBLE_TEMPLATES=${ANSIBLE_ROOTDIR}/templates

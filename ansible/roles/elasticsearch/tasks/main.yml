@@ -1,0 +1,49 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Elasticsearch tasks
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- fail:
+    msg: "This role must have ait_role or ait_action defined"
+  when: ait_role is not defined and ait_action is not defined
+
+-  set_fact:
+    ait_elasticsearch_pkg_ext: '{{ elasticsearch_package_ext |
+                                   regex_replace(".tar.gz", "tar") |
+                                   regex_replace( "\.", "") }}'
+
+- set_fact:
+    ait_elasticsearch_pkg_mgr: '{%- if ait_elasticsearch_pkg_ext == "tar" or ait_elasticsearch_pkg_ext == "zip" -%}
+                                  {{ ait_elasticsearch_pkg_ext }}
+                                {%- else -%}
+                                  {{ ansible_pkg_mgr }}
+                                {%- endif -%}'
+    ait_elasticsearch_srv_mgr: '{%- if ait_elasticsearch_pkg_ext == "tar" or ait_elasticsearch_pkg_ext == "zip" -%}
+                                  {{ ait_elasticsearch_pkg_ext }}
+                                {%- else -%}
+                                  {{ ansible_service_mgr }}
+                                {%- endif -%}'
+
+- name: Include vars files
+  include_vars: 'vars_{{ ait_elasticsearch_pkg_ext }}.yml'
+
+# Include task files in group use
+- name: Include group task files
+  include: '{{ lookup("first_found", elasticsearch_task_files) }} ait_args={{ item.args }}'
+  with_items: '{{ elasticsearch_roles[ait_role] }}'
+  when: ait_role is defined
+
+# Include task files for individual use, keep in sync with vars/main.yml
+- name: Include individual task file
+  include: '{{ item }}'
+  with_first_found:
+    - files:
+        - '{{ ansible_system | lower }}/{{ ait_action }}/elasticsearch_{{ ait_action }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}/elasticsearch_{{ ait_action }}_{{ ait_elasticsearch_pkg_ext }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}/elasticsearch_{{ ait_action }}_{{ ait_elasticsearch_pkg_mgr | trim }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}/elasticsearch_{{ ait_action }}_{{ ait_elasticsearch_srv_mgr | trim }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action.split("_")[0] }}/elasticsearch_{{ ait_action }}.yml'
+      skip: true
+  when: ait_action is defined

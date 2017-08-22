@@ -1,0 +1,21 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Install Linux elasticsearch packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Download elasticsearch package
+  get_url:
+    url: '{{ elasticsearch_package_url }}'
+    dest: '{{ elasticsearch_package }}'
+    timeout: '{{ url_timeout }}'
+  tags: package_elasticsearch
+
+- name: Install Elasticsearch rpm package
+  yum:
+    name: '{{ elasticsearch_package }}'
+    state: present
+  become: true
+  tags: install_elasticsearch

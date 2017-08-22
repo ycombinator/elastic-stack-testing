@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Uninstall Linux elasticsearch packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Uninstall Elasticsearch deb package
+  apt:
+    name: 'elasticsearch'
+    state: absent
+    purge: true
+  become: true
+  tags: uninstall_elasticsearch

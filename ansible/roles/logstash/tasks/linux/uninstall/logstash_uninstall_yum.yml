@@ -1,0 +1,13 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Uninstall Linux logstash packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Uninstall logstash rpm package
+  yum:
+    name: 'logstash'
+    state: absent
+  become: true
+  tags: uninstall_logstash

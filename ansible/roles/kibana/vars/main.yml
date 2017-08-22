@@ -1,0 +1,38 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Elasticsearch vars file
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Timeout
+kibana_timeout: 60
+
+# Extract package extension
+kibana_package_ext: "{{ kibana_package_url | splitext | last | regex_replace('.gz', '.tar.gz') }}"
+
+# Role variables to run multiple role files in groupse use, one include
+# Must have role name (key), action and args that map to individual task files
+kibana_roles:
+  install:
+    - { action: 'install',  args: {} }
+    - { action: 'config',   args: {} }
+    - { action: 'startup',  args: {} }
+    - { action: 'log_tail', args: {ait_log_searchstr: started} }
+  uninstall:
+    - { action: 'shutdown',  args: {} }
+    - { action: 'uninstall',   args: {} }
+
+# Task files for group use, keep in sync with tasks/main.yml
+kibana_task_files:
+  - '{{ ansible_system | lower }}/{{ item.action }}/kibana_{{ item.action }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}/kibana_{{ item.action }}_{{ ait_kibana_pkg_ext }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}/kibana_{{ item.action }}_{{ ait_kibana_pkg_mgr | trim }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}/kibana_{{ item.action }}_{{ ait_kibana_srv_mgr | trim }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action.split("_")[0] }}/kibana_{{ item.action }}.yml'
+
+# kibana log search strings
+kibana_log_find:
+  started: '.*Kibana index ready'
+  stopped: 'TBD'

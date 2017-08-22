@@ -1,0 +1,37 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Variables for tar package
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Run as root
+logstash_run_as_root: '{{ install_as_root }}'
+
+# logstash install directory
+logstash_install_dir: '{{ install_dir }}'
+
+# logstash package
+logstash_package: '{{ logstash_install_dir }}/{{ logstash_package_url | basename }}'
+
+# logstash root directory
+logstash_rootdir: '{{ logstash_package.split(logstash_package_ext)[0] | trim }}'
+
+# logstash bin
+logstash_bin_dir: '{{ logstash_rootdir | trim }}/bin'
+logstash_exe: '{{ logstash_bin_dir }}/logstash'
+logstash_plugin_exe: '{{ logstash_bin_dir }}/logstash-plugin'
+
+# logstash config
+logstash_config_dir: '{{ logstash_rootdir | trim }}/config'
+logstash_config_file: '{{ logstash_config_dir }}/logstash.yml'
+
+# logstash log
+logstash_log_dir: '{{ logstash_rootdir | trim }}/logs'
+logstash_log_file: '{{ logstash_log_dir }}/logstash-plain.log'
+
+# logstash conf
+logstash_conf: '/tmp/logstash.conf'
+logstash_conf_local: "{{ lookup('pipe', 'pwd') }}/logstash.conf"
+logstash_conf_contents: "{{ lookup('file', logstash_conf_local ) }}"

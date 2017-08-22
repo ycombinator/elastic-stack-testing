@@ -1,0 +1,32 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Variables for tar package
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Run as root
+kibana_run_as_root: '{{ install_as_root }}'
+
+# Kibana install directory
+kibana_install_dir: '{{ install_dir }}'
+
+# Kibana package
+kibana_package: '{{ kibana_install_dir }}/{{ kibana_package_url | basename }}'
+
+# Kibana root directory
+kibana_rootdir: '{{ kibana_package.split(kibana_package_ext)[0] | trim }}'
+
+# Kibana bin
+kibana_bin_dir: '{{ kibana_rootdir | trim }}/bin'
+kibana_exe: '{{ kibana_bin_dir }}/kibana'
+kibana_plugin_exe: '{{ kibana_bin_dir }}/kibana-plugin'
+
+# Kibana config
+kibana_config_dir: '{{ kibana_rootdir | trim }}/config'
+kibana_config_file: '{{ kibana_config_dir }}/kibana.yml'
+
+# Kibana log
+kibana_log_dir: '{{ kibana_rootdir | trim }}/logs'
+kibana_log_file: '{{ kibana_log_dir }}/kibana.log'
