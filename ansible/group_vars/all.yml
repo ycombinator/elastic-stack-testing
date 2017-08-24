@@ -50,9 +50,15 @@ xpack_logstash_url: '{{ package_url }}/logstash-plugins/x-pack/x-pack-{{ package
 elasticsearch_package_url: '{{ package_url }}/elasticsearch/elasticsearch-{{ package_ver }}.{{ package_ext }}'
 
 # Elastic Configuration
-# TODO: Improve configuration parameters to products 
-cluster_name: automation_cluster
-network_host: 0.0.0.0
+# parameters as liste of quoted strings
+elasticsearch_config_params:
+  - "network.host: 0.0.0.0"
+
+# If set to False other parameters may be combined/overwrite those set by the user, ex: multi-node setup
+elasticsearch_config_params_strict: False
+
+# If a file is set it takes higher precedence than above parameters 
+# elasticsearch_config_params_file: ''
 
 #----------------------------------------------------------------------------------------------------------------------
 # Secton: Kibana

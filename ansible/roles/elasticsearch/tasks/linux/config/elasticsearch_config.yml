@@ -2,32 +2,51 @@
 # Configure elasticsearch on Linux
 #
 # Set certain parameters in elasticsearch configuration
+# 
+# If a user specifies a file, it takes higher precedence
+# If a user specifies elasticsearch_config_params_strict no internal params are added
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
 
 ---
 
-- name: Add network host
-  lineinfile:
-    path: '{{ elasticsearch_config_file }}'
-    insertafter: '^#network.host:'
-    line: 'network.host: {{ network_host }}'
-  become: '{{ elasticsearch_run_as_root | default(omit) }}'
-  when: network_host is defined
+- name: 'Initialize elasticsearch_config_params for multi-node'
+  block:
+    - name: 'Initialize elasticsearch_config_params if not defined'
+      set_fact:
+       elasticsearch_config_params: ''
+      when: elasticsearch_config_params is not defined
 
-- name: Add zen ping unicast hosts
-  lineinfile:
-    path: ' {{ elasticsearch_config_file }}'
-    insertafter: '^#discovery.zen.ping.unicast.hosts:'
-    line: 'discovery.zen.ping.unicast.hosts: {{ host_ip_list }}'
-  become: '{{ elasticsearch_run_as_root | default(omit) }}'
-  when: nodes_in_cluster|int > 1
+    - name: 'Set discovery zen parameters based on nodes in cluster'
+      set_fact:
+        elasticsearch_config_params: '{{ elasticsearch_config_params }} | 
+                                      combine("discovery.zen.ping.unicast.hosts: {{ host_ip_list }}") |
+                                      combine("discovery.zen.minimum_master_nodes: {{ nodes_in_cluster }}")'
+  when: elasticsearch_config_params_file is not defined and
+        nodes_in_cluster|int > 1 and
+        not elasticsearch_config_params_strict
 
-- name: Add zen minimum master nodes
-  lineinfile:
-    path: '{{ elasticsearch_config_file }}'
-    insertafter: '^#discovery.zen.minimum_master_nodes:'
-    line: 'discovery.zen.minimum_master_nodes: {{ nodes_in_cluster }}'
+- name: 'Elasticsearch Configuration Save Original'
+  copy:
+    src: '{{ elasticsearch_config_file }}'
+    dest: '{{ elasticsearch_config_file }}.org'
+    remote_src: True
+    force: no
   become: '{{ elasticsearch_run_as_root | default(omit) }}'
-  when: nodes_in_cluster|int > 1
+
+- name: 'Elasticsearch Configuration: Overwrite'
+  template:
+    src: "{{ lookup('env','ANSIBLE_TEMPLATES') }}/elasticsearch-config.j2"
+    dest: '{{ elasticsearch_config_file }}'
+  become: '{{ elasticsearch_run_as_root | default(omit) }}'
+  when: elasticsearch_config_params_file is not defined and
+        elasticsearch_config_params is defined
+
+- name: 'Elasticsearch Configuration: New File'
+  copy:
+    src: '{{ elasticsearch_config_params_file }}'
+    dest: '{{ elasticsearch_config_file }}'
+  become: '{{ elasticsearch_run_as_root | default(omit) }}'
+  when: elasticsearch_config_params_file is defined
+
