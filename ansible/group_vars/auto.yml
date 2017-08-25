@@ -1,0 +1,95 @@
+---
+#----------------------------------------------------------------------------------------------------------------------
+# User configurable parameters
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+#---------------------------------------------------------------------------------------------------------------------
+# Section: Global Package (individual package numbers can be specified directly in product_url below)
+
+package_server: "{{ lookup('env','ELASTIC_STACK_PKG_SERVER') }}" 
+package_ver: "{{ lookup('env','ELASTIC_STACK_PKG_VERSION') }}"  
+package_hash: "{{ lookup('env','ELASTIC_STACK_PKG_HASH') }}"  
+package_arch: "{{ lookup('env','ELASTIC_STACK_PKG_ARCH') }}"  
+package_ext: "{{ lookup('env','ELASTIC_STACK_PKG_EXT') }}"  
+
+package_url:  '{{ package_server }}/{{ package_ver }}-{{ package_hash }}/downloads'
+
+#----------------------------------------------------------------------------------------------------------------------
+# * Product package URLs and are required below
+#----------------------------------------------------------------------------------------------------------------------
+
+#----------------------------------------------------------------------------------------------------------------------
+# Section: Install directory location for tar and zip files
+
+# Specify for windows and linux
+install_dirs:
+  'tar.gz': '/tmp'
+  'zip':    'c:\temp'
+install_dir: '{{ install_dirs[package_ext] }}'
+install_as_root: false
+
+#----------------------------------------------------------------------------------------------------------------------
+# Section: Xpack
+
+install_xpack: "{{ lookup('env','INSTALL_XPACK')  | default('INSTALL_XPACK',false) }}" 
+xpack_package_url:  '{{ package_url }}/packs/x-pack/x-pack-{{ package_ver }}.zip'
+xpack_elastic_url:  '{{ package_url }}/elasticsearch-plugins/x-pack/x-pack-{{ package_ver }}.zip'
+xpack_kibana_url:   '{{ package_url }}/kibana-plugins/x-pack/x-pack-{{ package_ver }}.zip'
+xpack_logstash_url: '{{ package_url }}/logstash-plugins/x-pack/x-pack-{{ package_ver }}.zip'
+
+#----------------------------------------------------------------------------------------------------------------------
+# Section: Elasticsearch
+
+elasticsearch_package_url: '{{ package_url }}/elasticsearch/elasticsearch-{{ package_ver }}.{{ package_ext }}'
+
+# Elasticsearch Configuration Parameters (list of quoted strings)
+elasticsearch_config_params: 
+  - "network.host: 0.0.0.0"
+
+# If set to False other parameters may be combined/overwrite those set by the user, ex: multi-node setup
+elasticsearch_config_params_strict: False
+
+# If a file is set it takes higher precedence than above parameters 
+# elasticsearch_config_params_file: ''
+
+#----------------------------------------------------------------------------------------------------------------------
+# Secton: Kibana
+
+kibana_package_url: '{{ package_url }}/kibana/kibana-{{ package_ver }}-{{ package_arch }}.{{ package_ext }}'
+
+#----------------------------------------------------------------------------------------------------------------------
+# Section: Logstash
+
+logstash_package_url: '{{ package_url }}/logstash/logstash-{{ package_ver }}.{{ package_ext }}'
+
+#----------------------------------------------------------------------------------------------------------------------
+# Section: Filebeat
+
+filebeat_package_url: '{{ package_url }}/beats/filebeat/filebeat-{{ package_ver }}-{{ package_arch }}.{{ package_ext }}'
+
+#----------------------------------------------------------------------------------------------------------------------
+# Section: Heartbeat
+
+heartbeat_package_url: '{{ package_url }}/beats/heartbeat/heartbeat-{{ package_ver }}-{{ package_arch }}.{{ package_ext }}'
+
+#----------------------------------------------------------------------------------------------------------------------
+# Section: Metricbeat
+
+metricbeat_package_url: '{{ package_url }}/beats/metricbeat/metricbeat-{{ package_ver }}-{{ package_arch }}.{{ package_ext }}'
+
+#----------------------------------------------------------------------------------------------------------------------
+# Section: Packetbeat
+
+packetbeat_package_url: '{{ package_url }}/beats/packetbeat/packetbeat-{{ package_ver }}-{{ package_arch }}.{{ package_ext }}'
+
+#----------------------------------------------------------------------------------------------------------------------
+# Section: Winlogbeat
+
+winlogbeat_package_url: '{{ package_url }}/beats/winlogbeat/winlogbeat-{{ package_ver }}-{{ package_arch }}.{{ package_ext }}'
+
+#----------------------------------------------------------------------------------------------------------------------
+# Section: Beats Dashboards
+
+beats-dashboards_package_url: '{{ package_url }}/beats/beats-dashboards/beats-dashboards-{{ package_ver }}-{{ package_arch }}.{{ package_ext }}'

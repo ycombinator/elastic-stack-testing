@@ -9,7 +9,7 @@
 - hosts: '{{ uut }}'
 
   vars_files:
-    - "{{ lookup('env','ANSIBLE_GROUP_VARS') }}/all.yml"
+    - "{{ lookup('env','ANSIBLE_GROUP_VARS') }}/auto.yml"
 
   tasks:
 
