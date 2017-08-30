@@ -28,17 +28,21 @@ integration-testing/
 
   source aitenv.sh 
 
+* Fill out and source build information 
+  
+  source buildenv.sh 
+ 
 * Fill out inventory 
   (Dynamic inventory setup will be added with VM creation soon)
   
   ${ANSIBLE_ROOTDIR}/host_vars/hosts
  
-* Fill out build information
+* Fill out variable information
  
-  ${ANSIBLE_ROOTDIR}/group_vars/all.yml
+  ${ANSIBLE_ROOTDIR}/group_vars/auto.yml
  
 ## Running Ansible Playbooks 
 
 * cd playbooks 
 
-  ansible-playbook <playbook_name>.yml 
+  ansible-playbook <playbook_name>.yml --extra-vars="{uut: [<hostname>]}"
