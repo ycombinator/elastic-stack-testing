@@ -45,4 +45,4 @@ integration-testing/
 
 * cd playbooks 
 
-  ansible-playbook <playbook_name>.yml --extra-vars="{uut: [<hostname>]}"
+  ansible-playbook <playbook_name>.yml --extra-vars="{uut: [hostname]}"
