@@ -12,25 +12,31 @@ kibana_timeout: 60
 # Extract package extension
 kibana_package_ext: "{{ kibana_package_url | splitext | last | regex_replace('.gz', '.tar.gz') }}"
 
+kibana_username: kibana
+kibana_password: changeme
+kibana_port: 5601
+
 # Role variables to run multiple role files in groupse use, one include
 # Must have role name (key), action and args that map to individual task files
 kibana_roles:
-  install:
-    - { action: 'install',  args: {} }
-    - { action: 'config',   args: {} }
-    - { action: 'startup',  args: {} }
-    - { action: 'log_tail', args: {ait_log_searchstr: started} }
-  uninstall:
-    - { action: 'shutdown',  args: {} }
-    - { action: 'uninstall',   args: {} }
+  kibana_install_config_startup_verify:
+    - { action: 'kibana_install', args: {} }
+    - { action: 'kibana_config', args: {} }
+    - { action: 'kibana_startup', args: {} }
+    - { action: 'kibana_log_tail', args: {ait_log_searchstr: started} }
+    - { action: 'kibana_is_running', args: {} }
+  kibana_shutdown_uninstall_verify:
+    - { action: 'kibana_shutdown', args: {} }
+    - { action: 'kibana_uninstall', args: {} }
+    - { action: 'kibana_is_not_running', args: {} }
 
 # Task files for group use, keep in sync with tasks/main.yml
 kibana_task_files:
-  - '{{ ansible_system | lower }}/{{ item.action }}/kibana_{{ item.action }}.yml'
-  - '{{ ansible_system | lower }}/{{ item.action }}/kibana_{{ item.action }}_{{ ait_kibana_pkg_ext }}.yml'
-  - '{{ ansible_system | lower }}/{{ item.action }}/kibana_{{ item.action }}_{{ ait_kibana_pkg_mgr | trim }}.yml'
-  - '{{ ansible_system | lower }}/{{ item.action }}/kibana_{{ item.action }}_{{ ait_kibana_srv_mgr | trim }}.yml'
-  - '{{ ansible_system | lower }}/{{ item.action.split("_")[0] }}/kibana_{{ item.action }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_kibana_pkg_ext }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_kibana_pkg_mgr | trim }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_kibana_srv_mgr | trim }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}.yml'
 
 # kibana log search strings
 kibana_log_find:

@@ -1,0 +1,32 @@
+#----------------------------------------------------------------------------------------------------------------------
+# If not installed, install Kibana X-Pack
+#
+# Author: liza.dayoub@elastic.co
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Get Kibana Plugins
+  shell: "{{ kibana_plugin_exe }} list"
+  register: list_plugins_before
+
+- name: If Kibana X-Pack Not Present, Install
+  block:
+    - name: Download Kibana X-Pack Package
+      get_url:
+        url: '{{ xpack_kibana_package_url }}'
+        dest: '{{ xpack_kibana_package }}'
+        timeout: '{{ url_timeout }}'
+    - name: Install Kibana X-Pack
+      shell: '{{ kibana_plugin_exe }} install file://{{ xpack_kibana_package }}'
+      register: xpack_kibana_output
+    - debug:
+        msg: '{{ xpack_kibana_output }}'
+    - name: Get Kibana Plugins
+      shell: '{{ kibana_plugin_exe }} list'
+      register: list_plugins_after
+    - name: Fail If Kibana X-Pack Is Not Installed
+      fail:
+        msg: 'xpack is not installed'
+      when: '"x-pack" not in list_plugins_after.stdout'
+  when: '"x-pack" not in list_plugins_before.stdout'

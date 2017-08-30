@@ -1,0 +1,19 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Configure elasticsearch on Linux
+#
+# Set certain parameters in elasticsearch configuration
+#
+# If a user specifies a file, it takes higher precedence
+# If a user specifies elasticsearch_config_params_strict=True internal params are appended, otherwise they are appended
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: 'Elasticsearch Configuration'
+  blockinfile:
+    path: '{{ elasticsearch_config_file }}'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK ELASTICSEARCH PARAMETERS'
+    insertafter: EOF
+    content: ''
+  become: '{{ elasticsearch_run_as_root | default(omit) }}'

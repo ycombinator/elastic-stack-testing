@@ -1,0 +1,18 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Check if kibana is not running
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: 'Verify Kibana Process Is Not Running'
+  block:
+    - name: 'Get Kibana Process'
+      shell: "lsof -i:{{ kibana_port }} | tail -1 | awk '{print $2}'"
+      args:
+        executable: /bin/bash
+      register: kibana_process_id
+    - name: 'Fail If Kibana Process Is Running'
+      fail:
+        msg: 'kibana is running'
+      when: kibana_process_id.stdout != ""

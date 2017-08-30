@@ -8,11 +8,11 @@
 #---------------------------------------------------------------------------------------------------------------------
 # Section: Global Package (individual package numbers can be specified directly in product_url below)
 
-package_server: "{{ lookup('env','ELASTIC_STACK_PKG_SERVER') }}" 
-package_ver: "{{ lookup('env','ELASTIC_STACK_PKG_VERSION') }}"  
-package_hash: "{{ lookup('env','ELASTIC_STACK_PKG_HASH') }}"  
-package_arch: "{{ lookup('env','ELASTIC_STACK_PKG_ARCH') }}"  
-package_ext: "{{ lookup('env','ELASTIC_STACK_PKG_EXT') }}"  
+package_server: "{{ lookup('env','ELASTIC_STACK_PKG_SERVER') }}"
+package_ver: "{{ lookup('env','ELASTIC_STACK_PKG_VERSION') }}"
+package_hash: "{{ lookup('env','ELASTIC_STACK_PKG_HASH') }}"
+package_arch: "{{ lookup('env','ELASTIC_STACK_PKG_ARCH') }}"
+package_ext: "{{ lookup('env','ELASTIC_STACK_PKG_EXT') }}"
 
 package_url:  '{{ package_server }}/{{ package_ver }}-{{ package_hash }}/downloads'
 
@@ -33,11 +33,11 @@ install_as_root: false
 #----------------------------------------------------------------------------------------------------------------------
 # Section: Xpack
 
-install_xpack: "{{ lookup('env','INSTALL_XPACK')  | default('INSTALL_XPACK',false) }}" 
+#install_xpack: "{{ lookup('env','INSTALL_XPACK')  | default('INSTALL_XPACK',false) }}"
 xpack_package_url:  '{{ package_url }}/packs/x-pack/x-pack-{{ package_ver }}.zip'
-xpack_elastic_url:  '{{ package_url }}/elasticsearch-plugins/x-pack/x-pack-{{ package_ver }}.zip'
-xpack_kibana_url:   '{{ package_url }}/kibana-plugins/x-pack/x-pack-{{ package_ver }}.zip'
-xpack_logstash_url: '{{ package_url }}/logstash-plugins/x-pack/x-pack-{{ package_ver }}.zip'
+xpack_elasticsearch_package_url:  '{{ package_url }}/elasticsearch-plugins/x-pack/x-pack-{{ package_ver }}.zip'
+xpack_kibana_package_url:   '{{ package_url }}/kibana-plugins/x-pack/x-pack-{{ package_ver }}.zip'
+xpack_logstash_package_url: '{{ package_url }}/logstash-plugins/x-pack/x-pack-{{ package_ver }}.zip'
 
 #----------------------------------------------------------------------------------------------------------------------
 # Section: Elasticsearch
@@ -45,13 +45,13 @@ xpack_logstash_url: '{{ package_url }}/logstash-plugins/x-pack/x-pack-{{ package
 elasticsearch_package_url: '{{ package_url }}/elasticsearch/elasticsearch-{{ package_ver }}.{{ package_ext }}'
 
 # Elasticsearch Configuration Parameters (list of quoted strings)
-elasticsearch_config_params: 
-  - "network.host: 0.0.0.0"
+#elasticsearch_config_params:
+#  - "network.host: {{ current_host_ip }}"
 
 # If set to False other parameters may be combined/overwrite those set by the user, ex: multi-node setup
 elasticsearch_config_params_strict: False
 
-# If a file is set it takes higher precedence than above parameters 
+# If a file is set it takes higher precedence than above parameters
 # elasticsearch_config_params_file: ''
 
 #----------------------------------------------------------------------------------------------------------------------
@@ -59,10 +59,30 @@ elasticsearch_config_params_strict: False
 
 kibana_package_url: '{{ package_url }}/kibana/kibana-{{ package_ver }}-{{ package_arch }}.{{ package_ext }}'
 
+# Kibana Configuration Parameters (list of quoted strings)
+#kibana_config_params:
+#  - "server.host: {{ current_host_ip }}"
+
+# If set to False other parameters may be combined/overwrite those set by the user, ex: multi-node setup
+kibana_config_params_strict: False
+
+# If a file is set it takes higher precedence than above parameters
+# kibana_config_params_file: ''
+
 #----------------------------------------------------------------------------------------------------------------------
 # Section: Logstash
 
 logstash_package_url: '{{ package_url }}/logstash/logstash-{{ package_ver }}.{{ package_ext }}'
+
+# Logstash Configuration Parameters (list of quoted strings)
+#logstash_config_params:
+#  - "server.host: {{ current_host_ip }}"
+
+# If set to False other parameters may be combined/overwrite those set by the user, ex: multi-node setup
+logstash_config_params_strict: False
+
+# If a file is set it takes higher precedence than above parameters
+# logstash_config_params_file: ''
 
 #----------------------------------------------------------------------------------------------------------------------
 # Section: Filebeat

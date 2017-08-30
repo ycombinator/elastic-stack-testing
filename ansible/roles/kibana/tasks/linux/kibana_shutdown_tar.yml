@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Stop kibana
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# TODO: make a module to do this if one does not exist
+- name: Stop kibana daemon
+  shell: "ps -efw | grep kibana | grep -v grep | awk '{print $2}' | xargs kill -SIGTERM"
+  args:
+    executable: /bin/bash
+  tags: stop_kibana

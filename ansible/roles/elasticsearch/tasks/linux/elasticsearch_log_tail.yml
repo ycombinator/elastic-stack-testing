@@ -1,0 +1,29 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Log search
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# TODO: maybe make this handler, it fails if it is already running on the second time
+- name: Wait for log file to be present
+  wait_for:
+    path: '{{ elasticsearch_log_file }}'
+    timeout: '{{ elasticsearch_timeout }}'
+  become: '{{ elasticsearch_run_as_root | default(omit) }}'
+  tags: elasticsearch_log_check
+
+# TODO: throw error exception thrown for the jinja2 template
+- name: Wait for elasticsearch log string
+  shell: >-
+    timeout "{{ elasticsearch_timeout }}"
+    sed -r '/{%- if ait_args is defined -%}
+                {{ elasticsearch_log_find[ait_args.get('ait_log_searchstr')] }}
+             {%- elif ait_log_searchstr is defined -%}
+                {{ elasticsearch_log_find[ait_log_searchstr] }}
+             {%- endif -%}/q' <(tail -n 0 -f "{{ elasticsearch_log_file }}")
+  args:
+    executable: /bin/bash
+  become: '{{ elasticsearch_run_as_root | default(omit) }}'
+  tags: elasticsearch_log_check

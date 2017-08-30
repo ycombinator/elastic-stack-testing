@@ -1,3 +1,7 @@
+{# Template to create logstash.conf
+   Author: liza.dayoub@elastic.co
+#}
+
 input {
   file {
     path => "/var/log/syslog"
@@ -5,6 +9,13 @@ input {
   }
 }
 output {
-  elasticsearch { hosts => ["localhost:9200"] }
+  elasticsearch {
+    hosts => ["{{ current_host_ip }}:{{ elasticsearch_port }}"]
+{% if ait_logstash_conf_xpack is defined %}
+    {{ ait_logstash_conf_xpack }}
+{% elif ait_args is defined %}
+    {{ ait_args.get('ait_logstash_conf_xpack') }}
+{%- endif -%}
+  }
   stdout { codec => rubydebug }
 }

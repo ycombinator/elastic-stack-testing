@@ -1,0 +1,63 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Configure Kibana on Linux
+#
+# Set certain parameters in kibana configuration
+#
+# If a user specifies a file, it takes higher precedence
+# If a user specifies kibana_config_params_strict=True internal params are appended, otherwise they are appended
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: 'Kibana Configuration Save Original'
+  copy:
+    src: '{{ kibana_config_file }}'
+    dest: '{{ kibana_config_file }}.org'
+    remote_src: True
+    force: no
+  become: '{{ kibana_run_as_root | default(omit) }}'
+
+- name: 'Create Kibana Log Directory'
+  file:
+    path: '{{ kibana_log_dir }}'
+    state: directory
+    mode: 0777
+  become: true
+  tags: kibana_log_check
+
+- name: 'Kibana Configuration: Append'
+  lineinfile:
+    path: '{{ kibana_config_file }}'
+    insertafter: EOF
+    line: '{{ config_item }}'
+  with_items: '{{ kibana_config_params  }}'
+  loop_control:
+    loop_var: config_item
+  become: '{{ kibana_run_as_root | default(omit) }}'
+  when: kibana_config_params_file is not defined and
+        kibana_config_params is defined
+
+- name: 'Kibana Configuration: New File'
+  copy:
+    src: '{{ kibana_config_params_file }}'
+    dest: '{{ kibana_config_file }}'
+  become: '{{ kibana_run_as_root | default(omit) }}'
+  when: kibana_config_params_file is defined
+
+- name: 'kibana Configuration'
+  block:
+    - name: 'Set Network Host'
+      set_fact:
+        internal_kibana_config_params: |
+          server.host:  {{ current_host_ip }}
+          logging.dest: {{ kibana_log_file | trim }}
+          elasticsearch.url: http://{{ current_host_ip }}:{{ elasticsearch_port }}
+    - name: 'Add kibana Configuration'
+      blockinfile:
+        path: '{{ kibana_config_file }}'
+        marker: '# {mark} ANSIBLE MANAGED BLOCK KIBANA PARAMETERS'
+        insertafter: EOF
+        content: '{{ internal_kibana_config_params }}'
+      become: '{{ kibana_run_as_root | default(omit) }}'
+  when: not kibana_config_params_strict

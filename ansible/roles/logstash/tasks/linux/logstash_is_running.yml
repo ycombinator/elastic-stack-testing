@@ -1,0 +1,19 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Check if logstash is running
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: 'Verify Logstash Process Is Running'
+  block:
+    - name: 'Get Logstash Process'
+      shell: "ps -efw | grep logstash | grep -v grep | awk '{print $2}'"
+      args:
+        executable: /bin/bash
+      register: logstash_process_id
+    - name: 'Fail If Logstash Is Not Running'
+      fail:
+        msg: 'logstash is not running'
+      when: logstash_process_id.stdout == ""

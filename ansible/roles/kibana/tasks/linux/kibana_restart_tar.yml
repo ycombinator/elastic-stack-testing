@@ -1,0 +1,19 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Restart Kibana
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Restart Kibana
+  block:
+    - name: Stop Kibana
+      shell: "ps -efw | grep kibana | grep -v grep | awk '{print $2}' | xargs kill -SIGTERM"
+      args:
+        executable: /bin/bash
+    - name: Start Kibana
+      shell: '{{ kibana_exe }} &'
+      args:
+        executable: /bin/bash
+      async: 5
+      poll: 0

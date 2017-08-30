@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Remove Kibana X-Pack Configuration
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: 'Remove Kibana X-Pack Configuration'
+  blockinfile:
+    path: '{{ kibana_config_file }}'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK KIBANA XPACK PARAMETERS'
+    insertafter: EOF
+    content: ""
+  become: '{{ kibana_run_as_root | default(omit) }}'

@@ -5,10 +5,6 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- fail:
-    msg: "This role must have ait_role or ait_action defined"
-  when: ait_role is not defined and ait_action is not defined
-
 -  set_fact:
     ait_kibana_pkg_ext: '{{ kibana_package_ext |
                             regex_replace(".tar.gz", "tar") |
@@ -33,17 +29,16 @@
 - name: Include group task files
   include: '{{ lookup("first_found", kibana_task_files) }} ait_args={{ item.args }}'
   with_items: '{{ kibana_roles[ait_role] }}'
-  when: ait_role is defined
+  when: ait_role is defined and kibana_roles[ait_role] is defined
 
 # Include task files for individual use, keep in sync with vars/main.yml
 - name: Include individual task file
   include: '{{ item }}'
   with_first_found:
     - files:
-        - '{{ ansible_system | lower }}/{{ ait_action }}/kibana_{{ ait_action }}.yml'
-        - '{{ ansible_system | lower }}/{{ ait_action }}/kibana_{{ ait_action }}_{{ ait_kibana_pkg_ext }}.yml'
-        - '{{ ansible_system | lower }}/{{ ait_action }}/kibana_{{ ait_action }}_{{ ait_kibana_pkg_mgr | trim }}.yml'
-        - '{{ ansible_system | lower }}/{{ ait_action }}/kibana_{{ ait_action }}_{{ ait_kibana_srv_mgr | trim }}.yml'
-        - '{{ ansible_system | lower }}/{{ ait_action.split("_")[0] }}/kibana_{{ ait_action }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}_{{ ait_kibana_pkg_ext }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}_{{ ait_kibana_pkg_mgr | trim }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}_{{ ait_kibana_srv_mgr | trim }}.yml'
       skip: true
   when: ait_action is defined

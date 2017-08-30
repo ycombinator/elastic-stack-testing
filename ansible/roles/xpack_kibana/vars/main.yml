@@ -1,0 +1,32 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# kibana vars file
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+xpack_kibana_package: '{{ kibana_install_dir }}/kibana_{{ xpack_kibana_package_url | basename }}'
+
+# Role variables to run multiple role files in groupse use, one include
+# Must have role name (key), action and args that map to individual task files
+xpack_kibana_roles:
+  xpack_kibana_install_config_restart_verify:
+    - { action: 'xpack_kibana_install', parent: '', args: {} }
+    - { action: 'xpack_kibana_config',  parent: '', args: {} }
+    - { action: 'kibana_restart',  parent: 'kibana', args: {} }
+    - { action: 'kibana_log_tail', parent: 'kibana', args: {ait_log_searchstr: started} }
+    - { action: 'kibana_is_running', parent: 'kibana', args: {} }
+  xpack_kibana_rmconfig_uninstall_restart_verify:
+    - { action: 'xpack_kibana_config_remove', parent: '', args: {} }
+    - { action: 'xpack_kibana_uninstall', parent: '', args: {} }
+    - { action: 'kibana_restart',  parent: 'kibana', args: {} }
+    - { action: 'kibana_log_tail', parent: 'kibana', args: {ait_log_searchstr: started} }
+    - { action: 'kibana_is_running', parent: 'kibana', args: {} }
+
+# Task files for group use, keep in sync with tasks/main.yml except for parent tasks
+xpack_kibana_task_files:
+  - '{{ ansible_system | lower }}/{{ item.action }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}_{{ ait_kibana_pkg_ext }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}_{{ ait_kibana_pkg_mgr | trim }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}_{{ ait_kibana_srv_mgr | trim }}.yml'

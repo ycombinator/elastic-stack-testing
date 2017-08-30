@@ -16,6 +16,7 @@ elasticsearch_package: '/tmp/{{ elasticsearch_package_url | basename }}'
 elasticsearch_bin_dir: '/usr/share/elasticsearch/bin'
 elasticsearch_exe: '{{ elasticsearch_bin_dir }}/elasticsearch'
 elasticsearch_plugin_exe: '{{ elasticsearch_bin_dir }}/elasticsearch-plugin'
+elasticsearch_certgen_exe: '{{ elasticsearch_bin_dir }}/x-pack/certgen'
 
 # Elasticsearch logs
 elasticsearch_log_dir: '/var/log/elasticsearch'
@@ -24,3 +25,4 @@ elasticsearch_log_file: '{{ elasticsearch_log_dir }}/elasticsearch.log'
 # Elasticsearch config
 elasticsearch_config_dir: '/etc/elasticsearch'
 elasticsearch_config_file: '{{ elasticsearch_config_dir }}/elasticsearch.yml'
+elasticsearch_xpack_config_dir: '{{ elasticsearch_config_dir | trim }}/x-pack'

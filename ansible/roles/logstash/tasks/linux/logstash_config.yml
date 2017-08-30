@@ -1,0 +1,62 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Configure logstash on Linux
+#
+# Set certain parameters in logstash configuration
+#
+# If a user specifies a file, it takes higher precedence
+# If a user specifies logstash_config_params_strict=True internal params are appended, otherwise they are appended
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: 'logstash Configuration Save Original'
+  copy:
+    src: '{{ logstash_config_file }}'
+    dest: '{{ logstash_config_file }}.org'
+    remote_src: True
+    force: no
+  become: '{{ logstash_run_as_root | default(omit) }}'
+
+- name: 'Create logstash Log Directory'
+  file:
+    path: '{{ logstash_log_dir }}'
+    state: directory
+    mode: 0777
+  become: true
+  tags: logstash_log_check
+
+- name: 'logstash Configuration: Append'
+  lineinfile:
+    path: '{{ logstash_config_file }}'
+    insertafter: EOF
+    line: '{{ config_item }}'
+  with_items: '{{ logstash_config_params  }}'
+  loop_control:
+    loop_var: config_item
+  become: '{{ logstash_run_as_root | default(omit) }}'
+  when: logstash_config_params_file is not defined and
+        logstash_config_params is defined
+
+- name: 'logstash Configuration: New File'
+  copy:
+    src: '{{ logstash_config_params_file }}'
+    dest: '{{ logstash_config_file }}'
+  become: '{{ logstash_run_as_root | default(omit) }}'
+  when: logstash_config_params_file is defined
+
+- name: 'logstash Configuration'
+  block:
+    - name: 'Set Network Host'
+      set_fact:
+        internal_logstash_config_params: |
+          server.host:  {{ current_host_ip }}
+          logging.dest: {{ logstash_log_file | trim }}
+    - name: 'Add logstash Configuration'
+      blockinfile:
+        path: '{{ logstash_config_file }}'
+        marker: '# {mark} ANSIBLE MANAGED BLOCK logstash PARAMETERS'
+        insertafter: EOF
+        content: '{{ internal_logstash_config_params }}'
+      become: '{{ logstash_run_as_root | default(omit) }}'
+  when: not logstash_config_params_strict

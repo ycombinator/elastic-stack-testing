@@ -1,0 +1,20 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Elasticsearch xpack config file
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+- name: Create instances.yml
+  template:
+    src: "{{ lookup('env','ANSIBLE_TEMPLATES') }}/instances.j2"
+    dest: "{{ elasticsearch_xpack_config_dir }}/instances.yml"
+
+- name: Run Certgen
+  shell: "{{ elasticsearch_certgen_exe }} -in instances.yml -out {{ elasticsearch_xpack_config_dir }}/certificate-bundle.zip"
+  register: output
+
+- name: Extract Certs Package 
+  unarchive:
+    src: "{{ elasticsearch_xpack_config_dir }}/certificate-bundle.zip"
+    dest: "{{ elasticsearch_xpack_config_dir }}"
+    remote_src: True

@@ -1,0 +1,58 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Configure elasticsearch on Linux
+#
+# Set certain parameters in elasticsearch configuration
+#
+# If a user specifies a file, it takes higher precedence
+# If a user specifies elasticsearch_config_params_strict=True internal params are appended, otherwise they are appended
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: 'Elasticsearch Configuration Save Original'
+  copy:
+    src: '{{ elasticsearch_config_file }}'
+    dest: '{{ elasticsearch_config_file }}.org'
+    remote_src: True
+    force: no
+  become: '{{ elasticsearch_run_as_root | default(omit) }}'
+
+- name: 'Elasticsearch Configuration: Append'
+  lineinfile:
+    path: '{{ elasticsearch_config_file }}'
+    insertafter: EOF
+    line: '{{ config_item }}'
+  with_items: '{{ elasticsearch_config_params  }}'
+  loop_control:
+    loop_var: config_item
+  become: '{{ elasticsearch_run_as_root | default(omit) }}'
+  when: elasticsearch_config_params_file is not defined and
+        elasticsearch_config_params is defined
+
+- name: 'Elasticsearch Configuration: New File'
+  copy:
+    src: '{{ elasticsearch_config_params_file }}'
+    dest: '{{ elasticsearch_config_file }}'
+  become: '{{ elasticsearch_run_as_root | default(omit) }}'
+  when: elasticsearch_config_params_file is defined
+
+- name: 'Elasticsearch Configuration'
+  block:
+    - name: 'Set Network Host'
+      set_fact:
+        internal_elasticsearch_config_params: "network.host: {{ current_host_ip }}"
+    - name: 'Set Discovery Zen Parameters For Multiple Nodes'
+      set_fact:
+        internal_elasticsearch_config_params: '{{ internal_elasticsearch_config_params }} |
+                                              combine("discovery.zen.ping.unicast.hosts: {{ host_ip_list }}") |
+                                              combine("discovery.zen.minimum_master_nodes: {{ nodes_in_cluster }}")'
+      when: nodes_in_cluster|int > 1
+    - name: 'Add Elasticsearch Configuration'
+      blockinfile:
+        path: '{{ elasticsearch_config_file }}'
+        marker: '# {mark} ANSIBLE MANAGED BLOCK ELASTICSEARCH PARAMETERS'
+        insertafter: EOF
+        content: '{{ internal_elasticsearch_config_params }}'
+      become: '{{ elasticsearch_run_as_root | default(omit) }}'
+  when: not elasticsearch_config_params_strict

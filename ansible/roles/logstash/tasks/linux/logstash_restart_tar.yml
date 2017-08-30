@@ -1,0 +1,20 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Start elasticsearch
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Restart Logstash
+  block:
+    - name: Stop Logstash
+      shell: "ps -efw | grep logstash | grep -v grep | awk '{print $2}' | xargs kill -SIGTERM"
+      args:
+        executable: /bin/bash
+    - name: Start Logstash
+      shell: '{{ logstash_exe }} -f {{ logstash_conf_path }} &'
+      args:
+        executable: /bin/bash
+      async: 5
+      poll: 0

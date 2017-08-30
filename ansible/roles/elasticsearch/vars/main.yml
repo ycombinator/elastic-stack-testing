@@ -9,29 +9,44 @@
 # Timeout
 elasticsearch_timeout: 60
 
+# Extension tyoes
+elasticsearch_linux_package_types:
+  - '.tar.gz'
+  - '.deb'
+  - '.rpm'
+
+# Extension types
+elasticsearch_windows_package_types:
+  - '.msi'
+  - '.zip'
+
+elasticsearch_username: elastic
+elasticsearch_password: changeme
+elasticsearch_port: 9200
+
 # Extract package extension
 elasticsearch_package_ext: "{{ elasticsearch_package_url | splitext | last | regex_replace('.gz', '.tar.gz') }}"
 
 # Role variables to run multiple role files in groupse use, one include
 # Must have role name (key), action and args that map to individual task files
 elasticsearch_roles:
-  install:
-    - { action: 'install', args: {} }
-    - { action: 'config', args: {} }
-    - { action: 'startup', args: {} }
-    - { action: 'log_tail', args: {ait_log_searchstr: started} }
-    - { action: 'api_get_info', args: {} }
-  uninstall:
-    - { action: 'shutdown', args: {} }
-    - { action: 'uninstall', args: {} }
+  elasticsearch_install_config_startup_verify:
+    - { action: 'elasticsearch_install', args: {} }
+    - { action: 'elasticsearch_config', args: {} }
+    - { action: 'elasticsearch_startup', args: {} }
+    - { action: 'elasticsearch_log_tail', args: {ait_log_searchstr: started} }
+    - { action: 'elasticsearch_api_get_info', args: {} }
+  elasticsearch_shutdown_uninstall_verify:
+    - { action: 'elasticsearch_shutdown', args: {} }
+    - { action: 'elasticsearch_uninstall', args: {} }
+    - { action: 'elasticsearch_is_not_running', args: {} }
 
 # Task files for group use, keep in sync with tasks/main.yml
 elasticsearch_task_files:
-  - '{{ ansible_system | lower }}/{{ item.action }}/elasticsearch_{{ item.action }}.yml'
-  - '{{ ansible_system | lower }}/{{ item.action }}/elasticsearch_{{ item.action }}_{{ ait_elasticsearch_pkg_ext }}.yml'
-  - '{{ ansible_system | lower }}/{{ item.action }}/elasticsearch_{{ item.action }}_{{ ait_elasticsearch_pkg_mgr | trim }}.yml'
-  - '{{ ansible_system | lower }}/{{ item.action }}/elasticsearch_{{ item.action }}_{{ ait_elasticsearch_srv_mgr | trim }}.yml'
-  - '{{ ansible_system | lower }}/{{ item.action.split("_")[0] }}/elasticsearch_{{ item.action }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_elasticsearch_pkg_ext }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_elasticsearch_pkg_mgr | trim }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_elasticsearch_srv_mgr | trim }}.yml'
 
 # elasticsearch log search strings
 elasticsearch_log_find:

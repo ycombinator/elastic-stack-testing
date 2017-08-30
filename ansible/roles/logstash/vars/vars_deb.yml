@@ -24,3 +24,6 @@ logstash_log_file: '{{ logstash_log_dir }}/logstash.log'
 # logstash config
 logstash_config_dir: '/etc/logstash'
 logstash_config_file: '{{ logstash_config_dir }}/logstash.yml'
+
+# logstash conf
+logstash_conf_path: '{{ logstash_config_dir }}/logstash.conf'

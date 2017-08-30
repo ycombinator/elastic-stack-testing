@@ -1,0 +1,32 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Install kibana .tar package
+#
+# Author: liza.dayoub@elastic.co
+#
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Get Logstash Plugins
+  shell: "{{ logstash_plugin_exe }} list"
+  register: list_plugins_before
+
+- name: Install Logstash X-Pack
+  block:
+    - name: Download Logstash X-Pack Package
+      get_url:
+        url: '{{ xpack_logstash_package_url }}'
+        dest: '{{ xpack_logstash_package }}'
+        timeout: '{{ url_timeout }}'
+    - name: Install Logstash X-Pack
+      shell: '{{ logstash_plugin_exe }} install file://{{ xpack_logstash_package }}'
+      register: xpack_logstash_output
+    - debug:
+        msg: '{{ xpack_logstash_output }}'
+    - name: Get Logstash Plugins
+      shell: '{{ logstash_plugin_exe }} list'
+      register: list_plugins_after
+    - name: Fail If Logstash X-Pack Is Not Installed
+      fail:
+      when: '"x-pack" not in list_plugins_after.stdout_lines'
+  when: '"x-pack" not in list_plugins_before.stdout_lines'

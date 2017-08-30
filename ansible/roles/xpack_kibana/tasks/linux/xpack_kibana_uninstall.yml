@@ -1,0 +1,25 @@
+#----------------------------------------------------------------------------------------------------------------------
+# If installed, remove Kibana X-Pack
+#
+# Author: liza.dayoub@elastic.co
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Get Kibana Plugins
+  shell: "{{ kibana_plugin_exe }} list"
+  register: list_plugins_before
+
+- name: If Kibana X-Pack Present, Uninstall
+  block:
+    - name: Remove Kibana X-Pack
+      shell: '{{ kibana_plugin_exe }} remove x-pack'
+      register: output
+    - name: Get Kibana Plugins
+      shell: "{{ kibana_plugin_exe }} list"
+      register: list_plugins_after
+    - name: Fail If Kibana X-Pack Is Installed
+      fail:
+        msg: 'x-pack is installed'
+      when: '"x-pack" in list_plugins_after.stdout'
+  when: '"x-pack" in list_plugins_before.stdout'

@@ -1,0 +1,21 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# logstash tasks
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+# Include task files in group use
+- name: Include X-Pack Logstash Group Tasks
+  include: '{{ lookup("first_found", xpack_logstash_task_files) }} ait_args={{ item.args }}'
+  with_items: '{{ xpack_logstash_roles[ait_role] }}'
+  when: ait_role is defined and xpack_logstash_roles[ait_role] is defined
+
+# Include task files for individual use, keep in sync with vars/main.yml
+- name: Include X-Pack Logstash Individual Task 
+  include: '{{ item }}'
+  with_first_found:
+    - files:
+        - '{{ ansible_system | lower }}/{{ ait_action }}.yml'
+      skip: true
+  when: ait_action is defined

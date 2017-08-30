@@ -29,21 +29,24 @@
 - name: Include vars files
   include_vars: 'vars_{{ ait_logstash_pkg_ext }}.yml'
 
+#- debug:
+#    msg: '{{ logstash_task_files }}'
+#  with_items: '{{ logstash_roles[ait_role] }}'
+
 # Include task files in group use
 - name: Include group task files
   include: '{{ lookup("first_found", logstash_task_files) }} ait_args={{ item.args }}'
   with_items: '{{ logstash_roles[ait_role] }}'
-  when: ait_role is defined
+  when: ait_role is defined and logstash_roles[ait_role] is defined
 
 # Include task files for individual use, keep in sync with vars/main.yml
 - name: Include individual task file
   include: '{{ item }}'
   with_first_found:
     - files:
-        - '{{ ansible_system | lower }}/{{ ait_action }}/logstash_{{ ait_action }}.yml'
-        - '{{ ansible_system | lower }}/{{ ait_action }}/logstash_{{ ait_action }}_{{ ait_logstash_pkg_ext }}.yml'
-        - '{{ ansible_system | lower }}/{{ ait_action }}/logstash_{{ ait_action }}_{{ ait_logstash_pkg_mgr | trim }}.yml'
-        - '{{ ansible_system | lower }}/{{ ait_action }}/logstash_{{ ait_action }}_{{ ait_logstash_srv_mgr | trim }}.yml'
-        - '{{ ansible_system | lower }}/{{ ait_action.split("_")[0] }}/logstash_{{ ait_action }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}_{{ ait_logstash_pkg_ext }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}_{{ ait_logstash_pkg_mgr | trim }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}_{{ ait_logstash_srv_mgr | trim }}.yml'
       skip: true
   when: ait_action is defined

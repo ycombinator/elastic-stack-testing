@@ -1,0 +1,23 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Copy conf logstash on Linux
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Copy logstash.conf File
+  template:
+    src: "{{ lookup('env','ANSIBLE_TEMPLATES') }}/logstash-conf.j2"
+    dest: '{{ logstash_conf_path }}'
+  become: '{{ logstash_run_as_root | default(omit) }}'
+
+- name: Check logstash.conf Has Been Copied
+  block:
+    - name: Get logstash.conf stats
+      stat:
+        path: '{{ logstash_conf_path }}'
+      register: logstash_conf_file
+    - name: Fail If logstash.conf Does Not Exist
+      fail:
+        msg: '{{ logstash_conf_path }} does not exist'
+      when: not logstash_conf_file.stat.exists

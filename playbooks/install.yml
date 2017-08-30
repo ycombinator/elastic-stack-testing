@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------------------------------------------------------
-# Playbook: 
+# Playbook:
 #
 # Author: liza.dayoub@elastic.co
 #----------------------------------------------------------------------------------------------------------------------
@@ -14,19 +14,32 @@
   tasks:
 
      - include_role:
-         name: 'elasticsearch'
+         name: elasticsearch
        vars:
-         ait_role: 'install'
-       tags: 'install_elasticsearch'
+         ait_role: elasticsearch_install_config_startup_verify
 
      - include_role:
-         name: 'kibana'
+         name: kibana
        vars:
-         ait_role: 'install'
-       tags: 'install_kibana'
+         ait_role: kibana_install_config_startup_verify
 
      - include_role:
-         name: 'logstash'
+         name: logstash
        vars:
-         ait_role: 'install'
-       tags: 'install_logstash'
+         ait_role: logstash_install_config_startup_verify
+    
+     - include_role:
+         name: xpack_elasticsearch
+       vars:
+         ait_role: xpack_elasticsearch_install_gencert_config_restart_verify
+    
+     - include_role:
+         name: xpack_kibana
+       vars:
+         ait_role: xpack_kibana_install_config_restart_verify
+       tags: install_xpack_kibana
+    
+     - include_role:
+         name: xpack_logstash
+       vars:
+         ait_role: xpack_logstash_install_config_restart_verify

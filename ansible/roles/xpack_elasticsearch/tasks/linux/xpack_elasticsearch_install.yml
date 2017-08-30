@@ -1,0 +1,32 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Install X-Pack Elasticsearch
+#
+# Author: liza.dayoub@elastic.co
+#
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Get Elasticsearch Plugins
+  shell: "{{ elasticsearch_plugin_exe }} list"
+  register: list_plugins_before
+
+- name: Install Elasticsearch X-Pack
+  block:
+    - name: Download Elasticsearch X-Pack Package
+      get_url:
+        url: '{{ xpack_elasticsearch_package_url }}'
+        dest: '{{ xpack_elasticsearch_package }}'
+        timeout: '{{ url_timeout }}'
+    - name: Install Elasticsearch X-Pack
+      shell: '{{ elasticsearch_plugin_exe }} install file://{{xpack_elasticsearch_package }} --batch'
+      register: xpack_elasticsearch_output
+    - debug:
+        msg: '{{ xpack_elasticsearch_output }}'
+    - name: Get Elasticsearch Plugins
+      shell: '{{ elasticsearch_plugin_exe }} list'
+      register: list_plugins_after
+    - name: Fail If Elasticsearch X-Pack Is Not Installed
+      fail:
+      when: '"x-pack" not in list_plugins_after.stdout_lines'
+  when: '"x-pack" not in list_plugins_before.stdout_lines'

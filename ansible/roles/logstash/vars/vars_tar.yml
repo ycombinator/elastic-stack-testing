@@ -32,6 +32,4 @@ logstash_log_dir: '{{ logstash_rootdir | trim }}/logs'
 logstash_log_file: '{{ logstash_log_dir }}/logstash-plain.log'
 
 # logstash conf
-logstash_conf: '/tmp/logstash.conf'
-logstash_conf_local: "{{ lookup('pipe', 'pwd') }}/logstash.conf"
-logstash_conf_contents: "{{ lookup('file', logstash_conf_local ) }}"
+logstash_conf_path: '{{ logstash_config_dir }}/logstash.conf'

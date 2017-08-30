@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Elasticsearch xpack config file
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+
+- name: 'Remove Elasticsearch X-Pack Configuration'
+  blockinfile:
+    path: '{{ elasticsearch_config_file }}'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK ELASTICSEARCH XPACK PARAMETERS'
+    insertafter: EOF
+    content: ""
+  become: '{{ elasticsearch_run_as_root | default(omit) }}'
