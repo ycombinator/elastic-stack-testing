@@ -11,12 +11,14 @@ Elastic Stack: Automated Integration Testing (AIT)
 
 ## Directory Structure
 
+```
 integration-testing/
   aitenv.sh        environment variable setup file
   ansible/         directory for Ansible 
   playbooks/       Ansible playbooks 
   tests/           test scripts
   vm/              automated VM files
+```
  
 ## Environment Set Up
 
