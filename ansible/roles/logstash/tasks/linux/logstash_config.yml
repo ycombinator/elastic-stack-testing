@@ -59,4 +59,4 @@
         insertafter: EOF
         content: '{{ internal_logstash_config_params }}'
       become: '{{ logstash_run_as_root | default(omit) }}'
-  when: not logstash_config_params_strict
+  when: logstash_config_params_strict is not defined or not logstash_config_params_strict 

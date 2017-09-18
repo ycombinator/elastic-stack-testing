@@ -6,10 +6,16 @@
 
 ---
 url_timeout: 60
-nodes_in_cluster: "{{ uut | length }}"
+nodes_in_cluster: "{{ hostvars | length }}"
 vm_max_map_count: 262144
 file_descriptor_limit: 65536
 vagrant_dirs:
   'windows': c:\vagrant
   'linux': /vagranelastic_pkgt
 current_host_ip: "{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}"
+install_dirs:
+  'tar.gz': '/tmp'
+  'zip':    'c:\temp'
+install_dir: '{{ install_dirs[package_ext] }}'
+install_as_root: false
+

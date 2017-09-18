@@ -55,4 +55,4 @@
         insertafter: EOF
         content: '{{ internal_elasticsearch_config_params }}'
       become: '{{ elasticsearch_run_as_root | default(omit) }}'
-  when: not elasticsearch_config_params_strict
+  when: elasticsearch_config_params_strict is not defined or not elasticsearch_config_params_strict

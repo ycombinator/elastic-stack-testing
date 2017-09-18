@@ -60,4 +60,4 @@
         insertafter: EOF
         content: '{{ internal_kibana_config_params }}'
       become: '{{ kibana_run_as_root | default(omit) }}'
-  when: not kibana_config_params_strict
+  when: kibana_config_params_strict is not defined or not kibana_config_params_strict

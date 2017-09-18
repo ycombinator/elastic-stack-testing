@@ -5,12 +5,14 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
--  set_fact:
+- name: Set Elasticsearch Package Extension
+  set_fact:
     ait_elasticsearch_pkg_ext: '{{ elasticsearch_package_ext |
                                    regex_replace(".tar.gz", "tar") |
                                    regex_replace( "\.", "") }}'
 
-- set_fact:
+- name: Set Elasticsearch Package Manager
+  set_fact:
     ait_elasticsearch_pkg_mgr: '{%- if ait_elasticsearch_pkg_ext == "tar" or ait_elasticsearch_pkg_ext == "zip" -%}
                                   {{ ait_elasticsearch_pkg_ext }}
                                 {%- else -%}
@@ -22,17 +24,18 @@
                                   {{ ansible_service_mgr }}
                                 {%- endif -%}'
 
-- name: Include vars files
+- name: Include Elasticsearch Variables 
   include_vars: 'vars_{{ ait_elasticsearch_pkg_ext }}.yml'
 
 # Include task files in group use
-- name: Include group task files
+- name: Include Elasticsearch Group Tasks 
   include: '{{ lookup("first_found", elasticsearch_task_files) }} ait_args={{ item.args }}'
   with_items: '{{ elasticsearch_roles[ait_role] }}'
   when: ait_role is defined and elasticsearch_roles[ait_role] is defined
 
 # Include task files for individual use, keep in sync with vars/main.yml
-- name: Include individual task file
+# ansible facts should not be disabled
+- name: Include Elasticsearch Individual Tasks 
   include: '{{ item }}'
   with_first_found:
     - files:

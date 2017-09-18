@@ -33,8 +33,8 @@ VAGRANT_DEFAULT_CPU = "4"                            # To set use env VAGRANT_CP
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  if ENV['VAGRANT_BOX']
-    config.vm.box = ENV['VAGRANT_BOX']
+  if ENV['ES_BUILD_VAGRANT_BOX']
+    config.vm.box = ENV['ES_BUILD_VAGRANT_BOX']
   else
     config.vm.box = VAGRANT_DEFAULT_BOX
   end
@@ -46,14 +46,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provider :virtualbox do |vb|
 
-    if ENV['VAGRANT_MEM']
-      vb.memory = ENV['VAGRANT_MEM']
+    if ENV['ES_BUILD_VAGRANT_MEM']
+      vb.memory = ENV['ES_BUILD_VAGRANT_MEM']
     else
       vb.memory = VAGRANT_DEFAULT_MEM
     end
 
-    if ENV['VAGRANT_CPU']
-      vb.cpus = ENV['VAGRANT_CPU']
+    if ENV['ES_BUILD_VAGRANT_CPU']
+      vb.cpus = ENV['ES_BUILD_VAGRANT_CPU']
     else
       vb.cpus = VAGRANT_DEFAULT_CPU
     end
@@ -64,15 +64,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.provision "shell", inline: $script, privileged: true
   end
 
-  if ENV['VAGRANT_ANSIBLE_PLAYBOOK']
+  if ENV['ES_BUILD_ANSIBLE_PLAYBOOK']
     config.vm.provision "ansible" do |ansible|
       ansible_host = "vagrant_vm_localhost"
+      ansible_var_file = ENV['WORKSPACE'] + "/vars.yml"
       config.vm.define ansible_host 
       ansible.extra_vars = {
-        "uut" => ansible_host 
+        "uut" => ansible_host,  
+        "es_var_file" => ansible_var_file 
       }
       ansible.verbose = "v"
-      ansible.playbook =  ENV['VAGRANT_ANSIBLE_PLAYBOOK'] 
+      ansible.playbook =  ENV['ES_BUILD_ANSIBLE_PLAYBOOK'] 
     end 
   end
 end

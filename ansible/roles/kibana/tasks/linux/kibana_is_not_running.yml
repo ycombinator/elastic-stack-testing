@@ -12,6 +12,10 @@
       args:
         executable: /bin/bash
       register: kibana_process_id
+      until: kibana_process_id.stdout == ""
+      retries: 3 
+      delay: 2
+      ignore_errors: yes
     - name: 'Fail If Kibana Process Is Running'
       fail:
         msg: 'kibana is running'

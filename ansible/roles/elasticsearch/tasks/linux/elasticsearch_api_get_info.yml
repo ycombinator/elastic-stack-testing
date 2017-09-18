@@ -7,13 +7,14 @@
 ---
 
 
-- name: Check Elasticsearch X-Pack is installed
+- name: Check If Elasticsearch X-Pack Is Installed
   shell: "{{ elasticsearch_plugin_exe }} list"
   register: list_plugins
 
 - name: Run GET query on Elasticsearch
   block:
-    - uri:
+    - name: Elasticsearch HTTP GET ?pretty 
+      uri:
         url: "http://{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}:{{ elasticsearch_port }}/?pretty"
         method: GET
         return_content: yes
@@ -21,12 +22,12 @@
       register: elasticsearch_api_output
     - debug:
         msg: '{{ elasticsearch_api_output.json.version.number }}'
-  tags: start_elasticsearch, elasticsearch_query
   when: '"x-pack" not in list_plugins.stdout_lines'
 
 - name: Run GET query on Elasticsearch X-Pack
   block:
-    - uri:
+    - name: Elasticsearch HTTPS GET ?pretty 
+      uri:
         url: "https://{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}:{{ elasticsearch_port }}/?pretty"
         method: GET
         user: "{{ elasticsearch_username }}"
@@ -37,5 +38,4 @@
       register: elasticsearch_api_output
     - debug:
         msg: '{{ elasticsearch_api_output.json.version.number }}'
-  tags: start_elasticsearch, elasticsearch_query
   when: '"x-pack" in list_plugins.stdout_lines'
