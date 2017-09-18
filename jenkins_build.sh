@@ -27,9 +27,6 @@ if [ ! -z "$ES_BUILD_ENV_SH" ]; then
     source "${WORKSPACE}/ES_BUILD_ENV_SH"
 fi
 
-echo "Activate python venv"
-# Activate env
-pyenv activate ${WORKSPACE}/integration-testing-env/bin/activate
 echo "Install python packages"
 # Install packages
 pip install -r requirements.txt
@@ -39,6 +36,11 @@ pip list --format=columns
 # Create build vars file for ansible
 echo "Run script to build ansible variables from env"
 python ${AIT_SCRIPTS}/python/ansible_es_build_vars.py
+
+if [ $? -ne 0 ]; then
+  echo "FAILED! Did not create ansible build variables!"
+  exit 1
+fi
 
 echo "Create VM and run playbook"
 if [ ! -z "$ES_BUILD_VAGRANT_BOX" ]; then
@@ -51,8 +53,5 @@ elif [ ! -z "$ES_BUILD_AWS_AMI" ]; then
 fi 
 
 ${AIT_SCRIPTS}/shell/destroy_vagrant_vm.sh
-
-echo "Deactivate python venv"
-pyenv deactivate
 
 exit $EXIT_CODE
