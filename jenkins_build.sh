@@ -27,11 +27,9 @@ if [ ! -z "$ES_BUILD_ENV_SH" ]; then
     source "${WORKSPACE}/ES_BUILD_ENV_SH"
 fi
 
-echo "Create and activate python venv"
-# Create python virtual env
-python3 -m venv ${WORKSPACE}/integration-testing-env 
+echo "Activate python venv"
 # Activate env
-source ${WORKSPACE}/integration-testing-env/bin/activate
+pyenv activate ${WORKSPACE}/integration-testing-env/bin/activate
 echo "Install python packages"
 # Install packages
 pip install -r requirements.txt
@@ -55,6 +53,6 @@ fi
 ${AIT_SCRIPTS}/shell/destroy_vagrant_vm.sh
 
 echo "Deactivate python venv"
-deactivate
+pyenv deactivate
 
 exit $EXIT_CODE
