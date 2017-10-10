@@ -1,0 +1,55 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Playbook:
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- hosts: localhost 
+  gather_facts: false
+  connection: local
+  vars_files:
+    - "{{ es_var_file }}"
+  vars: 
+     - ini_section: "kibana_functional_tests"
+     - ini_file: "test_suite.ini"
+     - git_repo: "{{ lookup('ini', 'git_repo section={{ ini_section }} file={{ ini_file }}') }}"
+     - git_version: "{{ lookup('ini', 'git_version section={{ ini_section }} file={{ ini_file }}') }}"
+     - dest_rootdir: "{{ lookup('env','WORKSPACE') }}" 
+     - dest_dir: "{{ dest_rootdir }}/{{ (git_repo | basename | splitext)[0] }}"
+  pre_tasks:
+     - name: 'If env(WORKSPACE) is empty, set rootdir to /tmp'
+       set_fact:
+         dest_rootdir: '/tmp'
+       when: dest_rootdir == ""
+     - name: 'Set test_cmd from ini file'
+       set_fact:
+         test_cmd: "{{ lookup('ini', 'test_cmd section={{ ini_section }} file={{ ini_file }}') }}"
+  roles: 
+    - kibana
+    - elasticsearch
+  tasks:
+     - name: 'Checkout repo, run tests and remove directory'
+       block: 
+         - name: 'Check out a git repository'
+           local_action: git
+           args:
+             repo: "{{ git_repo }}"
+             dest: "{{ dest_dir }}" 
+             version: "{{ git_version }}" 
+         - name: 'Install node version'
+           local_action: shell 'nvm install "$(cat .node-version)"'
+           args: 
+             chdir: "{{ dest_dir }}" 
+         - name: 'Install packages based on package.json'
+           local_action: npm
+           args: 
+             path: "{{ dest_dir }}" 
+         - name: 'Run Tests Scripts'
+           local_action: shell "{{ test_cmd }}" 
+           args:
+             chdir: "{{ dest_dir }}" 
+       always:
+         - name: 'Remove directory'
+           file:
+             state: absent

@@ -42,16 +42,32 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-echo "Create VM and run playbook"
+echo "Create VM and run playbook to install/configure products under test"
 if [ ! -z "$ES_BUILD_VAGRANT_BOX" ]; then
     ${AIT_SCRIPTS}/shell/start_vagrant_vm.sh
-    EXIT_CODE=$?
+    INSTALL_EXIT_CODE=$?
 elif [ ! -z "$ES_BUILD_AWS_AMI" ]; then
     # TODO: Add EC2 Launch
-    echo "Not yet implemented" 
+    echo "Not yet implemented, exiting" 
     exit 1
 fi 
 
+if [ ! -z $ES_BUILD_TESTS ]; then
+    if [ ! -z $INSTALL_EXIT_CODE ] && [ $INSTALL_EXIT_CODE -eq 0 ]; then
+        echo "Run Tests"
+    fi
+fi
+
+echo "Destroy VM"
 ${AIT_SCRIPTS}/shell/destroy_vagrant_vm.sh
 
-exit $EXIT_CODE
+echo "Exit shell script"
+if [ ! -z $INSTALL_EXIT_CODE ] && [ $INSTALL_EXIT_CODE -eq 0 ]; then
+    if [ -z $ES_BUILD_TESTS ]; then
+        exit 0
+    fi
+    if [ ! -z $TEST_EXIT_CODE ] && [ $TEST_EXIT_CODE -eq 0 ]; then
+        exit 0 
+    fi
+fi
+exit 1
