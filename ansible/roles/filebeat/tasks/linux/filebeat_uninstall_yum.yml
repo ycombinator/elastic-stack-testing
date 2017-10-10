@@ -1,0 +1,13 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Uninstall Linux filebeat packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Uninstall filebeat rpm package
+  yum:
+    name: 'filebeat'
+    state: absent
+  become: true
+  tags: uninstall_filebeat

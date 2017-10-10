@@ -1,0 +1,20 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Install Linux filebeat packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Download filebeat package
+  get_url:
+    url: '{{ filebeat_package_url }}'
+    dest: '{{ filebeat_package }}'
+    timeout: '{{ url_timeout }}'
+  tags: package_filebeat
+
+- name: Install filebeat deb package
+  apt:
+    deb: '{{ filebeat_package }}'
+  become: true
+  tags: install_filebeat

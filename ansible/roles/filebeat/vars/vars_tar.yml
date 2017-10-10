@@ -1,0 +1,30 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Variables for tar package
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Run as root
+filebeat_run_as_root: '{{ install_as_root }}'
+
+# filebeat install directory
+filebeat_install_dir: "{{ install_dir }}"
+
+# filebeat package
+filebeat_package: '{{ filebeat_install_dir }}/{{ filebeat_package_url | basename }}'
+
+# filebeat root directory
+filebeat_rootdir: '{{ filebeat_package.split(filebeat_package_ext)[0] | trim }}'
+
+# filebeat bin
+filebeat_exe: '{{ filebeat_rootdir | trim }}/filebeat'
+
+# filebeat config
+filebeat_config_dir: '{{ filebeat_rootdir | trim }}'
+filebeat_config_file: '{{ filebeat_config_dir }}/filebeat.yml'
+
+# filebeat log
+filebeat_log_dir: '{{ filebeat_rootdir | trim }}/logs'
+filebeat_log_file: '{{ filebeat_log_dir }}/filebeat'

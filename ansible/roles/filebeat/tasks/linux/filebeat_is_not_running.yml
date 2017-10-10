@@ -1,0 +1,19 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Check if filebeat is not running
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: 'Verify filebeat Is Not Running'
+  block:
+    - name: 'Get filebeat Process'
+      shell: "ps -efw | grep filebeat | grep -v grep | awk '{print $2}'"
+      args:
+        executable: /bin/bash
+      register: filebeat_process_id
+    - name: 'Fail filebeat Process Is Running'
+      fail:
+        msg: 'filebeat is running'
+      when: filebeat_process_id.stdout != ""

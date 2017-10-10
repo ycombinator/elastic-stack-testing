@@ -1,0 +1,44 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# filebeat vars file
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Timeout
+filebeat_timeout: 60
+
+# Extension tyoes
+filebeat_linux_package_types:
+  - '.tar.gz'
+  - '.deb'
+  - '.rpm'
+
+# Extension types
+filebeat_windows_package_types:
+  - '.msi'
+  - '.zip'
+
+# Extract package extension
+filebeat_package_ext: "{{ filebeat_package_url | splitext | last | regex_replace('.gz', '.tar.gz') }}"
+
+# Role variables to run multiple role files in groupse use, one include
+# Must have role name (key), action and args that map to individual task files
+filebeat_roles:
+  filebeat_install_config_startup_verify:
+    - { action: 'filebeat_install', args: {} }
+    - { action: 'filebeat_config', args: {} }
+    - { action: 'filebeat_startup', args: {} }
+    - { action: 'filebeat_is_running', args: {} }
+  filebeat_shutdown_uninstall_verify:
+    - { action: 'filebeat_shutdown', args: {} }
+    - { action: 'filebeat_uninstall', args: {} }
+    - { action: 'filebeat_is_not_running', args: {} }
+
+# Task files for group use, keep in sync with tasks/main.yml
+filebeat_task_files:
+  - '{{ ansible_system | lower }}/{{ item.action }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_filebeat_pkg_ext }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_filebeat_pkg_mgr | trim }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_filebeat_srv_mgr | trim }}.yml'

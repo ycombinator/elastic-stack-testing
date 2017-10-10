@@ -1,0 +1,47 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# filebeat tasks
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Set filebeat Package Extension
+  set_fact:
+    ait_filebeat_pkg_ext: '{{ filebeat_package_ext |
+                           regex_replace(".tar.gz", "tar") |
+                           regex_replace( "\.", "") }}'
+
+- name: Set filebeat Package Manager
+  set_fact:
+    ait_filebeat_pkg_mgr: '{%- if ait_filebeat_pkg_ext == "tar" or ait_filebeat_pkg_ext == "zip" -%}
+                                  {{ ait_filebeat_pkg_ext }}
+                           {%- else -%}
+                                  {{ ansible_pkg_mgr }}
+                           {%- endif -%}'
+    ait_filebeat_srv_mgr: '{%- if ait_filebeat_pkg_ext == "tar" or ait_filebeat_pkg_ext == "zip" -%}
+                                  {{ ait_filebeat_pkg_ext }}
+                           {%- else -%}
+                                  {{ ansible_service_mgr }}
+                          {%- endif -%}'
+
+- name: Include filebeat Variables
+  include_vars: 'vars_{{ ait_filebeat_pkg_ext }}.yml'
+
+# Include task files in group use
+- name: Include filebeat Group Tasks
+  include: '{{ lookup("first_found", filebeat_task_files) }} ait_args={{ item.args }}'
+  with_items: '{{ filebeat_roles[ait_role] }}'
+  when: ait_role is defined and filebeat_roles[ait_role] is defined
+
+# Include task files for individual use, keep in sync with vars/main.yml
+# ansible facts should not be disabled
+- name: Include filebeat Individual Tasks
+  include: '{{ item }}'
+  with_first_found:
+    - files:
+        - '{{ ansible_system | lower }}/{{ ait_action }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}_{{ ait_filebeat_pkg_ext }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}_{{ ait_filebeat_pkg_mgr | trim }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}_{{ ait_filebeat_srv_mgr | trim }}.yml'
+      skip: true
+  when: ait_action is defined

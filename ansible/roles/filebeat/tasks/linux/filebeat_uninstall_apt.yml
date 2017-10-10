@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Uninstall Linux filebeat packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Uninstall filebeat deb package
+  apt:
+    name: 'filebeat'
+    state: absent
+    purge: true
+  become: true
+  tags: uninstall_filebeat

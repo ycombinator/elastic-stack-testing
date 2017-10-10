@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Shutdown filebeat
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Stop filebeat systemd
+  systemd:
+      name: 'filebeat.service'
+      state: stopped
+  become: true
+  tags: stop_filebeat

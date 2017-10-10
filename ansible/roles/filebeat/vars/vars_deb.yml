@@ -1,0 +1,28 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Variables for deb package
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Run as root
+filebeat_run_as_root: true
+
+# filebeat package
+filebeat_package: '/tmp/{{ filebeat_package_url | basename }}'
+
+# filebeat bin
+filebeat_bin_dir: '/usr/share/filebeat/bin'
+filebeat_exe: '{{ filebeat_bin_dir }}/filebeat'
+filebeat_plugin_exe: '{{ filebeat_bin_dir }}/filebeat-plugin'
+filebeat_certgen_exe: '{{ filebeat_bin_dir }}/x-pack/certgen'
+
+# filebeat logs
+filebeat_log_dir: '/var/log/filebeat'
+filebeat_log_file: '{{ filebeat_log_dir }}/filebeat.log'
+
+# filebeat config
+filebeat_config_dir: '/etc/filebeat'
+filebeat_config_file: '{{ filebeat_config_dir }}/filebeat.yml'
+filebeat_xpack_config_dir: '{{ filebeat_config_dir | trim }}/x-pack'
