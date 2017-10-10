@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Shutdown packetbeat
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Stop packetbeat systemd
+  systemd:
+      name: 'packetbeat.service'
+      state: stopped
+  become: true
+  tags: stop_packetbeat

@@ -1,0 +1,47 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# packetbeat tasks
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Set packetbeat Package Extension
+  set_fact:
+    ait_packetbeat_pkg_ext: '{{ packetbeat_package_ext |
+                           regex_replace(".tar.gz", "tar") |
+                           regex_replace( "\.", "") }}'
+
+- name: Set packetbeat Package Manager
+  set_fact:
+    ait_packetbeat_pkg_mgr: '{%- if ait_packetbeat_pkg_ext == "tar" or ait_packetbeat_pkg_ext == "zip" -%}
+                                  {{ ait_packetbeat_pkg_ext }}
+                           {%- else -%}
+                                  {{ ansible_pkg_mgr }}
+                           {%- endif -%}'
+    ait_packetbeat_srv_mgr: '{%- if ait_packetbeat_pkg_ext == "tar" or ait_packetbeat_pkg_ext == "zip" -%}
+                                  {{ ait_packetbeat_pkg_ext }}
+                           {%- else -%}
+                                  {{ ansible_service_mgr }}
+                          {%- endif -%}'
+
+- name: Include packetbeat Variables
+  include_vars: 'vars_{{ ait_packetbeat_pkg_ext }}.yml'
+
+# Include task files in group use
+- name: Include packetbeat Group Tasks
+  include: '{{ lookup("first_found", packetbeat_task_files) }} ait_args={{ item.args }}'
+  with_items: '{{ packetbeat_roles[ait_role] }}'
+  when: ait_role is defined and packetbeat_roles[ait_role] is defined
+
+# Include task files for individual use, keep in sync with vars/main.yml
+# ansible facts should not be disabled
+- name: Include packetbeat Individual Tasks
+  include: '{{ item }}'
+  with_first_found:
+    - files:
+        - '{{ ansible_system | lower }}/{{ ait_action }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}_{{ ait_packetbeat_pkg_ext }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}_{{ ait_packetbeat_pkg_mgr | trim }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}_{{ ait_packetbeat_srv_mgr | trim }}.yml'
+      skip: true
+  when: ait_action is defined

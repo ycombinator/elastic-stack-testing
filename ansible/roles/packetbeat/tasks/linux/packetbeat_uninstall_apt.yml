@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Uninstall Linux packetbeat packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Uninstall packetbeat deb package
+  apt:
+    name: 'packetbeat'
+    state: absent
+    purge: true
+  become: true
+  tags: uninstall_packetbeat

@@ -1,0 +1,31 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Variables for tar package
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Run as root
+packetbeat_run_as_root: '{{ install_as_root }}'
+
+# packetbeat install directory
+packetbeat_install_dir: "{{ install_dir }}"
+
+# packetbeat package
+packetbeat_package: '{{ packetbeat_install_dir }}/{{ packetbeat_package_url | basename }}'
+
+# packetbeat root directory
+packetbeat_rootdir: '{{ packetbeat_package.split(packetbeat_package_ext)[0] | trim }}'
+
+# packetbeat bin
+packetbeat_exe: '{{ packetbeat_rootdir | trim }}/packetbeat'
+packetbeat_scripts: '{{ packetbeat_rootdir | trim }}/scripts'
+
+# packetbeat config
+packetbeat_config_dir: '{{ packetbeat_rootdir | trim }}'
+packetbeat_config_file: '{{ packetbeat_config_dir }}/packetbeat.yml'
+
+# packetbeat log
+packetbeat_log_dir: '{{ packetbeat_rootdir | trim }}/logs'
+packetbeat_log_file: '{{ packetbeat_log_dir }}/packetbeat'

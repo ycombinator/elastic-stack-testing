@@ -1,0 +1,19 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Check if packetbeat is not running
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: 'Verify packetbeat Is Not Running'
+  block:
+    - name: 'Get packetbeat Process'
+      shell: "ps -efw | grep packetbeat | grep -v grep | awk '{print $2}'"
+      args:
+        executable: /bin/bash
+      register: packetbeat_process_id
+    - name: 'Fail packetbeat Process Is Running'
+      fail:
+        msg: 'packetbeat is running'
+      when: packetbeat_process_id.stdout != ""

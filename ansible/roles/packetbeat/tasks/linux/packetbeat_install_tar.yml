@@ -1,0 +1,21 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Install Linux packetbeat packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Download packetbeat package
+  get_url:
+    url: '{{ packetbeat_package_url }}'
+    dest: '{{ packetbeat_package }}'
+    timeout: '{{ url_timeout }}'
+  tags: package_packetbeat
+
+- name: Install packetbeat tar package
+  unarchive:
+    src: '{{ packetbeat_package }}'
+    dest: '{{ packetbeat_install_dir }}'
+    remote_src: True
+  tags: install_packetbeat

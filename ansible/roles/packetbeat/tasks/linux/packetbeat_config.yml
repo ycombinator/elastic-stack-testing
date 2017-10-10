@@ -1,0 +1,62 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Configure packetbeat on Linux
+#
+# Set certain parameters in packetbeat configuration
+#
+# If a user specifies a file, it takes higher precedence
+# If a user specifies packetbeat_config_params_strict=True internal params are appended, otherwise they are appended
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: 'packetbeat Configuration Save Original'
+  copy:
+    src: '{{ packetbeat_config_file }}'
+    dest: '{{ packetbeat_config_file }}.org'
+    remote_src: True
+    force: no
+  become: true
+
+- name: 'Change owner of packetbeat config to root'
+  file:
+    path: '{{ packetbeat_config_file }}'
+    owner: root
+    group: root
+    mode: 0644
+  become: true
+
+- name: 'packetbeat Configuration: Append'
+  lineinfile:
+    path: '{{ packetbeat_config_file }}'
+    insertafter: EOF
+    line: '{{ config_item }}'
+  with_items: '{{ packetbeat_config_params  }}'
+  loop_control:
+    loop_var: config_item
+  become: true
+  when: packetbeat_config_params_file is not defined and
+        packetbeat_config_params is defined
+
+- name: 'packetbeat Configuration: New File'
+  copy:
+    src: '{{ packetbeat_config_params_file }}'
+    dest: '{{ packetbeat_config_file }}'
+  become: true
+  when: packetbeat_config_params_file is defined
+
+- name: 'packetbeat Configuration'
+  block:
+    - name: 'Set Network Host'
+      set_fact:
+        internal_packetbeat_config_params: >
+          output.elasticsearch:
+             hosts: ["{{ current_host_ip }}:{{ elasticsearch_port }}"]
+    - name: 'Add packetbeat Configuration'
+      blockinfile:
+        path: '{{ packetbeat_config_file }}'
+        marker: '# {mark} ANSIBLE MANAGED BLOCK packetbeat PARAMETERS'
+        insertafter: EOF
+        content: '{{ internal_packetbeat_config_params }}'
+      become: true
+  when: packetbeat_config_params_strict is not defined or not packetbeat_config_params_strict

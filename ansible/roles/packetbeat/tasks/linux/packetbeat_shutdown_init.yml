@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Shutdown packetbeat
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Stop packetbeat service
+  service:
+    name: 'packetbeat'
+    state: stopped
+  become: true
+  tags: stop_packetbeat

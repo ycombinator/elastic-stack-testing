@@ -1,0 +1,28 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Variables for rpm package
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Run as root
+packetbeat_run_as_root: true
+
+# packetbeat package
+packetbeat_package: '/tmp/{{ packetbeat_package_url | basename }}'
+
+# packetbeat bin
+packetbeat_bin_dir: '/usr/share/packetbeat/bin'
+packetbeat_exe: '{{ packetbeat_bin_dir }}/packetbeat'
+packetbeat_plugin_exe: '{{ packetbeat_bin_dir }}/packetbeat-plugin'
+packetbeat_certgen_exe: '{{ packetbeat_bin_dir }}/x-pack/certgen'
+
+# packetbeat logs
+packetbeat_log_dir: '/var/log/packetbeat'
+packetbeat_log_file: '{{ packetbeat_log_dir }}/packetbeat.log'
+
+# packetbeat config
+packetbeat_config_dir: '/etc/packetbeat'
+packetbeat_config_file: '{{ packetbeat_config_dir }}/packetbeat.yml'
+packetbeat_xpack_config_dir: '{{ packetbeat_config_dir | trim }}/x-pack'
