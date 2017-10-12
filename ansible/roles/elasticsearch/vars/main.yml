@@ -20,9 +20,9 @@ elasticsearch_windows_package_types:
   - '.msi'
   - '.zip'
 
-elasticsearch_username: elastic
-elasticsearch_password: changeme
-elasticsearch_port: 9200
+elasticsearch_port: "{{ lookup('env','AIT_ELASTICSEARCH_PORT') | default('9200', true) }}"
+elasticsearch_username: "{{ lookup('env','AIT_ELASTICSEARCH_USERNAME') | default('elastic', true) }}"
+elasticsearch_password: "{{ lookup('env','AIT_ELASTICSEARCH_PASSWORD') | default('changeme', true) }}"
 
 # Extract package extension
 elasticsearch_package_ext: "{{ elasticsearch_package_url | splitext | last | regex_replace('.gz', '.tar.gz') }}"
