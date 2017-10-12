@@ -1,0 +1,12 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Uninstall Linux heartbeat packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Remove heartbeat directory
+  file:
+    state: absent
+    path: '{{ heartbeat_rootdir | trim }}'
+  tags: uninstall_heartbeat

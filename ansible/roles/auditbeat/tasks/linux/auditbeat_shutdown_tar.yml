@@ -1,0 +1,15 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Stop auditbeat
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# TODO: make a module to do this if one does not exist
+- name: Stop auditbeat daemon
+  shell: "ps -efw | grep auditbeat | grep -v grep | awk '{print $2}' | xargs kill -SIGTERM"
+  args:
+    executable: /bin/bash
+  become: true
+  tags: stop_auditbeat

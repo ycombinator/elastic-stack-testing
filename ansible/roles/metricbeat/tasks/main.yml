@@ -1,0 +1,47 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# metricbeat tasks
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Set metricbeat Package Extension
+  set_fact:
+    ait_metricbeat_pkg_ext: '{{ metricbeat_package_ext |
+                           regex_replace(".tar.gz", "tar") |
+                           regex_replace( "\.", "") }}'
+
+- name: Set metricbeat Package Manager
+  set_fact:
+    ait_metricbeat_pkg_mgr: '{%- if ait_metricbeat_pkg_ext == "tar" or ait_metricbeat_pkg_ext == "zip" -%}
+                                  {{ ait_metricbeat_pkg_ext }}
+                           {%- else -%}
+                                  {{ ansible_pkg_mgr }}
+                           {%- endif -%}'
+    ait_metricbeat_srv_mgr: '{%- if ait_metricbeat_pkg_ext == "tar" or ait_metricbeat_pkg_ext == "zip" -%}
+                                  {{ ait_metricbeat_pkg_ext }}
+                           {%- else -%}
+                                  {{ ansible_service_mgr }}
+                          {%- endif -%}'
+
+- name: Include metricbeat Variables
+  include_vars: 'vars_{{ ait_metricbeat_pkg_ext }}.yml'
+
+# Include task files in group use
+- name: Include metricbeat Group Tasks
+  include: '{{ lookup("first_found", metricbeat_task_files) }} ait_args={{ item.args }}'
+  with_items: '{{ metricbeat_roles[ait_role] }}'
+  when: ait_role is defined and metricbeat_roles[ait_role] is defined
+
+# Include task files for individual use, keep in sync with vars/main.yml
+# ansible facts should not be disabled
+- name: Include metricbeat Individual Tasks
+  include: '{{ item }}'
+  with_first_found:
+    - files:
+        - '{{ ansible_system | lower }}/{{ ait_action }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}_{{ ait_metricbeat_pkg_ext }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}_{{ ait_metricbeat_pkg_mgr | trim }}.yml'
+        - '{{ ansible_system | lower }}/{{ ait_action }}_{{ ait_metricbeat_srv_mgr | trim }}.yml'
+      skip: true
+  when: ait_action is defined

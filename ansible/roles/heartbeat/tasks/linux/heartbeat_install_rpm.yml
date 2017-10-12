@@ -1,0 +1,21 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Install Linux heartbeat packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Download heartbeat package
+  get_url:
+    url: '{{ heartbeat_package_url }}'
+    dest: '{{ heartbeat_package }}'
+    timeout: '{{ url_timeout }}'
+  tags: package_heartbeat
+
+- name: Install heartbeat rpm package
+  yum:
+    name: '{{ heartbeat_package }}'
+    state: present
+  become: true
+  tags: install_heartbeat

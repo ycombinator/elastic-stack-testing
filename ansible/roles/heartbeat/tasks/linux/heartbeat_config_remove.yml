@@ -1,0 +1,19 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Configure heartbeat on Linux
+#
+# Set certain parameters in heartbeat configuration
+#
+# If a user specifies a file, it takes higher precedence
+# If a user specifies heartbeat_config_params_strict=True internal params are appended, otherwise they are appended
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: 'heartbeat Configuration'
+  blockinfile:
+    path: '{{ heartbeat_config_file }}'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK heartbeat PARAMETERS'
+    insertafter: EOF
+    content: ''
+  become: true

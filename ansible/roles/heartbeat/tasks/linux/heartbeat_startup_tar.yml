@@ -1,0 +1,16 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Start heartbeat
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Start heartbeat daemon
+  shell: '{{ heartbeat_exe }} -c {{ heartbeat_config_file }} &'
+  args:
+    executable: /bin/bash
+  async: 5
+  poll: 0
+  become: true
+  tags: start_heartbeat

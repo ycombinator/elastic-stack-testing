@@ -1,0 +1,31 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Variables for tar package
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Run as root
+auditbeat_run_as_root: '{{ install_as_root }}'
+
+# auditbeat install directory
+auditbeat_install_dir: "{{ install_dir }}"
+
+# auditbeat package
+auditbeat_package: '{{ auditbeat_install_dir }}/{{ auditbeat_package_url | basename }}'
+
+# auditbeat root directory
+auditbeat_rootdir: '{{ auditbeat_package.split(auditbeat_package_ext)[0] | trim }}'
+
+# auditbeat bin
+auditbeat_exe: '{{ auditbeat_rootdir | trim }}/auditbeat'
+auditbeat_scripts: '{{ auditbeat_rootdir | trim }}/scripts'
+
+# auditbeat config
+auditbeat_config_dir: '{{ auditbeat_rootdir | trim }}'
+auditbeat_config_file: '{{ auditbeat_config_dir }}/auditbeat.yml'
+
+# auditbeat log
+auditbeat_log_dir: '{{ auditbeat_rootdir | trim }}/logs'
+auditbeat_log_file: '{{ auditbeat_log_dir }}/auditbeat'

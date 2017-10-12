@@ -1,0 +1,28 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Variables for rpm package
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Run as root
+heartbeat_run_as_root: true
+
+# heartbeat package
+heartbeat_package: '/tmp/{{ heartbeat_package_url | basename }}'
+
+# heartbeat bin
+heartbeat_bin_dir: '/usr/share/heartbeat/bin'
+heartbeat_exe: '{{ heartbeat_bin_dir }}/heartbeat'
+heartbeat_plugin_exe: '{{ heartbeat_bin_dir }}/heartbeat-plugin'
+heartbeat_certgen_exe: '{{ heartbeat_bin_dir }}/x-pack/certgen'
+
+# heartbeat logs
+heartbeat_log_dir: '/var/log/heartbeat'
+heartbeat_log_file: '{{ heartbeat_log_dir }}/heartbeat.log'
+
+# heartbeat config
+heartbeat_config_dir: '/etc/heartbeat'
+heartbeat_config_file: '{{ heartbeat_config_dir }}/heartbeat.yml'
+heartbeat_xpack_config_dir: '{{ heartbeat_config_dir | trim }}/x-pack'

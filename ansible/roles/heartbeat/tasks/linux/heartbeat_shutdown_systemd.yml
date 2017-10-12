@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Shutdown heartbeat
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Stop heartbeat systemd
+  systemd:
+      name: 'heartbeat.service'
+      state: stopped
+  become: true
+  tags: stop_heartbeat

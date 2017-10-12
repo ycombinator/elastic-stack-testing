@@ -1,0 +1,12 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Uninstall Linux metricbeat packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Remove metricbeat directory
+  file:
+    state: absent
+    path: '{{ metricbeat_rootdir | trim }}'
+  tags: uninstall_metricbeat

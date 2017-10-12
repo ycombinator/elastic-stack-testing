@@ -1,0 +1,13 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Uninstall Linux heartbeat packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Uninstall heartbeat rpm package
+  yum:
+    name: 'heartbeat'
+    state: absent
+  become: true
+  tags: uninstall_heartbeat

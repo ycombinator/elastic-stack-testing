@@ -1,0 +1,13 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Uninstall Linux metricbeat packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Uninstall metricbeat rpm package
+  yum:
+    name: 'metricbeat'
+    state: absent
+  become: true
+  tags: uninstall_metricbeat

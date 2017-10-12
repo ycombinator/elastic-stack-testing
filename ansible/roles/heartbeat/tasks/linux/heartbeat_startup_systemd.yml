@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Start heartbeat
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Start heartbeat systemd
+  systemd:
+      name: 'heartbeat'
+      state: started
+  become: true
+  tags: start_heartbeat

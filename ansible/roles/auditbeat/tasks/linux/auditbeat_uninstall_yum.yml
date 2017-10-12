@@ -1,0 +1,13 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Uninstall Linux auditbeat packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Uninstall auditbeat rpm package
+  yum:
+    name: 'auditbeat'
+    state: absent
+  become: true
+  tags: uninstall_auditbeat

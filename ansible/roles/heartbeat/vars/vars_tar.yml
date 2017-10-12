@@ -1,0 +1,31 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Variables for tar package
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Run as root
+heartbeat_run_as_root: '{{ install_as_root }}'
+
+# heartbeat install directory
+heartbeat_install_dir: "{{ install_dir }}"
+
+# heartbeat package
+heartbeat_package: '{{ heartbeat_install_dir }}/{{ heartbeat_package_url | basename }}'
+
+# heartbeat root directory
+heartbeat_rootdir: '{{ heartbeat_package.split(heartbeat_package_ext)[0] | trim }}'
+
+# heartbeat bin
+heartbeat_exe: '{{ heartbeat_rootdir | trim }}/heartbeat'
+heartbeat_scripts: '{{ heartbeat_rootdir | trim }}/scripts'
+
+# heartbeat config
+heartbeat_config_dir: '{{ heartbeat_rootdir | trim }}'
+heartbeat_config_file: '{{ heartbeat_config_dir }}/heartbeat.yml'
+
+# heartbeat log
+heartbeat_log_dir: '{{ heartbeat_rootdir | trim }}/logs'
+heartbeat_log_file: '{{ heartbeat_log_dir }}/heartbeat'

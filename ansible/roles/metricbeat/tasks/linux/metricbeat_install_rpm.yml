@@ -1,0 +1,21 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Install Linux metricbeat packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Download metricbeat package
+  get_url:
+    url: '{{ metricbeat_package_url }}'
+    dest: '{{ metricbeat_package }}'
+    timeout: '{{ url_timeout }}'
+  tags: package_metricbeat
+
+- name: Install metricbeat rpm package
+  yum:
+    name: '{{ metricbeat_package }}'
+    state: present
+  become: true
+  tags: install_metricbeat

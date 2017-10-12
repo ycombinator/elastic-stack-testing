@@ -1,0 +1,28 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Variables for deb package
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Run as root
+auditbeat_run_as_root: true
+
+# auditbeat package
+auditbeat_package: '/tmp/{{ auditbeat_package_url | basename }}'
+
+# auditbeat bin
+auditbeat_bin_dir: '/usr/share/auditbeat/bin'
+auditbeat_exe: '{{ auditbeat_bin_dir }}/auditbeat'
+auditbeat_plugin_exe: '{{ auditbeat_bin_dir }}/auditbeat-plugin'
+auditbeat_certgen_exe: '{{ auditbeat_bin_dir }}/x-pack/certgen'
+
+# auditbeat logs
+auditbeat_log_dir: '/var/log/auditbeat'
+auditbeat_log_file: '{{ auditbeat_log_dir }}/auditbeat.log'
+
+# auditbeat config
+auditbeat_config_dir: '/etc/auditbeat'
+auditbeat_config_file: '{{ auditbeat_config_dir }}/auditbeat.yml'
+auditbeat_xpack_config_dir: '{{ auditbeat_config_dir | trim }}/x-pack'

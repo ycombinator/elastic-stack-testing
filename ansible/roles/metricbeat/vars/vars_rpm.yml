@@ -1,0 +1,28 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Variables for rpm package
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Run as root
+metricbeat_run_as_root: true
+
+# metricbeat package
+metricbeat_package: '/tmp/{{ metricbeat_package_url | basename }}'
+
+# metricbeat bin
+metricbeat_bin_dir: '/usr/share/metricbeat/bin'
+metricbeat_exe: '{{ metricbeat_bin_dir }}/metricbeat'
+metricbeat_plugin_exe: '{{ metricbeat_bin_dir }}/metricbeat-plugin'
+metricbeat_certgen_exe: '{{ metricbeat_bin_dir }}/x-pack/certgen'
+
+# metricbeat logs
+metricbeat_log_dir: '/var/log/metricbeat'
+metricbeat_log_file: '{{ metricbeat_log_dir }}/metricbeat.log'
+
+# metricbeat config
+metricbeat_config_dir: '/etc/metricbeat'
+metricbeat_config_file: '{{ metricbeat_config_dir }}/metricbeat.yml'
+metricbeat_xpack_config_dir: '{{ metricbeat_config_dir | trim }}/x-pack'

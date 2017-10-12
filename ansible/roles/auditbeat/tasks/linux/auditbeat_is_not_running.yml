@@ -1,0 +1,19 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Check if auditbeat is not running
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: 'Verify auditbeat Is Not Running'
+  block:
+    - name: 'Get auditbeat Process'
+      shell: "ps -efw | grep auditbeat | grep -v grep | awk '{print $2}'"
+      args:
+        executable: /bin/bash
+      register: auditbeat_process_id
+    - name: 'Fail auditbeat Process Is Running'
+      fail:
+        msg: 'auditbeat is running'
+      when: auditbeat_process_id.stdout != ""

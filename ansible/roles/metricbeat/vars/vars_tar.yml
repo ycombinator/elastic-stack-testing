@@ -1,0 +1,31 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Variables for tar package
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Run as root
+metricbeat_run_as_root: '{{ install_as_root }}'
+
+# metricbeat install directory
+metricbeat_install_dir: "{{ install_dir }}"
+
+# metricbeat package
+metricbeat_package: '{{ metricbeat_install_dir }}/{{ metricbeat_package_url | basename }}'
+
+# metricbeat root directory
+metricbeat_rootdir: '{{ metricbeat_package.split(metricbeat_package_ext)[0] | trim }}'
+
+# metricbeat bin
+metricbeat_exe: '{{ metricbeat_rootdir | trim }}/metricbeat'
+metricbeat_scripts: '{{ metricbeat_rootdir | trim }}/scripts'
+
+# metricbeat config
+metricbeat_config_dir: '{{ metricbeat_rootdir | trim }}'
+metricbeat_config_file: '{{ metricbeat_config_dir }}/metricbeat.yml'
+
+# metricbeat log
+metricbeat_log_dir: '{{ metricbeat_rootdir | trim }}/logs'
+metricbeat_log_file: '{{ metricbeat_log_dir }}/metricbeat'

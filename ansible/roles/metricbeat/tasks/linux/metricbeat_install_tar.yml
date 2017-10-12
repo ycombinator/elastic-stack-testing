@@ -1,0 +1,21 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Install Linux metricbeat packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+- name: Download metricbeat package
+  get_url:
+    url: '{{ metricbeat_package_url }}'
+    dest: '{{ metricbeat_package }}'
+    timeout: '{{ url_timeout }}'
+  tags: package_metricbeat
+
+- name: Install metricbeat tar package
+  unarchive:
+    src: '{{ metricbeat_package }}'
+    dest: '{{ metricbeat_install_dir }}'
+    remote_src: True
+  tags: install_metricbeat
