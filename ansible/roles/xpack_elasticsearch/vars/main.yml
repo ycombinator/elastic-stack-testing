@@ -7,6 +7,7 @@
 ---
 
 xpack_elasticsearch_package: '{{ elasticsearch_install_dir }}/elasticsearc_{{ xpack_elasticsearch_package_url | basename }}'
+local_certs_dir: "{{ lookup('env','WORKSPACE') }}/certs"
 
 # Role variables to run multiple role files in groupse use, one include
 # Must have role name (key), action and args that map to individual task files
