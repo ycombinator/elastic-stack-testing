@@ -10,7 +10,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: 'packetbeat Configuration Save Original'
+- name: 'Packetbeat configuration: save original'
   copy:
     src: '{{ packetbeat_config_file }}'
     dest: '{{ packetbeat_config_file }}.org'
@@ -18,15 +18,14 @@
     force: no
   become: true
 
-- name: 'Change owner of packetbeat config to root'
+- name: 'Packetbeat configuration: change owner to root'
   file:
     path: '{{ packetbeat_config_file }}'
     owner: root
     group: root
-    mode: 0644
   become: true
 
-- name: 'packetbeat Configuration: Append'
+- name: 'Packetbeat configuration: append'
   lineinfile:
     path: '{{ packetbeat_config_file }}'
     insertafter: EOF
@@ -38,24 +37,24 @@
   when: packetbeat_config_params_file is not defined and
         packetbeat_config_params is defined
 
-- name: 'packetbeat Configuration: New File'
+- name: 'Packetbeat configuration: new file'
   copy:
     src: '{{ packetbeat_config_params_file }}'
     dest: '{{ packetbeat_config_file }}'
   become: true
   when: packetbeat_config_params_file is defined
 
-- name: 'packetbeat Configuration'
+- name: 'Packetbeat configuration: append internal'
   block:
-    - name: 'Set Network Host'
+    - name: 'Set network host'
       set_fact:
         internal_packetbeat_config_params: >
           output.elasticsearch:
              hosts: ["{{ current_host_ip }}:{{ elasticsearch_port }}"]
-    - name: 'Add packetbeat Configuration'
+    - name: 'Add packetbeat configuration'
       blockinfile:
         path: '{{ packetbeat_config_file }}'
-        marker: '# {mark} ANSIBLE MANAGED BLOCK packetbeat PARAMETERS'
+        marker: '# {mark} ANSIBLE MANAGED BLOCK PACKETBEAT PARAMETERS'
         insertafter: EOF
         content: '{{ internal_packetbeat_config_params }}'
       become: true

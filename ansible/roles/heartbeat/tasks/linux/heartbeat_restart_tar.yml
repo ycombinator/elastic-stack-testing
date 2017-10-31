@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------------------------------------------------
-# Start heartbeat
+# Restart Heartbeat
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
@@ -14,9 +14,9 @@
         executable: /bin/bash
       become: true
     - name: Start heartbeat daemon
-      shell: '{{ heartbeat_exe }} -c {{ heartbeat_config_file }}'
+      shell: '{{ heartbeat_exe }} -c {{ heartbeat_config_file }} &'
       args:
         executable: /bin/bash
-      become: true
       async: 5
       poll: 0
+      become: true
