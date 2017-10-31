@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# filebeat remove x-pack configuration
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+
+- name: 'Remove filebeat x-pack configuration'
+  blockinfile:
+    path: '{{ filebeat_config_file }}'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK filebeat X-PACK PARAMETERS'
+    insertafter: EOF
+    content: ""
+  become: true

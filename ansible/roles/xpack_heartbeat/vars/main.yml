@@ -1,0 +1,30 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# heartbeat vars file
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+xpack_heartbeat_package: '{{ heartbeat_install_dir }}/heartbeat_{{ xpack_heartbeat_package_url | basename }}'
+
+# Role variables to run multiple role files in groupse use, one include
+# Must have role name (key), action and args that map to individual task files
+xpack_heartbeat_roles:
+  xpack_heartbeat_install_config_restart_verify:
+    - { action: 'heartbeat_install', parent: 'heartbeat', args: {} }
+    - { action: 'xpack_heartbeat_config',  parent: '', args: {} }
+    - { action: 'heartbeat_restart',  parent: 'heartbeat', args: {} }
+    - { action: 'heartbeat_is_running', parent: 'heartbeat', args: {} }
+  xpack_heartbeat_rmconfig_restart_verify:
+    - { action: 'xpack_heartbeat_config_remove', parent: '', args: {} }
+    - { action: 'heartbeat_restart',  parent: 'heartbeat', args: {} }
+    - { action: 'heartbeat_is_running', parent: 'heartbeat', args: {} }
+
+# Task files for group use, keep in sync with tasks/main.yml except for parent tasks
+xpack_heartbeat_task_files:
+  - '{{ ansible_system | lower }}/{{ item.action }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}_{{ ait_heartbeat_pkg_ext }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}_{{ ait_heartbeat_pkg_mgr | trim }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}_{{ ait_heartbeat_srv_mgr | trim }}.yml'

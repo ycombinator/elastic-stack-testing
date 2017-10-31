@@ -1,0 +1,53 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# packetbeat x-pack configuration
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+
+- name: 'Copy certificates ca'
+  copy:
+    src: "{{ local_certs_dir }}/ca"
+    dest: "{{ packetbeat_rootdir }}"
+    owner: root
+    group: root
+  become: true
+
+- name: 'Copy certificates cert and key'
+  copy:
+    src: "{{ local_certs_dir }}/node"
+    dest: "{{ packetbeat_rootdir }}"
+    owner: root
+    group: root
+  become: true
+
+- name: 'packetbeat save original configuration'
+  copy:
+    src: '{{ packetbeat_config_file }}'
+    dest: '{{ packetbeat_config_file }}.org'
+    remote_src: True
+    force: no
+  become: true
+
+- name: 'Change owner of packetbeat config to root'
+  file:
+    path: '{{ packetbeat_config_file }}'
+    owner: root
+    group: root
+  become: true
+
+- name: 'Add packetbeat x-pack configuration'
+  blockinfile:
+    path: '{{ packetbeat_config_file }}'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK packetbeat X-PACK PARAMETERS'
+    insertafter: EOF
+    content: |
+      output.elasticsearch:
+        username: {{ elasticsearch_username }}
+        password: {{ elasticsearch_password }}
+        protocol: https
+        hosts: ["{{ current_host_ip }}:{{ elasticsearch_port }}"]
+        ssl.certificate_authorities: {{ packetbeat_rootdir | trim }}/ca/ca.crt
+        ssl.certificate: {{ packetbeat_rootdir | trim }}/node/node.crt
+        ssl.key: {{ packetbeat_rootdir | trim }}/node/node.key
+  become: true

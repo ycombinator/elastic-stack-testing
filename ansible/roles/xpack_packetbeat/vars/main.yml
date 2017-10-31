@@ -1,0 +1,30 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# packetbeat vars file
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+xpack_packetbeat_package: '{{ packetbeat_install_dir }}/packetbeat_{{ xpack_packetbeat_package_url | basename }}'
+
+# Role variables to run multiple role files in groupse use, one include
+# Must have role name (key), action and args that map to individual task files
+xpack_packetbeat_roles:
+  xpack_packetbeat_install_config_restart_verify:
+    - { action: 'packetbeat_install', parent: 'packetbeat', args: {} }
+    - { action: 'xpack_packetbeat_config',  parent: '', args: {} }
+    - { action: 'packetbeat_restart',  parent: 'packetbeat', args: {} }
+    - { action: 'packetbeat_is_running', parent: 'packetbeat', args: {} }
+  xpack_packetbeat_rmconfig_restart_verify:
+    - { action: 'xpack_packetbeat_config_remove', parent: '', args: {} }
+    - { action: 'packetbeat_restart',  parent: 'packetbeat', args: {} }
+    - { action: 'packetbeat_is_running', parent: 'packetbeat', args: {} }
+
+# Task files for group use, keep in sync with tasks/main.yml except for parent tasks
+xpack_packetbeat_task_files:
+  - '{{ ansible_system | lower }}/{{ item.action }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}_{{ ait_packetbeat_pkg_ext }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}_{{ ait_packetbeat_pkg_mgr | trim }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}_{{ ait_packetbeat_srv_mgr | trim }}.yml'

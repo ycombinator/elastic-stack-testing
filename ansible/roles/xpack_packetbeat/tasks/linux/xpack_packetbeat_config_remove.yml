@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# packetbeat remove x-pack configuration
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+
+- name: 'Remove packetbeat x-pack configuration'
+  blockinfile:
+    path: '{{ packetbeat_config_file }}'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK packetbeat X-PACK PARAMETERS'
+    insertafter: EOF
+    content: ""
+  become: true

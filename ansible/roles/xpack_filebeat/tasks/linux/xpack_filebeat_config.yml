@@ -1,0 +1,53 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# filebeat x-pack configuration
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+
+- name: 'Copy certificates ca'
+  copy:
+    src: "{{ local_certs_dir }}/ca"
+    dest: "{{ filebeat_rootdir }}"
+    owner: root
+    group: root
+  become: true
+
+- name: 'Copy certificates cert and key'
+  copy:
+    src: "{{ local_certs_dir }}/node"
+    dest: "{{ filebeat_rootdir }}"
+    owner: root
+    group: root
+  become: true
+
+- name: 'filebeat save original configuration'
+  copy:
+    src: '{{ filebeat_config_file }}'
+    dest: '{{ filebeat_config_file }}.org'
+    remote_src: True
+    force: no
+  become: true
+
+- name: 'Change owner of filebeat config to root'
+  file:
+    path: '{{ filebeat_config_file }}'
+    owner: root
+    group: root
+  become: true
+
+- name: 'Add filebeat x-pack configuration'
+  blockinfile:
+    path: '{{ filebeat_config_file }}'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK filebeat X-PACK PARAMETERS'
+    insertafter: EOF
+    content: |
+      output.elasticsearch:
+        username: {{ elasticsearch_username }}
+        password: {{ elasticsearch_password }}
+        protocol: https
+        hosts: ["{{ current_host_ip }}:{{ elasticsearch_port }}"]
+        ssl.certificate_authorities: {{ filebeat_rootdir | trim }}/ca/ca.crt
+        ssl.certificate: {{ filebeat_rootdir | trim }}/node/node.crt
+        ssl.key: {{ filebeat_rootdir | trim }}/node/node.key
+  become: true

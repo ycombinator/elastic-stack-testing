@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# heartbeat remove x-pack configuration
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+
+- name: 'Remove heartbeat x-pack configuration'
+  blockinfile:
+    path: '{{ heartbeat_config_file }}'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK heartbeat X-PACK PARAMETERS'
+    insertafter: EOF
+    content: ""
+  become: true

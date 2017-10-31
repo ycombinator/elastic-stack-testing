@@ -1,0 +1,53 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# heartbeat x-pack configuration
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+
+- name: 'Copy certificates ca'
+  copy:
+    src: "{{ local_certs_dir }}/ca"
+    dest: "{{ heartbeat_rootdir }}"
+    owner: root
+    group: root
+  become: true
+
+- name: 'Copy certificates cert and key'
+  copy:
+    src: "{{ local_certs_dir }}/node"
+    dest: "{{ heartbeat_rootdir }}"
+    owner: root
+    group: root
+  become: true
+
+- name: 'heartbeat save original configuration'
+  copy:
+    src: '{{ heartbeat_config_file }}'
+    dest: '{{ heartbeat_config_file }}.org'
+    remote_src: True
+    force: no
+  become: true
+
+- name: 'Change owner of heartbeat config to root'
+  file:
+    path: '{{ heartbeat_config_file }}'
+    owner: root
+    group: root
+  become: true
+
+- name: 'Add heartbeat x-pack configuration'
+  blockinfile:
+    path: '{{ heartbeat_config_file }}'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK heartbeat X-PACK PARAMETERS'
+    insertafter: EOF
+    content: |
+      output.elasticsearch:
+        username: {{ elasticsearch_username }}
+        password: {{ elasticsearch_password }}
+        protocol: https
+        hosts: ["{{ current_host_ip }}:{{ elasticsearch_port }}"]
+        ssl.certificate_authorities: {{ heartbeat_rootdir | trim }}/ca/ca.crt
+        ssl.certificate: {{ heartbeat_rootdir | trim }}/node/node.crt
+        ssl.key: {{ heartbeat_rootdir | trim }}/node/node.key
+  become: true

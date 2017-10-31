@@ -1,0 +1,30 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# metricbeat vars file
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+xpack_metricbeat_package: '{{ metricbeat_install_dir }}/metricbeat_{{ xpack_metricbeat_package_url | basename }}'
+
+# Role variables to run multiple role files in groupse use, one include
+# Must have role name (key), action and args that map to individual task files
+xpack_metricbeat_roles:
+  xpack_metricbeat_install_config_restart_verify:
+    - { action: 'metricbeat_install', parent: 'metricbeat', args: {} }
+    - { action: 'xpack_metricbeat_config',  parent: '', args: {} }
+    - { action: 'metricbeat_restart',  parent: 'metricbeat', args: {} }
+    - { action: 'metricbeat_is_running', parent: 'metricbeat', args: {} }
+  xpack_metricbeat_rmconfig_restart_verify:
+    - { action: 'xpack_metricbeat_config_remove', parent: '', args: {} }
+    - { action: 'metricbeat_restart',  parent: 'metricbeat', args: {} }
+    - { action: 'metricbeat_is_running', parent: 'metricbeat', args: {} }
+
+# Task files for group use, keep in sync with tasks/main.yml except for parent tasks
+xpack_metricbeat_task_files:
+  - '{{ ansible_system | lower }}/{{ item.action }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}_{{ ait_metricbeat_pkg_ext }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}_{{ ait_metricbeat_pkg_mgr | trim }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}_{{ ait_metricbeat_srv_mgr | trim }}.yml'
