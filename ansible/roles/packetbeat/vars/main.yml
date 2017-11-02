@@ -26,7 +26,12 @@ packetbeat_package_ext: "{{ packetbeat_package_url | splitext | last | regex_rep
 ## Variables to run multiple role task files in a group
 # Must have role name (key), action and args that map to individual task files
 packetbeat_roles:
-  packetbeat_install_config_startup_verify_import_dashboards:
+  packetbeat_install_config_start_verify:
+    - { action: 'packetbeat_install', args: {} }
+    - { action: 'packetbeat_config', args: {} }
+    - { action: 'packetbeat_startup', args: {} }
+    - { action: 'packetbeat_is_running', args: {} }
+  packetbeat_install_config_start_verify_import_dashboards:
     - { action: 'packetbeat_install', args: {} }
     - { action: 'packetbeat_config', args: {} }
     - { action: 'packetbeat_startup', args: {} }

@@ -29,7 +29,7 @@ elasticsearch_package_ext: "{{ elasticsearch_package_url | splitext | last | reg
 # Variables to run multiple role task files in a group
 # Must have role name (key), action and args that map to individual task files
 elasticsearch_roles:
-  elasticsearch_install_config_startup_verify:
+  elasticsearch_install_config_start_verify:
     - { action: 'elasticsearch_install', args: {} }
     - { action: 'elasticsearch_config', args: {} }
     - { action: 'elasticsearch_startup', args: {} }

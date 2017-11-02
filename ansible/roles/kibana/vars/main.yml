@@ -19,7 +19,7 @@ kibana_password: "{{ lookup('env','AIT_ELASTICSEARCH_PASSWORD') | default('chang
 # Variables to run multiple role task files in a group
 # Must have role name (key), action and args that map to individual task files
 kibana_roles:
-  kibana_install_config_startup_verify:
+  kibana_install_config_start_verify:
     - { action: 'kibana_install', args: {} }
     - { action: 'kibana_config', args: {} }
     - { action: 'kibana_startup', args: {} }

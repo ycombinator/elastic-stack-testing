@@ -26,7 +26,7 @@ auditbeat_package_ext: "{{ auditbeat_package_url | splitext | last | regex_repla
 # Variables to run multiple role task files in a group
 # Must have role name (key), action and args that map to individual task files
 auditbeat_roles:
-  auditbeat_install_config_startup_verify_import_dashboards:
+  auditbeat_install_config_start_verify_import_dashboards:
     - { action: 'auditbeat_install', args: {} }
     - { action: 'auditbeat_config', args: {} }
     - { action: 'auditbeat_startup', args: {} }

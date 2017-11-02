@@ -26,7 +26,7 @@ filebeat_package_ext: "{{ filebeat_package_url | splitext | last | regex_replace
 # Variables to run multiple role task files in a group
 # Must have role name (key), action and args that map to individual task files
 filebeat_roles:
-  filebeat_install_config_startup_verify:
+  filebeat_install_config_start_verify:
     - { action: 'filebeat_install', args: {} }
     - { action: 'filebeat_config', args: {} }
     - { action: 'filebeat_startup', args: {} }

@@ -15,7 +15,7 @@ logstash_package_ext: "{{ logstash_package_url | splitext | last | regex_replace
 # Variables to run multiple role task files in a group
 # Must have role name (key), action and args that map to individual task files
 logstash_roles:
-  logstash_install_config_startup_verify:
+  logstash_install_config_start_verify:
     - { action: 'logstash_install', args: {} }
     - { action: 'logstash_conf', args: {} }
     - { action: 'logstash_startup', args: {} }

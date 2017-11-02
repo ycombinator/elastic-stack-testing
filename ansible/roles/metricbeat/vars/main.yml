@@ -26,7 +26,12 @@ metricbeat_package_ext: "{{ metricbeat_package_url | splitext | last | regex_rep
 # Variables to run multiple role task files in a group
 # Must have role name (key), action and args that map to individual task files
 metricbeat_roles:
-  metricbeat_install_config_startup_verify_import_dashboards:
+  metricbeat_install_config_start_verify:
+    - { action: 'metricbeat_install', args: {} }
+    - { action: 'metricbeat_config', args: {} }
+    - { action: 'metricbeat_startup', args: {} }
+    - { action: 'metricbeat_is_running', args: {} }
+  metricbeat_install_config_start_verify_import_dashboards:
     - { action: 'metricbeat_install', args: {} }
     - { action: 'metricbeat_config', args: {} }
     - { action: 'metricbeat_startup', args: {} }
