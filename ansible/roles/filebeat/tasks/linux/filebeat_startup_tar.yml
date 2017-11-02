@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Start filebeat daemon
+- name: Start filebeat process
   shell: '{{ filebeat_exe }} -c {{ filebeat_config_file }} &'
   args:
     executable: /bin/bash

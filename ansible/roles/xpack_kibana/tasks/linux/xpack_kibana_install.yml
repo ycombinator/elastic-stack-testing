@@ -6,26 +6,26 @@
 #----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: Get Kibana Plugins
+- name: List kibana plugins
   shell: "{{ kibana_plugin_exe }} list"
   register: list_plugins_before
 
-- name: If Kibana X-Pack Not Present, Install
+- name: Install kibana x-pack 
   block:
-    - name: Download Kibana X-Pack Package
+    - name: Download kibana x-pack package
       get_url:
         url: '{{ xpack_kibana_package_url }}'
         dest: '{{ xpack_kibana_package }}'
         timeout: '{{ url_timeout }}'
-    - name: Install Kibana X-Pack
+    - name: Install kibana x-pack
       shell: '{{ kibana_plugin_exe }} install file://{{ xpack_kibana_package }}'
       register: xpack_kibana_output
     - debug:
         msg: '{{ xpack_kibana_output }}'
-    - name: Get Kibana Plugins
+    - name: List kibana plugins
       shell: '{{ kibana_plugin_exe }} list'
       register: list_plugins_after
-    - name: Fail If Kibana X-Pack Is Not Installed
+    - name: Fail if kibana x-pack is not installed
       fail:
         msg: 'xpack is not installed'
       when: '"x-pack" not in list_plugins_after.stdout'

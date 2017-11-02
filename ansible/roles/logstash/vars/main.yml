@@ -12,7 +12,7 @@ logstash_timeout: 60
 # Extract package extension
 logstash_package_ext: "{{ logstash_package_url | splitext | last | regex_replace('.gz', '.tar.gz') }}"
 
-# Role variables to run multiple role files in groupse use, one include
+# Variables to run multiple role task files in a group
 # Must have role name (key), action and args that map to individual task files
 logstash_roles:
   logstash_install_config_startup_verify:

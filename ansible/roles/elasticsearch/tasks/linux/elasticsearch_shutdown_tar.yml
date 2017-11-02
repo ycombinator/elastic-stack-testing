@@ -3,11 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-# TODO: make a module to do this if one does not exist
-- name: Stop Elasticsearch daemon
+- name: Stop elasticsearch process
   shell: "ps -efw | grep elasticsearch | grep -v grep | awk '{print $2}' | xargs kill -SIGTERM"
   args:
     executable: /bin/bash

@@ -3,17 +3,16 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
 - name: Restart packetbeat
   block:
-    - name: Stop packetbeat daemon
+    - name: Stop packetbeat process
       shell: "ps -efw | grep packetbeat | grep -v grep | awk '{print $2}' | xargs kill -SIGTERM"
       args:
         executable: /bin/bash
       become: true
-    - name: Start packetbeat daemon
+    - name: Start packetbeat process
       shell: '{{ packetbeat_exe }} -c {{ packetbeat_config_file }} &'
       args:
         executable: /bin/bash

@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Stop Elasticsearch service
+- name: Stop elasticsearch service
   service:
     name: 'elasticsearch'
     state: stopped

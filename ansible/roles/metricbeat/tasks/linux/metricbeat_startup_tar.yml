@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Start metricbeat daemon
+- name: Start metricbeat process
   shell: '{{ metricbeat_exe }} -c {{ metricbeat_config_file }} &'
   args:
     executable: /bin/bash

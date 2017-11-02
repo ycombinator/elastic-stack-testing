@@ -1,11 +1,31 @@
 #-----------------------------------------------------------------------------------------------------------------------
-# Add Kibana X-Pack Configuration
+# Kibana x-pack configuration
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: 'Add Kibana X-Pack Configuration'
+- name: Copy certificates ca from localhost
+  copy:
+    src: "{{ local_certs_dir }}/ca"
+    dest: "{{ kibana_rootdir }}"
+  become: '{{ kibana_run_as_root | default(omit) }}'
+
+- name: Copy certificates cert and key from localhost
+  copy:
+    src: "{{ local_certs_dir }}/node"
+    dest: "{{ kibana_rootdir }}"
+  become: '{{ kibana_run_as_root | default(omit) }}'
+
+- name: Save original kibana configuration file
+  copy:
+    src: '{{ kibana_config_file }}'
+    dest: '{{ kibana_config_file }}.org'
+    remote_src: True
+    force: no
+  become: '{{ kibana_run_as_root | default(omit) }}'
+
+- name: Add kibana x-pack configuration parameters
   blockinfile:
     path: '{{ kibana_config_file }}'
     marker: '# {mark} ANSIBLE MANAGED BLOCK KIBANA XPACK PARAMETERS'
@@ -15,8 +35,8 @@
       elasticsearch.username: {{ elasticsearch_username }}
       elasticsearch.password: {{ elasticsearch_password }}
       server.ssl.enabled: true
-      server.ssl.certificate: {{ elasticsearch_xpack_config_dir }}/node/node.crt
-      server.ssl.key: {{ elasticsearch_xpack_config_dir }}/node/node.key
-      elasticsearch.ssl.certificateAuthorities: [ '{{ elasticsearch_xpack_config_dir }}/ca/ca.crt' ]
+      server.ssl.certificate: {{ kibana_rootdir | trim }}/node/node.crt
+      server.ssl.key: {{ kibana_rootdir | trim }}/node/node.key
+      elasticsearch.ssl.certificateAuthorities: [ '{{ kibana_rootdir | trim }}/ca/ca.crt' ]
       elasticsearch.ssl.verificationMode: none
   become: '{{ kibana_run_as_root | default(omit) }}'

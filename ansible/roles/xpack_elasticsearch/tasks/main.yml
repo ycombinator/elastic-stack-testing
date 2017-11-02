@@ -3,17 +3,16 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
 # Include task files in group use
-- name: Include Elasticsearch Group Tasks
+- name: Include ait_role task files
   include: '{{ lookup("first_found", xpack_elasticsearch_task_files) }} ait_args={{ item.args }}'
   with_items: '{{ xpack_elasticsearch_roles[ait_role] }}'
   when: ait_role is defined and xpack_elasticsearch_roles[ait_role] is defined
 
 # Include task files for individual use, keep in sync with vars/main.yml
-- name: Include Elasticsearch Individual Tasks
+- name: Include ait_action task files
   include: '{{ item }}'
   with_first_found:
     - files:

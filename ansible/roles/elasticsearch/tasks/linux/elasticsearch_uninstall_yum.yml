@@ -5,7 +5,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: Uninstall Elasticsearch rpm package
+- name: Uninstall elasticsearch rpm package
   yum:
     name: 'elasticsearch'
     state: absent

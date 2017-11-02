@@ -3,17 +3,16 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Download elasticsearch package
+- name: Download elasticsearch deb package
   get_url:
     url: '{{ elasticsearch_package_url }}'
     dest: '{{ elasticsearch_package }}'
     timeout: '{{ url_timeout }}'
   tags: package_elasticsearch
 
-- name: Install Elasticsearch deb package
+- name: Install elasticsearch deb package
   apt:
     deb: '{{ elasticsearch_package }}'
   become: true

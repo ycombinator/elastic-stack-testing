@@ -3,11 +3,10 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Restart Elasticsearch
+- name: Restart elasticsearch
   systemd:
       name: 'elasticsearch'
-      state: restarted 
+      state: restarted
   become: true

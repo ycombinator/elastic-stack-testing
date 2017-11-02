@@ -3,9 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
+---
 
-
-- name: 'Remove metricbeat x-pack configuration'
+- name: Remove metricbeat x-pack configuration
   blockinfile:
     path: '{{ metricbeat_config_file }}'
     marker: '# {mark} ANSIBLE MANAGED BLOCK METRICBEAT X-PACK PARAMETERS'

@@ -5,13 +5,13 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: Set auditbeat Package Extension
+- name: Set package extension variable
   set_fact:
     ait_auditbeat_pkg_ext: '{{ auditbeat_package_ext |
                            regex_replace(".tar.gz", "tar") |
                            regex_replace( "\.", "") }}'
 
-- name: Set auditbeat Package Manager
+- name: Set package and server manager variables
   set_fact:
     ait_auditbeat_pkg_mgr: '{%- if ait_auditbeat_pkg_ext == "tar" or ait_auditbeat_pkg_ext == "zip" -%}
                                   {{ ait_auditbeat_pkg_ext }}
@@ -24,18 +24,18 @@
                                   {{ ansible_service_mgr }}
                           {%- endif -%}'
 
-- name: Include auditbeat Variables
+- name: Include package specific var file
   include_vars: 'vars_{{ ait_auditbeat_pkg_ext }}.yml'
 
 # Include task files in group use
-- name: Include auditbeat Group Tasks
+- name: Include ait_role task files
   include: '{{ lookup("first_found", auditbeat_task_files) }} ait_args={{ item.args }}'
   with_items: '{{ auditbeat_roles[ait_role] }}'
   when: ait_role is defined and auditbeat_roles[ait_role] is defined
 
 # Include task files for individual use, keep in sync with vars/main.yml
 # ansible facts should not be disabled
-- name: Include auditbeat Individual Tasks
+- name: Include ait_action task file
   include: '{{ item }}'
   with_first_found:
     - files:

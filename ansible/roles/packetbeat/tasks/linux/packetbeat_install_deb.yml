@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Download packetbeat package
+- name: Download packetbeat deb package
   get_url:
     url: '{{ packetbeat_package_url }}'
     dest: '{{ packetbeat_package }}'

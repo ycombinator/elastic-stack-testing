@@ -6,19 +6,19 @@
 #----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: Get Kibana Plugins
+- name: List kibana plugins
   shell: "{{ kibana_plugin_exe }} list"
   register: list_plugins_before
 
-- name: If Kibana X-Pack Present, Uninstall
+- name: Uninstall kibana x-pack
   block:
-    - name: Remove Kibana X-Pack
+    - name: Remove kibana x-pack
       shell: '{{ kibana_plugin_exe }} remove x-pack'
       register: output
-    - name: Get Kibana Plugins
+    - name: List kibana plugins
       shell: "{{ kibana_plugin_exe }} list"
       register: list_plugins_after
-    - name: Fail If Kibana X-Pack Is Installed
+    - name: Fail if kibana x-pack is installed
       fail:
         msg: 'x-pack is installed'
       when: '"x-pack" in list_plugins_after.stdout'

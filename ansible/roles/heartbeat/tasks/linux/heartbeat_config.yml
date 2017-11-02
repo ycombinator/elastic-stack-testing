@@ -10,7 +10,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: 'Heartbeat configuration: save original'
+- name: Save original heartbeat configuration
   copy:
     src: '{{ heartbeat_config_file }}'
     dest: '{{ heartbeat_config_file }}.org'
@@ -18,14 +18,14 @@
     force: no
   become: true
 
-- name: 'Heartbeat configuration: change owner to root'
+- name: Change heartbeat configuration file owner to root
   file:
     path: '{{ heartbeat_config_file }}'
     owner: root
     group: root
   become: true
 
-- name: 'Heartbeat configuration: append'
+- name: Heartbeat configuration - append
   lineinfile:
     path: '{{ heartbeat_config_file }}'
     insertafter: EOF
@@ -37,21 +37,21 @@
   when: heartbeat_config_params_file is not defined and
         heartbeat_config_params is defined
 
-- name: 'Heartbeat configuration: new file'
+- name: Heartbeat configuration - new file
   copy:
     src: '{{ heartbeat_config_params_file }}'
     dest: '{{ heartbeat_config_file }}'
   become: true
   when: heartbeat_config_params_file is defined
 
-- name: 'Heartbeat configuration: append internal'
+- name: Heartbeat configuration - append internal
   block:
-    - name: 'Set network host'
+    - name: Set network host
       set_fact:
         internal_heartbeat_config_params: >
           output.elasticsearch:
              hosts: ["{{ current_host_ip }}:{{ elasticsearch_port }}"]
-    - name: 'Add heartbeat configuration'
+    - name: Add heartbeat configuration parameters
       blockinfile:
         path: '{{ heartbeat_config_file }}'
         marker: '# {mark} ANSIBLE MANAGED BLOCK HEARTBEAT PARAMETERS'

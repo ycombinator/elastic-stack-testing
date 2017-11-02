@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Download logstash package
+- name: Download logstash rpm package
   get_url:
     url: '{{ logstash_package_url }}'
     dest: '{{ logstash_package }}'

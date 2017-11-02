@@ -5,10 +5,10 @@
 #-----------------------------------------------------------------------------------------------------------------------
 
 
-- name: 'Remove packetbeat x-pack configuration'
+- name: Remove packetbeat x-pack configuration
   blockinfile:
     path: '{{ packetbeat_config_file }}'
-    marker: '# {mark} ANSIBLE MANAGED BLOCK packetbeat X-PACK PARAMETERS'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK PACKETBEAT X-PACK PARAMETERS'
     insertafter: EOF
     content: ""
   become: true

@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Start Elasticsearch daemon
+- name: Start elasticsearch process
   shell: '{{ elasticsearch_exe }} -d -p {{ elasticsearch_pid_file }}'
   args:
     executable: /bin/bash

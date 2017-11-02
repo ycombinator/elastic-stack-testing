@@ -3,9 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
+---
 
-
-- name: 'Copy certificates ca'
+- name: Copy certificates ca from localhost
   copy:
     src: "{{ local_certs_dir }}/ca"
     dest: "{{ filebeat_rootdir }}"
@@ -13,7 +13,7 @@
     group: root
   become: true
 
-- name: 'Copy certificates cert and key'
+- name: Copy certificates cert and key from localhost
   copy:
     src: "{{ local_certs_dir }}/node"
     dest: "{{ filebeat_rootdir }}"
@@ -21,7 +21,7 @@
     group: root
   become: true
 
-- name: 'filebeat save original configuration'
+- name: Save original filebeat configuration file
   copy:
     src: '{{ filebeat_config_file }}'
     dest: '{{ filebeat_config_file }}.org'
@@ -29,17 +29,17 @@
     force: no
   become: true
 
-- name: 'Change owner of filebeat config to root'
+- name: Change owner of filebeat config to root
   file:
     path: '{{ filebeat_config_file }}'
     owner: root
     group: root
   become: true
 
-- name: 'Add filebeat x-pack configuration'
+- name: Add filebeat x-pack configuration parameters
   blockinfile:
     path: '{{ filebeat_config_file }}'
-    marker: '# {mark} ANSIBLE MANAGED BLOCK filebeat X-PACK PARAMETERS'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK FILEBEAT X-PACK PARAMETERS'
     insertafter: EOF
     content: |
       output.elasticsearch:

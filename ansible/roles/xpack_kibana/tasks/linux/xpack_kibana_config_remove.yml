@@ -5,7 +5,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: 'Remove Kibana X-Pack Configuration'
+- name: Remove kibana x-pack configuration
   blockinfile:
     path: '{{ kibana_config_file }}'
     marker: '# {mark} ANSIBLE MANAGED BLOCK KIBANA XPACK PARAMETERS'

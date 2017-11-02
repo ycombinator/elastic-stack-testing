@@ -10,7 +10,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: 'Elasticsearch Configuration Save Original'
+- name: Save original elasticsearch configuration
   copy:
     src: '{{ elasticsearch_config_file }}'
     dest: '{{ elasticsearch_config_file }}.org'
@@ -18,7 +18,7 @@
     force: no
   become: '{{ elasticsearch_run_as_root | default(omit) }}'
 
-- name: 'Elasticsearch Configuration: Append'
+- name: Elasticsearch configuration - append
   lineinfile:
     path: '{{ elasticsearch_config_file }}'
     insertafter: EOF
@@ -30,25 +30,25 @@
   when: elasticsearch_config_params_file is not defined and
         elasticsearch_config_params is defined
 
-- name: 'Elasticsearch Configuration: New File'
+- name: Elasticsearch configuration - new file
   copy:
     src: '{{ elasticsearch_config_params_file }}'
     dest: '{{ elasticsearch_config_file }}'
   become: '{{ elasticsearch_run_as_root | default(omit) }}'
   when: elasticsearch_config_params_file is defined
 
-- name: 'Elasticsearch Configuration'
+- name: Elasticsearch configuration - append internal
   block:
-    - name: 'Set Network Host'
+    - name: Set network host
       set_fact:
         internal_elasticsearch_config_params: "network.host: {{ current_host_ip }}"
-    - name: 'Set Discovery Zen Parameters For Multiple Nodes'
+    - name: Set discovery zen parameters
       set_fact:
         internal_elasticsearch_config_params: '{{ internal_elasticsearch_config_params }} |
                                               combine("discovery.zen.ping.unicast.hosts: {{ host_ip_list }}") |
                                               combine("discovery.zen.minimum_master_nodes: {{ nodes_in_cluster }}")'
       when: nodes_in_cluster|int > 1
-    - name: 'Add Elasticsearch Configuration'
+    - name: Add elasticsearch configuration parameters
       blockinfile:
         path: '{{ elasticsearch_config_file }}'
         marker: '# {mark} ANSIBLE MANAGED BLOCK ELASTICSEARCH PARAMETERS'

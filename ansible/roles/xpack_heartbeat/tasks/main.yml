@@ -6,13 +6,13 @@
 ---
 
 # Include task files in group use
-- name: Include X-Pack heartbeat Group Tasks
+- name: Include ait_role task files
   include: '{{ lookup("first_found", xpack_heartbeat_task_files) }} ait_args={{ item.args }}'
   with_items: '{{ xpack_heartbeat_roles[ait_role] }}'
   when: ait_role is defined and xpack_heartbeat_roles[ait_role] is defined
 
 # Include task files for individual use, keep in sync with vars/main.yml
-- name: Include X-Pack heartbeat Individual Task
+- name: Include ait_action task files
   include: '{{ item }}'
   with_first_found:
     - files:

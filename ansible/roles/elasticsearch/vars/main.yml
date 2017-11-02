@@ -3,7 +3,6 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
 # Timeout
@@ -27,7 +26,7 @@ elasticsearch_password: "{{ lookup('env','AIT_ELASTICSEARCH_PASSWORD') | default
 # Extract package extension
 elasticsearch_package_ext: "{{ elasticsearch_package_url | splitext | last | regex_replace('.gz', '.tar.gz') }}"
 
-# Role variables to run multiple role files in groupse use, one include
+# Variables to run multiple role task files in a group
 # Must have role name (key), action and args that map to individual task files
 elasticsearch_roles:
   elasticsearch_install_config_startup_verify:
@@ -41,7 +40,7 @@ elasticsearch_roles:
     - { action: 'elasticsearch_uninstall', args: {} }
     - { action: 'elasticsearch_is_not_running', args: {} }
 
-# Task files for group use, keep in sync with tasks/main.yml
+# Task files for ait_role, keep in sync with tasks/main.yml
 elasticsearch_task_files:
   - '{{ ansible_system | lower }}/{{ item.action }}.yml'
   - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_elasticsearch_pkg_ext }}.yml'

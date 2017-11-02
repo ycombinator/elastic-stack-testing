@@ -3,17 +3,16 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: 'Verify packetbeat Is Not Running'
+- name: Verify packetbeat is not running
   block:
-    - name: 'Get packetbeat Process'
+    - name: Get packetbeat process
       shell: "ps -efw | grep packetbeat | grep -v grep | awk '{print $2}'"
       args:
         executable: /bin/bash
       register: packetbeat_process_id
-    - name: 'Fail packetbeat Process Is Running'
+    - name: Fail if packetbeat process is running
       fail:
         msg: 'packetbeat is running'
       when: packetbeat_process_id.stdout != ""

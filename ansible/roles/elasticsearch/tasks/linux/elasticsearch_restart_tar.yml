@@ -3,16 +3,15 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Restart Elasticsearch
+- name: Restart elasticsearch
   block:
-    - name: Stop Elasticsearch daemon
+    - name: Stop elasticsearch process
       shell: "ps -efw | grep elasticsearch | grep -v grep | awk '{print $2}' | xargs kill -SIGTERM"
       args:
         executable: /bin/bash
-    - name: Start Elasticsearch daemon
+    - name: Start elasticsearch process
       shell: '{{ elasticsearch_exe }} -d -p {{ elasticsearch_pid_file }}'
       args:
         executable: /bin/bash

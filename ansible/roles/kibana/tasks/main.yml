@@ -1,16 +1,19 @@
 #-----------------------------------------------------------------------------------------------------------------------
-# kibana tasks
+# Kibana tasks
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
--  set_fact:
+
+- name: Set package extension variable
+  set_fact:
     ait_kibana_pkg_ext: '{{ kibana_package_ext |
                             regex_replace(".tar.gz", "tar") |
                             regex_replace( "\.", "") }}'
 
-- set_fact:
+- name: Set package and server manager variables
+  set_fact:
     ait_kibana_pkg_mgr: '{%- if ait_kibana_pkg_ext == "tar" or ait_kibana_pkg_ext == "zip" -%}
                           {{ ait_kibana_pkg_ext }}
                         {%- else -%}
@@ -22,17 +25,16 @@
                           {{ ansible_service_mgr }}
                         {%- endif -%}'
 
-- name: Include vars files
+- name: Include package specific var file
   include_vars: 'vars_{{ ait_kibana_pkg_ext }}.yml'
 
-# Include task files in group use
-- name: Include group task files
+- name: Include ait_role task files
   include: '{{ lookup("first_found", kibana_task_files) }} ait_args={{ item.args }}'
   with_items: '{{ kibana_roles[ait_role] }}'
   when: ait_role is defined and kibana_roles[ait_role] is defined
 
-# Include task files for individual use, keep in sync with vars/main.yml
-- name: Include individual task file
+# Keep in sync with vars/main.yml
+- name: Include ait_action task file
   include: '{{ item }}'
   with_first_found:
     - files:

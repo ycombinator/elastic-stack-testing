@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Start packetbeat daemon
+- name: Start packetbeat process
   shell: '{{ packetbeat_exe }} -c {{ packetbeat_config_file }} &'
   args:
     executable: /bin/bash

@@ -10,7 +10,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: 'Kibana Configuration Save Original'
+- name: Save original kibana configuration
   copy:
     src: '{{ kibana_config_file }}'
     dest: '{{ kibana_config_file }}.org'
@@ -18,7 +18,7 @@
     force: no
   become: '{{ kibana_run_as_root | default(omit) }}'
 
-- name: 'Create Kibana Log Directory'
+- name: Create kibana log directory
   file:
     path: '{{ kibana_log_dir }}'
     state: directory
@@ -26,7 +26,7 @@
   become: true
   tags: kibana_log_check
 
-- name: 'Kibana Configuration: Append'
+- name: Kibana configuration - append
   lineinfile:
     path: '{{ kibana_config_file }}'
     insertafter: EOF
@@ -38,22 +38,22 @@
   when: kibana_config_params_file is not defined and
         kibana_config_params is defined
 
-- name: 'Kibana Configuration: New File'
+- name: Kibana configuration - new file
   copy:
     src: '{{ kibana_config_params_file }}'
     dest: '{{ kibana_config_file }}'
   become: '{{ kibana_run_as_root | default(omit) }}'
   when: kibana_config_params_file is defined
 
-- name: 'kibana Configuration'
+- name: Kibana configuration - append internal
   block:
-    - name: 'Set Network Host'
+    - name: Set network host
       set_fact:
         internal_kibana_config_params: |
           server.host:  {{ current_host_ip }}
           logging.dest: {{ kibana_log_file | trim }}
           elasticsearch.url: http://{{ current_host_ip }}:{{ elasticsearch_port }}
-    - name: 'Add kibana Configuration'
+    - name: Add kibana configuration parameters
       blockinfile:
         path: '{{ kibana_config_file }}'
         marker: '# {mark} ANSIBLE MANAGED BLOCK KIBANA PARAMETERS'

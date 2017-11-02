@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# auditbeat remove x-pack configuration
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Remove auditbeat x-pack configuration
+  blockinfile:
+    path: '{{ auditbeat_config_file }}'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK AUDITBEAT X-PACK PARAMETERS'
+    insertafter: EOF
+    content: ""
+  become: true

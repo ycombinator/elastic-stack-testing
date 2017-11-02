@@ -10,10 +10,10 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: 'filebeat Configuration'
+- name: Remove filebeat configuration parameters
   blockinfile:
     path: '{{ filebeat_config_file }}'
-    marker: '# {mark} ANSIBLE MANAGED BLOCK filebeat PARAMETERS'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK FILEBEAT PARAMETERS'
     insertafter: EOF
     content: ''
   become: true

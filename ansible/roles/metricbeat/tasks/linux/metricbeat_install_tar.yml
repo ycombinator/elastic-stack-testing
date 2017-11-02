@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Download metricbeat package
+- name: Download metricbeat tar package
   get_url:
     url: '{{ metricbeat_package_url }}'
     dest: '{{ metricbeat_package }}'
@@ -19,3 +18,17 @@
     dest: '{{ metricbeat_install_dir }}'
     remote_src: True
   tags: install_metricbeat
+
+- name: Check if modules directory exists
+  stat:
+    path: '{{ metricbeat_modules }}'
+  register: p
+
+- name: Change permissions on modules directory
+  file:
+    path: '{{ metricbeat_modules }}'
+    owner: root
+    group: root
+    recurse: true
+  become: true
+  when: p.stat.isdir is defined and p.stat.isdir

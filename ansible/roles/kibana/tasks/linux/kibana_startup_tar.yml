@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Start kibana daemon
+- name: Start kibana process
   shell: "{{ kibana_exe }} &"
   args:
     executable: /bin/bash

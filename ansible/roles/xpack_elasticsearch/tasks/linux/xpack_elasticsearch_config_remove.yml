@@ -5,7 +5,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 
 
-- name: 'Remove Elasticsearch X-Pack Configuration'
+- name: Remove elasticsearch x-pack configuration
   blockinfile:
     path: '{{ elasticsearch_config_file }}'
     marker: '# {mark} ANSIBLE MANAGED BLOCK ELASTICSEARCH XPACK PARAMETERS'

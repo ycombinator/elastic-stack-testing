@@ -5,7 +5,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 
 
-- name: 'Copy certificates ca'
+- name: Copy certificates ca from localhost
   copy:
     src: "{{ local_certs_dir }}/ca"
     dest: "{{ heartbeat_rootdir }}"
@@ -13,7 +13,7 @@
     group: root
   become: true
 
-- name: 'Copy certificates cert and key'
+- name: Copy certificates cert and key from localhost
   copy:
     src: "{{ local_certs_dir }}/node"
     dest: "{{ heartbeat_rootdir }}"
@@ -21,7 +21,7 @@
     group: root
   become: true
 
-- name: 'heartbeat save original configuration'
+- name: Save original heartbeat configuration file
   copy:
     src: '{{ heartbeat_config_file }}'
     dest: '{{ heartbeat_config_file }}.org'
@@ -29,17 +29,17 @@
     force: no
   become: true
 
-- name: 'Change owner of heartbeat config to root'
+- name: Change owner of heartbeat config to root
   file:
     path: '{{ heartbeat_config_file }}'
     owner: root
     group: root
   become: true
 
-- name: 'Add heartbeat x-pack configuration'
+- name: Add heartbeat x-pack configuration parameters
   blockinfile:
     path: '{{ heartbeat_config_file }}'
-    marker: '# {mark} ANSIBLE MANAGED BLOCK heartbeat X-PACK PARAMETERS'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK HEARTBEAT X-PACK PARAMETERS'
     insertafter: EOF
     content: |
       output.elasticsearch:

@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Download heartbeat package
+- name: Download heartbeat deb package
   get_url:
     url: '{{ heartbeat_package_url }}'
     dest: '{{ heartbeat_package }}'

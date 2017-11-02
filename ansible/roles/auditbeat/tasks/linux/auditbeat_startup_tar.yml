@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Start auditbeat daemon
+- name: Start auditbeat process
   shell: '{{ auditbeat_exe }} -c {{ auditbeat_config_file }} &'
   args:
     executable: /bin/bash

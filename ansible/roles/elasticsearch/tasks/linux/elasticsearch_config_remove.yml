@@ -10,7 +10,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: 'Elasticsearch Configuration'
+- name: Remove elasticsearch configuration parameters
   blockinfile:
     path: '{{ elasticsearch_config_file }}'
     marker: '# {mark} ANSIBLE MANAGED BLOCK ELASTICSEARCH PARAMETERS'

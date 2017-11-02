@@ -10,7 +10,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: 'Metricbeat configuration: save original'
+- name: Save original metricbeat configuration
   copy:
     src: '{{ metricbeat_config_file }}'
     dest: '{{ metricbeat_config_file }}.org'
@@ -18,14 +18,14 @@
     force: no
   become: true
 
-- name: 'Metricbeat configuration: change owner to root'
+- name: Change metricbeat configuration file owner to root
   file:
     path: '{{ metricbeat_config_file }}'
     owner: root
     group: root
   become: true
 
-- name: 'Metricbeat configuration: append'
+- name: Metricbeat configuration - append
   lineinfile:
     path: '{{ metricbeat_config_file }}'
     insertafter: EOF
@@ -37,21 +37,21 @@
   when: metricbeat_config_params_file is not defined and
         metricbeat_config_params is defined
 
-- name: 'Metricbeat configuration: new file'
+- name: Metricbeat configuration - new file
   copy:
     src: '{{ metricbeat_config_params_file }}'
     dest: '{{ metricbeat_config_file }}'
   become: true
   when: metricbeat_config_params_file is defined
 
-- name: 'Metricbeat configuration: append internal'
+- name: Metricbeat configuration - append internal
   block:
-    - name: 'Set network host'
+    - name: Set network host
       set_fact:
         internal_metricbeat_config_params: >
           output.elasticsearch:
              hosts: ["{{ current_host_ip }}:{{ elasticsearch_port }}"]
-    - name: 'Add metricbeat configuration'
+    - name: Add metricbeat configuration parameters
       blockinfile:
         path: '{{ metricbeat_config_file }}'
         marker: '# {mark} ANSIBLE MANAGED BLOCK METRICBEAT PARAMETERS'

@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Start heartbeat daemon
+- name: Start heartbeat process
   shell: '{{ heartbeat_exe }} -c {{ heartbeat_config_file }} &'
   args:
     executable: /bin/bash

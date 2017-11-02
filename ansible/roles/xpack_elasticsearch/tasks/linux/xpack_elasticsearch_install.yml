@@ -7,26 +7,26 @@
 
 ---
 
-- name: Get Elasticsearch Plugins
+- name: List elasticsearch plugins
   shell: "{{ elasticsearch_plugin_exe }} list"
   register: list_plugins_before
 
-- name: Install Elasticsearch X-Pack
+- name: Install elasticsearch x-pack
   block:
-    - name: Download Elasticsearch X-Pack Package
+    - name: Download elasticsearch x-pack package
       get_url:
         url: '{{ xpack_elasticsearch_package_url }}'
         dest: '{{ xpack_elasticsearch_package }}'
         timeout: '{{ url_timeout }}'
-    - name: Install Elasticsearch X-Pack
+    - name: Install elasticsearch x-pack
       shell: '{{ elasticsearch_plugin_exe }} install file://{{xpack_elasticsearch_package }} --batch'
       register: xpack_elasticsearch_output
     - debug:
         msg: '{{ xpack_elasticsearch_output }}'
-    - name: Get Elasticsearch Plugins
+    - name: List elasticsearch plugins
       shell: '{{ elasticsearch_plugin_exe }} list'
       register: list_plugins_after
-    - name: Fail If Elasticsearch X-Pack Is Not Installed
+    - name: Fail if elasticsearch x-pack is not installed
       fail:
       when: '"x-pack" not in list_plugins_after.stdout_lines'
   when: '"x-pack" not in list_plugins_before.stdout_lines'

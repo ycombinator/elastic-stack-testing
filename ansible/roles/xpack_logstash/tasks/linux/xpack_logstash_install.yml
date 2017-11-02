@@ -7,26 +7,26 @@
 
 ---
 
-- name: Get Logstash Plugins
+- name: List logstash plugins
   shell: "{{ logstash_plugin_exe }} list"
   register: list_plugins_before
 
-- name: Install Logstash X-Pack
+- name: Install logstash x-pack
   block:
-    - name: Download Logstash X-Pack Package
+    - name: Download logstash x-pack package
       get_url:
         url: '{{ xpack_logstash_package_url }}'
         dest: '{{ xpack_logstash_package }}'
         timeout: '{{ url_timeout }}'
-    - name: Install Logstash X-Pack
+    - name: Install logstash x-pack
       shell: '{{ logstash_plugin_exe }} install file://{{ xpack_logstash_package }}'
       register: xpack_logstash_output
     - debug:
         msg: '{{ xpack_logstash_output }}'
-    - name: Get Logstash Plugins
+    - name: List logstash plugins
       shell: '{{ logstash_plugin_exe }} list'
       register: list_plugins_after
-    - name: Fail If Logstash X-Pack Is Not Installed
+    - name: Fail if logstash x-pack is not installed
       fail:
       when: '"x-pack" not in list_plugins_after.stdout_lines'
   when: '"x-pack" not in list_plugins_before.stdout_lines'

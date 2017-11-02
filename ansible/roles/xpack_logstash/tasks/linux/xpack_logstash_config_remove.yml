@@ -5,7 +5,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 
 
-- name: 'Remove Logstash X-Pack Configuration'
+- name: Remove logstash x-pack configuration
   blockinfile:
     path: '{{ logstash_config_file }}'
     marker: '# {mark} ANSIBLE MANAGED BLOCK LOGSTASH XPACK PARAMETERS'

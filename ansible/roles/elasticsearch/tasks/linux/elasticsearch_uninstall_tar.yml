@@ -5,7 +5,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: Remove Elasticsearch directory
+- name: Remove elasticsearch directory
   file:
     state: absent
     path: '{{ elasticsearch_rootdir | trim }}'

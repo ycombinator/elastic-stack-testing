@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Download auditbeat package
+- name: Download auditbeat tar package
   get_url:
     url: '{{ auditbeat_package_url }}'
     dest: '{{ auditbeat_package }}'

@@ -3,17 +3,16 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: 'Verify heartbeat Is Not Running'
+- name: Verify heartbeat is not running
   block:
-    - name: 'Get heartbeat Process'
+    - name: Get heartbeat process
       shell: "ps -efw | grep heartbeat | grep -v grep | awk '{print $2}'"
       args:
         executable: /bin/bash
       register: heartbeat_process_id
-    - name: 'Fail heartbeat Process Is Running'
+    - name: Fail if heartbeat process is running
       fail:
         msg: 'heartbeat is running'
       when: heartbeat_process_id.stdout != ""

@@ -10,7 +10,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: 'Filebeat configuration: save original'
+- name: Save original filebeat configuration
   copy:
     src: '{{ filebeat_config_file }}'
     dest: '{{ filebeat_config_file }}.org'
@@ -18,14 +18,14 @@
     force: no
   become: true
 
-- name: 'Filebeat configuration: change owner to root'
+- name: Change filebeat configuration file owner to root
   file:
     path: '{{ filebeat_config_file }}'
     owner: root
     group: root
   become: true
 
-- name: 'Filebeat configuration: append'
+- name: Filebeat configuration - append
   lineinfile:
     path: '{{ filebeat_config_file }}'
     insertafter: EOF
@@ -37,21 +37,21 @@
   when: filebeat_config_params_file is not defined and
         filebeat_config_params is defined
 
-- name: 'Filebeat configuration: new file'
+- name: Filebeat configuration - new file
   copy:
     src: '{{ filebeat_config_params_file }}'
     dest: '{{ filebeat_config_file }}'
   become: true
   when: filebeat_config_params_file is defined
 
-- name: 'Filebeat configuration: append internal'
+- name: Filebeat configuration - append internal
   block:
-    - name: 'Set network host'
+    - name: Set network host
       set_fact:
         internal_filebeat_config_params: >
           output.elasticsearch:
              hosts: ["{{ current_host_ip }}:{{ elasticsearch_port }}"]
-    - name: 'Add filebeat configuration'
+    - name: Add filebeat configuration parameters
       blockinfile:
         path: '{{ filebeat_config_file }}'
         marker: '# {mark} ANSIBLE MANAGED BLOCK FILEBEAT PARAMETERS'

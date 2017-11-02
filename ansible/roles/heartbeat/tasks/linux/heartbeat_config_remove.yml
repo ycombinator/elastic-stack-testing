@@ -10,10 +10,10 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: 'heartbeat Configuration'
+- name: Remove heartbeat configuration parameters
   blockinfile:
     path: '{{ heartbeat_config_file }}'
-    marker: '# {mark} ANSIBLE MANAGED BLOCK heartbeat PARAMETERS'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK HEARTBEAT PARAMETERS'
     insertafter: EOF
     content: ''
   become: true

@@ -3,7 +3,6 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
 # TODO: maybe make this handler, it fails if it is already running on the second time

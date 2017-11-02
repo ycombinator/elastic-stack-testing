@@ -29,3 +29,6 @@ metricbeat_config_file: '{{ metricbeat_config_dir }}/metricbeat.yml'
 # metricbeat log
 metricbeat_log_dir: '{{ metricbeat_rootdir | trim }}/logs'
 metricbeat_log_file: '{{ metricbeat_log_dir }}/metricbeat'
+
+# metricbeat modules
+metricbeat_modules: '{{ metricbeat_rootdir | trim }}/modules.d'

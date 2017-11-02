@@ -10,10 +10,10 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: 'packetbeat Configuration'
+- name: Remove packetbeat configuration parameters
   blockinfile:
     path: '{{ packetbeat_config_file }}'
-    marker: '# {mark} ANSIBLE MANAGED BLOCK packetbeat PARAMETERS'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK PACKETBEAT PARAMETERS'
     insertafter: EOF
     content: ''
   become: true

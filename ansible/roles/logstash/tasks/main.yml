@@ -1,20 +1,19 @@
 #-----------------------------------------------------------------------------------------------------------------------
-# logstash tasks
+# Logstash tasks
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- fail:
-    msg: "This role must have ait_role or ait_action defined"
-  when: ait_role is not defined and ait_action is not defined
 
--  set_fact:
+- name: Set package extension variable
+  set_fact:
     ait_logstash_pkg_ext: '{{ logstash_package_ext |
                             regex_replace(".tar.gz", "tar") |
                             regex_replace( "\.", "") }}'
 
-- set_fact:
+- name: Set package and server manager variables
+  set_fact:
     ait_logstash_pkg_mgr: '{%- if ait_logstash_pkg_ext == "tar" or ait_logstash_pkg_ext == "zip" -%}
                           {{ ait_logstash_pkg_ext }}
                         {%- else -%}
@@ -26,21 +25,16 @@
                           {{ ansible_service_mgr }}
                         {%- endif -%}'
 
-- name: Include vars files
+- name: Include package specific var file
   include_vars: 'vars_{{ ait_logstash_pkg_ext }}.yml'
 
-#- debug:
-#    msg: '{{ logstash_task_files }}'
-#  with_items: '{{ logstash_roles[ait_role] }}'
-
-# Include task files in group use
-- name: Include group task files
+- name: Include ait_role task files
   include: '{{ lookup("first_found", logstash_task_files) }} ait_args={{ item.args }}'
   with_items: '{{ logstash_roles[ait_role] }}'
   when: ait_role is defined and logstash_roles[ait_role] is defined
 
-# Include task files for individual use, keep in sync with vars/main.yml
-- name: Include individual task file
+# Keep in sync with vars/main.yml
+- name: Include ait_action task file
   include: '{{ item }}'
   with_first_found:
     - files:

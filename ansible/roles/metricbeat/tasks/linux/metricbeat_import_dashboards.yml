@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: 'Import metricbeat Dashboards'
+- name: Import metricbeat dashboards
   shell: "{{ metricbeat_scripts }}/import_dashboards -es http://{{ current_host_ip }}:{{ elasticsearch_port }}"
   args:
     executable: /bin/bash

@@ -5,13 +5,13 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: Restart Kibana
+- name: Restart kibana
   block:
-    - name: Stop Kibana
+    - name: Stop kibana process
       shell: "ps -efw | grep kibana | grep -v grep | awk '{print $2}' | xargs kill -SIGTERM"
       args:
         executable: /bin/bash
-    - name: Start Kibana
+    - name: Start kibana process
       shell: '{{ kibana_exe }} &'
       args:
         executable: /bin/bash

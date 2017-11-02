@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Start logstash daemon
+- name: Start logstash process
   shell: '{{ logstash_exe }} -f {{ logstash_conf_path }} &'
   args:
     executable: /bin/bash

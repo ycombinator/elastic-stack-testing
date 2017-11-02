@@ -1,11 +1,31 @@
 #-----------------------------------------------------------------------------------------------------------------------
-# Elasticsearch xpack config file
+# Logstash x-pack configuration
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
+---
 
+- name: Copy certificates ca from localhost
+  copy:
+    src: "{{ local_certs_dir }}/ca"
+    dest: "{{ logstash_rootdir }}"
+  become: '{{ logstash_run_as_root | default(omit) }}'
 
-- name: 'Add Logstash X-Pack Configuration'
+- name: Copy certificates cert and key from localhost
+  copy:
+    src: "{{ local_certs_dir }}/node"
+    dest: "{{ logstash_rootdir }}"
+  become: '{{ logstash_run_as_root | default(omit) }}'
+
+- name: Save original logstash configuration file
+  copy:
+    src: '{{ logstash_config_file }}'
+    dest: '{{ logstash_config_file }}.org'
+    remote_src: True
+    force: no
+  become: '{{ logstash_run_as_root | default(omit) }}'
+
+- name: Add logstash x-pack configuration parameters
   blockinfile:
     path: '{{ logstash_config_file }}'
     marker: '# {mark} ANSIBLE MANAGED BLOCK LOGSTASH XPACK PARAMETERS'
@@ -14,5 +34,5 @@
       xpack.monitoring.elasticsearch.url: https://{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}:{{ elasticsearch_port }}
       xpack.monitoring.elasticsearch.username: {{ elasticsearch_username }}
       xpack.monitoring.elasticsearch.password: {{ elasticsearch_password }}
-      xpack.monitoring.elasticsearch.ssl.ca: {{ elasticsearch_xpack_config_dir }}/ca/ca.crt
+      xpack.monitoring.elasticsearch.ssl.ca: {{ logstash_rootdir | trim }}/ca/ca.crt
   become: '{{ logstash_run_as_root | default(omit) }}'

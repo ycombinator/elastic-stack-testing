@@ -10,7 +10,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: 'logstash Configuration Save Original'
+- name: Save original logstash configuration
   copy:
     src: '{{ logstash_config_file }}'
     dest: '{{ logstash_config_file }}.org'
@@ -18,7 +18,7 @@
     force: no
   become: '{{ logstash_run_as_root | default(omit) }}'
 
-- name: 'Create logstash Log Directory'
+- name: Create logstash log directory
   file:
     path: '{{ logstash_log_dir }}'
     state: directory
@@ -26,7 +26,7 @@
   become: true
   tags: logstash_log_check
 
-- name: 'logstash Configuration: Append'
+- name: Logstash configuration - append
   lineinfile:
     path: '{{ logstash_config_file }}'
     insertafter: EOF
@@ -38,25 +38,25 @@
   when: logstash_config_params_file is not defined and
         logstash_config_params is defined
 
-- name: 'logstash Configuration: New File'
+- name: Logstash configuration - new file
   copy:
     src: '{{ logstash_config_params_file }}'
     dest: '{{ logstash_config_file }}'
   become: '{{ logstash_run_as_root | default(omit) }}'
   when: logstash_config_params_file is defined
 
-- name: 'logstash Configuration'
+- name: Logstash configuration - append internal
   block:
-    - name: 'Set Network Host'
+    - name: Set network host
       set_fact:
         internal_logstash_config_params: |
           server.host:  {{ current_host_ip }}
           logging.dest: {{ logstash_log_file | trim }}
-    - name: 'Add logstash Configuration'
+    - name: Add logstash configuration parameters
       blockinfile:
         path: '{{ logstash_config_file }}'
-        marker: '# {mark} ANSIBLE MANAGED BLOCK logstash PARAMETERS'
+        marker: '# {mark} ANSIBLE MANAGED BLOCK LOGSTASH PARAMETERS'
         insertafter: EOF
         content: '{{ internal_logstash_config_params }}'
       become: '{{ logstash_run_as_root | default(omit) }}'
-  when: logstash_config_params_strict is not defined or not logstash_config_params_strict 
+  when: logstash_config_params_strict is not defined or not logstash_config_params_strict

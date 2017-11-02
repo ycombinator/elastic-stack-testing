@@ -5,7 +5,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 
 
-- name: 'Copy certificates ca'
+- name: Copy certificates ca from localhost
   copy:
     src: "{{ local_certs_dir }}/ca"
     dest: "{{ packetbeat_rootdir }}"
@@ -13,7 +13,7 @@
     group: root
   become: true
 
-- name: 'Copy certificates cert and key'
+- name: Copy certificates cert and key from localhost
   copy:
     src: "{{ local_certs_dir }}/node"
     dest: "{{ packetbeat_rootdir }}"
@@ -21,7 +21,7 @@
     group: root
   become: true
 
-- name: 'packetbeat save original configuration'
+- name: Save original packetbeat configuration file
   copy:
     src: '{{ packetbeat_config_file }}'
     dest: '{{ packetbeat_config_file }}.org'
@@ -29,17 +29,17 @@
     force: no
   become: true
 
-- name: 'Change owner of packetbeat config to root'
+- name: Change owner of packetbeat config to root
   file:
     path: '{{ packetbeat_config_file }}'
     owner: root
     group: root
   become: true
 
-- name: 'Add packetbeat x-pack configuration'
+- name: Add packetbeat x-pack configuration parameters
   blockinfile:
     path: '{{ packetbeat_config_file }}'
-    marker: '# {mark} ANSIBLE MANAGED BLOCK packetbeat X-PACK PARAMETERS'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK PACKETBEAT X-PACK PARAMETERS'
     insertafter: EOF
     content: |
       output.elasticsearch:

@@ -3,10 +3,8 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-# TODO: make a module to do this if one does not exist
 - name: Stop filebeat daemon
   shell: "ps -efw | grep filebeat | grep -v grep | awk '{print $2}' | xargs kill -SIGTERM"
   args:

@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Download filebeat package
+- name: Download filebeat deb package
   get_url:
     url: '{{ filebeat_package_url }}'
     dest: '{{ filebeat_package }}'

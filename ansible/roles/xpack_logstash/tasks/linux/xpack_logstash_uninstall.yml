@@ -4,21 +4,22 @@
 # Author: liza.dayoub@elastic.co
 #
 #----------------------------------------------------------------------------------------------------------------------
-
 ---
 
 - name: Get Logstash X-Pack Plugins
   shell: "{{ logstash_plugin_exe }} list"
   register: list_plugins_before
 
-- name: Uninstall Logstash X-Pack
-  shell: '{{ logstash_plugin_exe }} remove x-pack'
-  register: output
-  when: '"x-pack" in list_plugins_before.stdout_lines'
-
-- name: Get Logstash X-Pack Plugins
-  shell: "{{ logstash_plugin_exe }} list"
-  register: list_plugins_after
-- name: Fail If X-Pack Logstash Is Installed
-  fail:
-  when: '"x-pack" in list_plugins_after.stdout_lines'
+- name: Uninstall logstash x-pack
+  block:
+    - name: Remove logstash x-pack
+      shell: '{{ logstash_plugin_exe }} remove x-pack'
+      register: output
+    - name: List logstash plugins
+      shell: "{{ logstash_plugin_exe }} list"
+      register: list_plugins_after
+    - name: Fail if logstash x-pack is installed
+      fail:
+        msg: 'x-pack is installed'
+      when: '"x-pack" in list_plugins_after.stdout'
+  when: '"x-pack" in list_plugins_before.stdout'

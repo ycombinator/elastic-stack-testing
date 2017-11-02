@@ -5,13 +5,13 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: Set metricbeat Package Extension
+- name: Set package extension variable
   set_fact:
     ait_metricbeat_pkg_ext: '{{ metricbeat_package_ext |
                            regex_replace(".tar.gz", "tar") |
                            regex_replace( "\.", "") }}'
 
-- name: Set metricbeat Package Manager
+- name: Set package and server manager variables
   set_fact:
     ait_metricbeat_pkg_mgr: '{%- if ait_metricbeat_pkg_ext == "tar" or ait_metricbeat_pkg_ext == "zip" -%}
                                   {{ ait_metricbeat_pkg_ext }}
@@ -24,18 +24,18 @@
                                   {{ ansible_service_mgr }}
                           {%- endif -%}'
 
-- name: Include metricbeat Variables
+- name: Include package specific var file
   include_vars: 'vars_{{ ait_metricbeat_pkg_ext }}.yml'
 
 # Include task files in group use
-- name: Include metricbeat Group Tasks
+- name: Include ait_role task files
   include: '{{ lookup("first_found", metricbeat_task_files) }} ait_args={{ item.args }}'
   with_items: '{{ metricbeat_roles[ait_role] }}'
   when: ait_role is defined and metricbeat_roles[ait_role] is defined
 
 # Include task files for individual use, keep in sync with vars/main.yml
 # ansible facts should not be disabled
-- name: Include metricbeat Individual Tasks
+- name: Include ait_action task file
   include: '{{ item }}'
   with_first_found:
     - files:

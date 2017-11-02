@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Restart Logstash
+- name: Restart logstash
   service:
     name: 'logstash'
     state: restarted

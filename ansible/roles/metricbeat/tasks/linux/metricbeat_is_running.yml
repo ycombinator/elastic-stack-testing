@@ -3,17 +3,16 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: 'Verify metricbeat Is Running'
+- name: Verify metricbeat is running
   block:
-    - name: 'Get metricbeat Process'
+    - name: Get metricbeat process
       shell: "ps -efw | grep metricbeat | grep -v grep | awk '{print $2}'"
       args:
         executable: /bin/bash
       register: metricbeat_process_id
-    - name: 'Fail metricbeat Process Is Not Running'
+    - name: Fail if metricbeat process is not running
       fail:
         msg: 'metricbeat is not running'
       when: metricbeat_process_id.stdout == ""

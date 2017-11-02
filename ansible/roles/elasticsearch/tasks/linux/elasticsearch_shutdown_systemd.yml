@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Stop Elasticsearch systemd
+- name: Stop elasticsearch systemd
   systemd:
       name: 'elasticsearch.service'
       state: stopped

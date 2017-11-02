@@ -1,36 +1,44 @@
 #-----------------------------------------------------------------------------------------------------------------------
-# logstash vars file
+# Logstash x-pack vars file
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
+# x-pack logstash package
 xpack_logstash_package: '{{ logstash_install_dir }}/logstash_{{ xpack_logstash_package_url | basename }}'
 
+# logstash conf parameters
 xpack_logstash_conf_params: |
                               user => "{{ elasticsearch_username }}"
                               password => "{{ elasticsearch_password }}"
                               ssl => "true"
                               cacert => "{{ elasticsearch_xpack_config_dir }}/ca/ca.crt"
 
-# Role variables to run multiple role files in groupse use, one include
+# Variables to run multiple role task files in a group
 # Must have role name (key), action and args that map to individual task files
 xpack_logstash_roles:
-  xpack_logstash_install_config_restart_verify:
+  xpack_logstash_install_config_start_verify:
+    - { action: 'logstash_install', parent: 'logstash', args: {} }
     - { action: 'xpack_logstash_install', parent: '', args: {} }
     - { action: 'xpack_logstash_config',  parent: '', args: {} }
     - { action: 'logstash_conf', parent: 'logstash', args: { ait_logstash_conf_xpack: "{{ xpack_logstash_conf_params }}" } }
     - { action: 'logstash_restart',  parent: 'logstash', args: {} }
     - { action: 'logstash_is_running', parent: 'logstash', args: {} }
-  xpack_logstash_rmconfig_uninstall_restart_verify:
+  xpack_logstash_plugin_config_start_verify:
+    - { action: 'xpack_logstash_install', parent: '', args: {} }
+    - { action: 'xpack_logstash_config',  parent: '', args: {} }
+    - { action: 'logstash_conf', parent: 'logstash', args: { ait_logstash_conf_xpack: "{{ xpack_logstash_conf_params }}" } }
+    - { action: 'logstash_restart',  parent: 'logstash', args: {} }
+    - { action: 'logstash_is_running', parent: 'logstash', args: {} }
+  xpack_logstash_rmconfig_uninstall_start_verify:
     - { action: 'xpack_logstash_config_remove', parent: '', args: {} }
     - { action: 'xpack_logstash_uninstall', parent: '', args: {} }
     - { action: 'logstash_conf', parent: 'logstash', args: {} }
     - { action: 'logstash_restart',  parent: 'logstash', args: {} }
     - { action: 'logstash_is_running', parent: 'logstash', args: {} }
 
-# Task files for group use, keep in sync with tasks/main.yml except for parent tasks
+# Task files for ait_role, keep in sync with tasks/main.yml except for parent tasks
 xpack_logstash_task_files:
   - '{{ ansible_system | lower }}/{{ item.action }}.yml'
   - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}.yml'

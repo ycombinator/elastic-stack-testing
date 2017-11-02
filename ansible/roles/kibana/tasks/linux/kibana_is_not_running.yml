@@ -5,18 +5,18 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: 'Verify Kibana Process Is Not Running'
+- name: Verify kibana is not running
   block:
-    - name: 'Get Kibana Process'
+    - name: Get kibana process
       shell: "lsof -i:{{ kibana_port }} | tail -1 | awk '{print $2}'"
       args:
         executable: /bin/bash
       register: kibana_process_id
       until: kibana_process_id.stdout == ""
-      retries: 3 
+      retries: 3
       delay: 2
       ignore_errors: yes
-    - name: 'Fail If Kibana Process Is Running'
+    - name: Fail if kibana process is running
       fail:
         msg: 'kibana is running'
       when: kibana_process_id.stdout != ""

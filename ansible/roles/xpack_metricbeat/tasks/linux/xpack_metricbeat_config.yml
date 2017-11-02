@@ -5,7 +5,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 
 
-- name: 'Copy certificates ca'
+- name: Copy certificates ca from localhost
   copy:
     src: "{{ local_certs_dir }}/ca"
     dest: "{{ metricbeat_rootdir }}"
@@ -13,7 +13,7 @@
     group: root
   become: true
 
-- name: 'Copy certificates cert and key'
+- name: Copy certificates cert and key from localhost
   copy:
     src: "{{ local_certs_dir }}/node"
     dest: "{{ metricbeat_rootdir }}"
@@ -21,7 +21,7 @@
     group: root
   become: true
 
-- name: 'Metricbeat save original configuration'
+- name: Save original metricbeat configuration file
   copy:
     src: '{{ metricbeat_config_file }}'
     dest: '{{ metricbeat_config_file }}.org'
@@ -29,14 +29,14 @@
     force: no
   become: true
 
-- name: 'Change owner of metricbeat config to root'
+- name: Change owner of metricbeat config to root
   file:
     path: '{{ metricbeat_config_file }}'
     owner: root
     group: root
   become: true
 
-- name: 'Add metricbeat x-pack configuration'
+- name: Add metricbeat x-pack configuration parameters
   blockinfile:
     path: '{{ metricbeat_config_file }}'
     marker: '# {mark} ANSIBLE MANAGED BLOCK METRICBEAT X-PACK PARAMETERS'

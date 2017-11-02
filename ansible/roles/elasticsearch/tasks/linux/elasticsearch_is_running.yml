@@ -3,17 +3,16 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: 'Verify Elasticsearch Is Running'
+- name: Verify elasticsearch is running
   block:
-    - name: 'Get Elasticsearch Process'
+    - name: Get elasticsearch process
       shell: "ps -efw | grep elasticsearch | grep -v grep | awk '{print $2}'"
       args:
         executable: /bin/bash
       register: elasticsearch_process_id
-    - name: 'Fail Elasticsearch Process Is Not Running'
+    - name: Fail if elasticsearch process is not running
       fail:
         msg: 'elasticsearch is not running'
       when: elasticsearch_process_id.stdout == ""

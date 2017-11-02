@@ -1,11 +1,11 @@
 #-----------------------------------------------------------------------------------------------------------------------
-# Elasticsearch xpack config file
+# Elasticsearch x-pack configuration
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
+---
 
-
-- name: 'Add Elasticsearch X-Pack Configuration'
+- name: Add elasticsearch x-pack configuration parameters
   blockinfile:
     path: '{{ elasticsearch_config_file }}'
     marker: '# {mark} ANSIBLE MANAGED BLOCK ELASTICSEARCH XPACK PARAMETERS'

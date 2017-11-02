@@ -3,17 +3,16 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Download elasticsearch package
+- name: Download elasticsearch tar package
   get_url:
     url: '{{ elasticsearch_package_url }}'
     dest: '{{ elasticsearch_package }}'
     timeout: '{{ url_timeout }}'
   tags: package_elasticsearch
 
-- name: Install Elasticsearch tar package
+- name: Install elasticsearch tar package
   unarchive:
     src: '{{ elasticsearch_package }}'
     dest: '{{ elasticsearch_install_dir }}'

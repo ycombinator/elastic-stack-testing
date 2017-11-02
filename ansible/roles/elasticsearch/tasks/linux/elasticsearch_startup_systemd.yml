@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Start Elasticsearch systemd
+- name: Start elasticsearch systemd
   systemd:
       name: 'elasticsearch'
       state: started

@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Download metricbeat package
+- name: Download metricbeat rpm package
   get_url:
     url: '{{ metricbeat_package_url }}'
     dest: '{{ metricbeat_package }}'

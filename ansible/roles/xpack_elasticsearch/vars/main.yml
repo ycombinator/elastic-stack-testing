@@ -1,18 +1,29 @@
 #-----------------------------------------------------------------------------------------------------------------------
-# Elasticsearch vars file
+# Elasticsearch x-pack vars file
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-xpack_elasticsearch_package: '{{ elasticsearch_install_dir }}/elasticsearc_{{ xpack_elasticsearch_package_url | basename }}'
+# Localhost certificate directory
 local_certs_dir: "{{ lookup('env','WORKSPACE') }}/certs"
 
-# Role variables to run multiple role files in groupse use, one include
+# x-pack elasticsearch package
+xpack_elasticsearch_package: '{{ elasticsearch_install_dir }}/elasticsearc_{{ xpack_elasticsearch_package_url | basename }}'
+
+# Variables to run multiple role task files in a group
 # Must have role name (key), action and args that map to individual task files
 xpack_elasticsearch_roles:
-  xpack_elasticsearch_install_gencert_config_restart_verify:
+  xpack_elasticsearch_install_gencert_config_start_verify:
+    - { action: 'elasticsearch_install', parent: 'elasticsearch', args: {} }
+    - { action: 'xpack_elasticsearch_install', parent: '', args: {} }
+    - { action: 'xpack_elasticsearch_certs',   parent: '', args: {} }
+    - { action: 'xpack_elasticsearch_config',  parent: '', args: {} }
+    - { action: 'elasticsearch_restart',  parent: 'elasticsearch', args: {} }
+    - { action: 'elasticsearch_log_tail', parent: 'elasticsearch', args: {ait_log_searchstr: started} }
+    - { action: 'elasticsearch_is_running', parent: 'elasticsearch', args: {} }
+    - { action: 'elasticsearch_api_get_info', parent: 'elasticsearch', args: {} }
+  xpack_elasticsearch_plugin_gencert_config_start_verify:
     - { action: 'xpack_elasticsearch_install', parent: '', args: {} }
     - { action: 'xpack_elasticsearch_certs',   parent: '', args: {} }
     - { action: 'elasticsearch_config_remove', parent: 'elasticsearch', args: {} }
@@ -21,7 +32,7 @@ xpack_elasticsearch_roles:
     - { action: 'elasticsearch_log_tail', parent: 'elasticsearch', args: {ait_log_searchstr: started} }
     - { action: 'elasticsearch_is_running', parent: 'elasticsearch', args: {} }
     - { action: 'elasticsearch_api_get_info', parent: 'elasticsearch', args: {} }
-  xpack_elasticsearch_rmconfig_uninstall_restart_verify:
+  xpack_elasticsearch_plugin_rmconfig_uninstall_start_verify:
     - { action: 'xpack_elasticsearch_config_remove', parent: '', args: {} }
     - { action: 'xpack_elasticsearch_uninstall', parent: '', args: {} }
     - { action: 'elasticsearch_restart',  parent: 'elasticsearch', args: {} }
@@ -29,7 +40,7 @@ xpack_elasticsearch_roles:
     - { action: 'elasticsearch_is_running', parent: 'elasticsearch', args: {} }
     - { action: 'elasticsearch_api_get_info', parent: 'elasticsearch', args: {} }
 
-# Task files for group use, keep in sync with tasks/main.yml except for parent tasks
+# Task files for ait_role, keep in sync with tasks/main.yml except for parent tasks
 xpack_elasticsearch_task_files:
   - '{{ ansible_system | lower }}/{{ item.action }}.yml'
   - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}.yml'

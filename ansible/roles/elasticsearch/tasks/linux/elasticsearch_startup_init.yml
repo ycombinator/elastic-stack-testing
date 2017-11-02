@@ -3,10 +3,9 @@
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
-
 ---
 
-- name: Start Elasticsearch service
+- name: Start elasticsearch service
   service:
     name: 'elasticsearch'
     state: started
