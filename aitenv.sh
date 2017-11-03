@@ -1,4 +1,6 @@
 # AIT environment settings
+#
+# @author: Liza Dayoub
 
 export AIT_ROOTDIR=$(pwd)
 
@@ -12,9 +14,7 @@ export ANSIBLE_GROUP_VARS=${ANSIBLE_ROOTDIR}/group_vars
 export ANSIBLE_HOST_VARS=${ANSIBLE_ROOTDIR}/host_vars
 export ANSIBLE_ROLES=${ANSIBLE_ROOTDIR}/roles
 export ANSIBLE_TEMPLATES=${ANSIBLE_ROOTDIR}/templates
-#export ANSIBLE_CALLBACK_PLUGINS=${AIT_ROOTDIR}/ansible/plugins
 
-export AIT_ELASTICSEARCH_USERNAME="elastic"
-export AIT_ELASTICSEARCH_PASSWORD="changeme"
-export AIT_ELASTICSEARCH_HOST="localhost"
-export AIT_ELASTICSEARCH_PORT="9200"
+export AIT_ANSIBLE_PLAYBOOK_DIR=${AIT_ROOTDIR}/playbooks
+export AIT_VAGRANT_DIR=${AIT_ROOTDIR}/vm/vagrant
+export AIT_VAGRANT_FILE=${AIT_VAGRANT_DIR}/Vagrantfile

@@ -10,9 +10,9 @@
 VAGRANTFILE_API_VERSION = "2"
 
 module OS
-    def OS.windows?
-        (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
-    end
+  def OS.windows?
+    (/cygwin|mswin|mingw|bccwin|wince|emx/ =~ RUBY_PLATFORM) != nil
+  end
 end
 
 $script = <<-SCRIPT
@@ -28,8 +28,14 @@ $script = <<-SCRIPT
 SCRIPT
 
 VAGRANT_DEFAULT_BOX = "elastic/ubuntu-16.04-x86_64"  # To set use env VAGRANT_BOX
-VAGRANT_DEFAULT_MEM = "8192"                         # To set use env VAGRANT_MEM
-VAGRANT_DEFAULT_CPU = "4"                            # To set use env VAGRANT_CPU
+VAGRANT_DEFAULT_MEM = "4096"                         # To set use env VAGRANT_MEM
+VAGRANT_DEFAULT_CPU = "2"                            # To set use env VAGRANT_CPU
+
+ELASTICSEARCH_DEFAULT_PORT = 9200
+KIBANA_DEFAULT_PORT = 5601
+
+ELASTICSEARCH_GUEST_PORT = 9200
+KIBANA_GUEST_PORT = 5601
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
@@ -39,12 +45,26 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.box = VAGRANT_DEFAULT_BOX
   end
 
-  config.vm.network :forwarded_port, guest:5601, host:5601   # kibana
-  config.vm.network :forwarded_port, guest:9200, host:9200   # elasticsearch
+  if ENV['AIT_ELASTICSEARCH_PORT']
+    ELASTICSEARCH_PORT = ENV['AIT_ELASTICSEARCH_PORT']
+  else
+    ELASTICSEARCH_PORT = ELASTICSEARCH_DEFAULT_PORT
+  end
+
+  if ENV['AIT_KIBANA_PORT']
+    KIBANA_PORT = ENV['AIT_KIBANA_PORT']
+  else
+    KIBANA_PORT = KIBANA_DEFAULT_PORT
+  end
+
+  config.vm.network :forwarded_port, guest:KIBANA_GUEST_PORT, host:KIBANA_PORT # kibana
+  config.vm.network :forwarded_port, guest:ELASTICSEARCH_GUEST_PORT, host:ELASTICSEARCH_PORT # elasticsearch
 
   config.ssh.insert_key = false
 
   config.vm.provider :virtualbox do |vb|
+
+    # vb.name = VAGRANT_DEFAULT_BOX_NAME
 
     if ENV['ES_BUILD_VAGRANT_MEM']
       vb.memory = ENV['ES_BUILD_VAGRANT_MEM']
@@ -64,17 +84,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.provision "shell", inline: $script, privileged: true
   end
 
-  if ENV['ES_BUILD_ANSIBLE_PLAYBOOK']
+  if ENV['AIT_ANSIBLE_PLAYBOOK']
     config.vm.provision "ansible" do |ansible|
-      ansible_host = "vagrant_vm_localhost"
-      ansible_var_file = ENV['WORKSPACE'] + "/vars.yml"
-      config.vm.define ansible_host 
+      ansible_host = "ait_vagrant"
+      ansible_var_file = ENV['AIT_ANSIBLE_ES_VARS']
+      config.vm.define ansible_host
       ansible.extra_vars = {
-        "uut" => ansible_host,  
-        "es_var_file" => ansible_var_file 
+        "uut" => ansible_host,
+        "es_var_file" => ansible_var_file
       }
       ansible.verbose = "v"
-      ansible.playbook =  ENV['ES_BUILD_ANSIBLE_PLAYBOOK'] 
-    end 
+      ansible.playbook = ENV['AIT_ANSIBLE_PLAYBOOK']
+    end
   end
 end
