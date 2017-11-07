@@ -41,29 +41,28 @@ elastic-stack-testing/
 
 ## Runnning Scripts
 
-* buildenv.sh - fill in information below and then run ./buildenv.sh   
+* buildenv.sh script will start the VM and run the playbook
 
-  buildenv.sh script will start the VM and run playbook
+  Fill in information below and then run ./buildenv.sh   
 
   - Build Variables
     - ES_BUILD_URL - build URL format: server/build_num-hash   
     - ES_BUILD_PKG_EXT - package extension one of: tar, rpm, deb
 
+    - Ansible Standalone Variables (Product installation only - no Pytest) [** Phase 1 Pilot Testing ** ]
+      - AIT_ANSIBLE_PLAYBOOK - playbook for product installation   
+        Example: AIT_ANSIBLE_PLAYBOOK=${AIT_ANSIBLE_PLAYBOOK_DIR}/install_no_xpack.yml
 
-  - Ansible Standalone Variables (Product installation only - no Pytest) [** Phase 1 Pilot Testing ** ]
-    - AIT_ANSIBLE_PLAYBOOK - playbook for product installation   
-      Example: AIT_ANSIBLE_PLAYBOOK=${AIT_ANSIBLE_PLAYBOOK_DIR}/install_no_xpack.yml
+      - AIT_ANSIBLE_SCRIPT - machine setup which calls above playbook      
+        Example: AIT_ANSIBLE_SCRIPT=${AIT_SCRIPTS}/shell/setup_vagrant_vm.sh   
 
-    - AIT_ANSIBLE_SCRIPT - machine setup which calls above playbook      
-      Example: AIT_ANSIBLE_SCRIPT=${AIT_SCRIPTS}/shell/setup_vagrant_vm.sh   
-
-    - To run playbook on already running VM:
-        - source aitenv.sh
-        - export WORKSPACE=${AIT_ROOTDIR}/ait_workspace
-        - ANSIBLE_GROUP_VARS=/${WORKSPACE}/vars.yml AIT_UUT=${AIT_UUT} ansible-playbook ${AIT_ANSIBLE_PLAYBOOK}.yml
+* To run playbook on already running VM:
+    - source aitenv.sh
+    - export WORKSPACE=${AIT_ROOTDIR}/ait_workspace
+    - ANSIBLE_GROUP_VARS=/${WORKSPACE}/vars.yml AIT_UUT=${AIT_UUT} ansible-playbook ${AIT_ANSIBLE_PLAYBOOK}.yml
 
 
-  - Pytest Variables [** Phases 2/3 Pilot Testing ** ] - coming soon
+* Pytest Variables [** Phases 2/3 Pilot Testing ** ] - coming soon
 
 ## Pilot Testing
 
