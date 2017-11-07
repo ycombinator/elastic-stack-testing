@@ -5,23 +5,24 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-# TODO: maybe make this handler, it fails if it is already running on the second time
-- name: Wait for log file to be present
+- shell: date +"%Y-%m-%dT%H:%M"
+  register: logstash_date
+- set_fact:
+    logstash_date_ind0: "{{ logstash_date.stdout.split(':')[0] }}"
+    minute_minus1: "{{ logstash_date.stdout.split(':')[1] | int - 01 }}"
+    minute_plus1:  "{{ logstash_date.stdout.split(':')[1] | int + 01 }}"
+- set_fact:
+    logstash_date_now: "{{ logstash_date.stdout }}"
+    logstash_date_minus1: "{{ logstash_date_ind0 }}:{{ '%02d'|format(minute_minus1|int) }}"
+    logstash_date_plus1:  "{{ logstash_date_ind0 }}:{{ '%02d'|format(minute_plus1|int) }}"
+    search_str: "{%- if ait_args is defined -%}
+                    {{ logstash_log_find[ait_args.get('ait_log_searchstr')] }}
+                 {%- elif ait_log_searchstr is defined -%}
+                    {{ logstash_log_find[ait_log_searchstr] }}
+                 {%- endif -%}"
+
+- name: Wait for log file and search string to be present
   wait_for:
     path: '{{ logstash_log_file }}'
     timeout: '{{ logstash_timeout }}'
-  tags: start_logstash
-
-# TODO: throw error exception thrown for the jinja2 template
-- name: Wait for logstash log string
-  shell: >-
-    timeout "{{ logstash_timeout }}"
-    sed -r '/{%- if ait_args is defined -%}
-                {{ logstash_log_find[ait_args.get('ait_log_searchstr')] }}
-             {%- elif ait_log_searchstr is defined -%}
-                {{ logstash_log_find[ait_log_searchstr] }}
-             {%- endif -%}/q' <(tail -n 0 -f "{{ logstash_log_file }}")
-  args:
-    executable: /bin/bash
-  become: '{{ logstash_run_as_root | default(omit) }}'
-  tags: logstash_log_check
+    search_regex: '{{ logstash_date_now }}|{{ logstash_date_minus1 }}|{{ logstash_date_plus1 }}{{ search_str }}'

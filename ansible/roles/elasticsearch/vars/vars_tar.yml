@@ -22,7 +22,9 @@ elasticsearch_rootdir: '{{ elasticsearch_package.split(elasticsearch_package_ext
 elasticsearch_bin_dir: '{{ elasticsearch_rootdir | trim }}/bin'
 elasticsearch_exe: '{{ elasticsearch_bin_dir }}/elasticsearch'
 elasticsearch_plugin_exe: '{{ elasticsearch_bin_dir }}/elasticsearch-plugin'
-elasticsearch_certgen_exe: '{{ elasticsearch_bin_dir }}/x-pack/certgen'
+elasticsearch_xpack_bin_dir: '{{ elasticsearch_bin_dir }}/x-pack'
+elasticsearch_certgen_exe: '{{ elasticsearch_xpack_bin_dir }}/certgen'
+elasticsearch_setup_passwords_exe: '{{ elasticsearch_xpack_bin_dir }}/setup-passwords'
 
 # Elasticsearch config
 elasticsearch_config_dir: '{{ elasticsearch_rootdir | trim }}/config'

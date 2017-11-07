@@ -5,9 +5,6 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-# Localhost certificate directory
-local_certs_dir: "{{ lookup('env','WORKSPACE') }}/certs"
-
 # x-pack elasticsearch package
 xpack_elasticsearch_package: '{{ elasticsearch_install_dir }}/elasticsearc_{{ xpack_elasticsearch_package_url | basename }}'
 
@@ -22,6 +19,7 @@ xpack_elasticsearch_roles:
     - { action: 'elasticsearch_restart',  parent: 'elasticsearch', args: {} }
     - { action: 'elasticsearch_log_tail', parent: 'elasticsearch', args: {ait_log_searchstr: started} }
     - { action: 'elasticsearch_is_running', parent: 'elasticsearch', args: {} }
+    - { action: 'xpack_elasticsearch_set_passwords',  parent: '', args: {} }
     - { action: 'elasticsearch_api_get_info', parent: 'elasticsearch', args: {} }
   xpack_elasticsearch_plugin_gencert_config_start_verify:
     - { action: 'xpack_elasticsearch_install', parent: '', args: {} }
@@ -31,6 +29,7 @@ xpack_elasticsearch_roles:
     - { action: 'elasticsearch_restart',  parent: 'elasticsearch', args: {} }
     - { action: 'elasticsearch_log_tail', parent: 'elasticsearch', args: {ait_log_searchstr: started} }
     - { action: 'elasticsearch_is_running', parent: 'elasticsearch', args: {} }
+    - { action: 'xpack_elasticsearch_set_passwords',  parent: '', args: {} }
     - { action: 'elasticsearch_api_get_info', parent: 'elasticsearch', args: {} }
   xpack_elasticsearch_plugin_rmconfig_uninstall_start_verify:
     - { action: 'xpack_elasticsearch_config_remove', parent: '', args: {} }

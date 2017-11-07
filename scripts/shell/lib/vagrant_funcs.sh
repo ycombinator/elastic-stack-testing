@@ -11,8 +11,17 @@ vagrant_create_directory() {
     echo_error "No playbook is defined"
     exit 1
   fi
+  build='build'
+  if [ ! -z $ES_BUILD_URL ]; then
+      build=$(basename $ES_BUILD_URL)
+      build="${build//\./-}"
+  fi
+  os='os'
+  if [ ! -z $ES_BUILD_VAGRANT_BOX ]; then
+      os=$(basename $ES_BUILD_VAGRANT_BOX)
+  fi
   timestamp=$( date +%Y-%m-%d_%H-%M-%S )
-  dirname=${timestamp}_$(basename $AIT_ANSIBLE_PLAYBOOK | cut -f1 -d'.')
+  dirname=${build}_${os}_$(basename $AIT_ANSIBLE_PLAYBOOK | cut -f1 -d'.')
   vagrant_dir=${WORKSPACE}/${dirname}
   mkdir ${vagrant_dir}
   cp ${AIT_VAGRANT_FILE} ${vagrant_dir}
@@ -43,4 +52,13 @@ vagrant_destroy() {
   goto_vagrant_directory
   vagrant destroy -f
   exit $?
+}
+
+get_random_port() {
+  CHECK="do while"
+  while [[ ! -z $CHECK ]]; do
+    PORT=$(( ( RANDOM % 60000 )  + 1025 ))
+    CHECK=$(netstat -an | grep $PORT)
+  done
+  return $PORT
 }

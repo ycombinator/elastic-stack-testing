@@ -6,8 +6,9 @@
 ---
 
 - name: Start logstash process
-  shell: '{{ logstash_exe }} -f {{ logstash_conf_path }} &'
+  shell: 'nohup {{ logstash_exe }} -f {{ logstash_conf_path }} >/dev/null 2>&1 &'
   args:
     executable: /bin/bash
   async: 5
   poll: 0
+  register: start_logstash_process

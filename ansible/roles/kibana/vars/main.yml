@@ -12,9 +12,9 @@ kibana_timeout: 60
 # Extract package extension
 kibana_package_ext: "{{ kibana_package_url | splitext | last | regex_replace('.gz', '.tar.gz') }}"
 
-kibana_port: "{{ lookup('env','AIT_ELASTICSEARCH_PORT') | default('5601', true) }}"
-kibana_username: "{{ lookup('env','AIT_ELASTICSEARCH_USERNAME') | default('kibana', true) }}"
-kibana_password: "{{ lookup('env','AIT_ELASTICSEARCH_PASSWORD') | default('changeme', true) }}"
+kibana_port: "{{ lookup('env','AIT_KIBANA_PORT') | default('5601', true) }}"
+kibana_username: "{{ lookup('env','AIT_KIBANA_USERNAME') | default('kibana', true) }}"
+kibana_password: "{{ lookup('env','AIT_KIBANA_PASSWORD') | default('changeme', true) }}"
 
 # Variables to run multiple role task files in a group
 # Must have role name (key), action and args that map to individual task files

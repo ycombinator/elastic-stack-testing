@@ -4,18 +4,28 @@
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
 
+- set_fact:
+    instances_file: "{{ elasticsearch_xpack_config_dir }}/instances.yml"
+    cert_bundle_file: "{{ elasticsearch_xpack_config_dir }}/certificate-bundle.zip"
+    local_cert_bundle_file: "{{ local_certs_dir }}/certificate-bundle.zip"
+
+- name: Delete certs files
+  file:
+    state: absent
+    path: "{{ cert_bundle_file }}"
+
 - name: Create instances.yml
   template:
     src: "{{ lookup('env','ANSIBLE_TEMPLATES') }}/instances.j2"
-    dest: "{{ elasticsearch_xpack_config_dir }}/instances.yml"
+    dest: "{{ instances_file }}"
 
 - name: Run certgen
-  shell: "{{ elasticsearch_certgen_exe }} -in instances.yml -out {{ elasticsearch_xpack_config_dir }}/certificate-bundle.zip"
+  shell: "{{ elasticsearch_certgen_exe }} -in {{ instances_file }} -out {{ cert_bundle_file }}"
   register: output
 
 - name: Extract certificate package
   unarchive:
-    src: "{{ elasticsearch_xpack_config_dir }}/certificate-bundle.zip"
+    src: "{{ cert_bundle_file }}"
     dest: "{{ elasticsearch_xpack_config_dir }}"
     remote_src: True
 
@@ -27,13 +37,13 @@
 
 - name: Fetch certificates, store on localhost
   fetch:
-    src: "{{ elasticsearch_xpack_config_dir }}/certificate-bundle.zip"
-    dest: "{{ local_certs_dir }}/certificate-bundle.zip"
+    src: "{{ cert_bundle_file }}"
+    dest: "{{ local_cert_bundle_file }}"
     flat: yes
 
 - name: Extract certificate package on localhost
   unarchive:
-    src: "{{ local_certs_dir }}/certificate-bundle.zip"
+    src: "{{ local_cert_bundle_file }}"
     dest: "{{ local_certs_dir }}"
     remote_src: True
   delegate_to: localhost

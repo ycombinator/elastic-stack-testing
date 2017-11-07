@@ -18,4 +18,5 @@ install_dirs:
   'zip':    'c:\temp'
 install_dir: '{{ install_dirs[package_ext] }}'
 install_as_root: false
-
+# Localhost certificate directory
+local_certs_dir: "{{ lookup('env','WORKSPACE') }}/certs"

@@ -12,6 +12,10 @@ logstash_timeout: 60
 # Extract package extension
 logstash_package_ext: "{{ logstash_package_url | splitext | last | regex_replace('.gz', '.tar.gz') }}"
 
+# User/Password
+logstash_username: "{{ lookup('env','AIT_LOGSTASH_USERNAME') | default('logstash_system', true) }}"
+logstash_password: "{{ lookup('env','AIT_LOGSTASH_PASSWORD') | default('changeme', true) }}"
+
 # Variables to run multiple role task files in a group
 # Must have role name (key), action and args that map to individual task files
 logstash_roles:
@@ -19,6 +23,7 @@ logstash_roles:
     - { action: 'logstash_install', args: {} }
     - { action: 'logstash_conf', args: {} }
     - { action: 'logstash_startup', args: {} }
+    - { action: 'logstash_log_tail', args: {ait_log_searchstr: started} }
     - { action: 'logstash_is_running', args: {} }
   logstash_shutdown_uninstall_verify:
     - { action: 'logstash_shutdown', args: {} }
