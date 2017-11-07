@@ -19,7 +19,7 @@ elasticsearch_windows_package_types:
   - '.msi'
   - '.zip'
 
-elasticsearch_port: "{{ lookup('env','AIT_ELASTICSEARCH_PORT') | default('9200', true) }}"
+elasticsearch_port: 9200
 elasticsearch_username: "{{ lookup('env','AIT_ELASTICSEARCH_USERNAME') | default('elastic', true) }}"
 elasticsearch_password: "{{ lookup('env','AIT_ELASTICSEARCH_PASSWORD') | default('changeme', true) }}"
 
