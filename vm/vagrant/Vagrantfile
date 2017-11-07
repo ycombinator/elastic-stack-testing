@@ -5,7 +5,17 @@
 #
 # See https://app.vagrantup.com/elastic for boxes available
 #
+# Author: Liza Dayoub
+#
 # --
+
+if ! ENV['AIT_ANSIBLE_PLAYBOOK']
+    raise Vagrant::Errors::VagrantError.new, "This Vagrantfile requires env: AIT_ANSIBLE_PLAYBOOK to be defined"
+end
+
+if ! ENV['AIT_ANSIBLE_ES_VARS']
+    raise Vagrant::Errors::VagrantError.new, "This Vagrantfile requires env: AIT_ANSIBLE_ES_VARS to be defined"
+end
 
 VAGRANTFILE_API_VERSION = "2"
 
@@ -31,9 +41,11 @@ VAGRANT_DEFAULT_BOX = "elastic/ubuntu-16.04-x86_64"  # To set use env VAGRANT_BO
 VAGRANT_DEFAULT_MEM = "4096"                         # To set use env VAGRANT_MEM
 VAGRANT_DEFAULT_CPU = "2"                            # To set use env VAGRANT_CPU
 
+# Host Ports
 ELASTICSEARCH_DEFAULT_PORT = 9200
 KIBANA_DEFAULT_PORT = 5601
 
+# Guest Ports
 ELASTICSEARCH_GUEST_PORT = 9200
 KIBANA_GUEST_PORT = 5601
 
@@ -84,17 +96,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.provision "shell", inline: $script, privileged: true
   end
 
-  if ENV['AIT_ANSIBLE_PLAYBOOK']
-    config.vm.provision "ansible" do |ansible|
-      ansible_host = "ait_vagrant"
-      ansible_var_file = ENV['AIT_ANSIBLE_ES_VARS']
-      config.vm.define ansible_host
-      ansible.extra_vars = {
-        "uut" => ansible_host,
-        "es_var_file" => ansible_var_file
-      }
-      ansible.verbose = "v"
-      ansible.playbook = ENV['AIT_ANSIBLE_PLAYBOOK']
-    end
+  # Ansible
+  config.vm.provision "ansible" do |ansible|
+    ansible_host = "aithost"
+    ansible_var_file = ENV['AIT_ANSIBLE_ES_VARS']
+    config.vm.define ansible_host
+    ansible.extra_vars = {
+      "uut" => ansible_host,
+      "es_var_file" => ansible_var_file
+    }
+    ansible.verbose = "v"
+    ansible.playbook = ENV['AIT_ANSIBLE_PLAYBOOK']
   end
+
 end
