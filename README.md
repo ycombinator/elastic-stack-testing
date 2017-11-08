@@ -49,6 +49,11 @@ elastic-stack-testing/
     - ES_BUILD_URL - build URL format: server/build_num-hash   
     - ES_BUILD_PKG_EXT - package extension one of: tar, rpm, deb
 
+    - Elasticsearch and Kibana Host Ports
+      - To change the default ports use the following variables:
+        - AIT_ELASTICSEARCH_PORT
+        - AIT_KIBANA_PORT
+
     - Ansible Standalone Variables (Product installation only - no Pytest) [** Phase 1 Pilot Testing ** ]
       - AIT_ANSIBLE_PLAYBOOK - playbook for product installation   
         Example: AIT_ANSIBLE_PLAYBOOK=${AIT_ANSIBLE_PLAYBOOK_DIR}/install_no_xpack.yml
