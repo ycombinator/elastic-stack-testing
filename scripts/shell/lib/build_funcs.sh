@@ -67,6 +67,26 @@ check_ansible_playbook() {
   exit 1
 }
 
+check_test_script() {
+  # If not running in jenkins, standalone ansible mode
+  if [ -z $ES_BUILD_LOCAL ] || [ `whoami` == "jenkins" ] ||
+     [ -z $ES_BUILD_TEST_SCRIPT ] || [ -f $ES_BUILD_TEST_SCRIPT ]; then
+    return
+  fi
+  chk1=${AIT_SCRIPTS}/shell/${ES_BUILD_TEST_SCRIPT}
+  chk2=${AIT_SCRIPTS}/shell/${ES_BUILD_TEST_SCRIPT}.sh
+  if [ ! -z $chk1 ] && [ -f $chk1 ]; then
+    export ES_BUILD_TEST_SCRIPT=$chk1
+    return
+  fi
+  if [ ! -z $chk2 ] && [ -f $chk2 ]; then
+    export ES_BUILD_TEST_SCRIPT=$chk2
+    return
+  fi
+  echo_error "Invalid test script!"
+  exit 1
+}
+
 source_additional_env() {
   # Source additional environment variables
   if [ ! -z $ES_BUILD_ENV_SH ]; then
@@ -168,6 +188,29 @@ run_ansible_script() {
   RC=$?
   if [ $RC -ne 0 ]; then
     echo_error "Script failed!"
+    exit 1
+  fi
+}
+
+run_ansible_playbook() {
+  # Standalone ansible mode
+  if [ ! -z $AIT_ANSIBLE_SCRIPT ]; then
+    return
+  fi
+  if [ ! -z $ES_BUILD_TEST_SCRIPT ] || [ -z $AIT_ANSIBLE_PLAYBOOK ]; then
+    return
+  fi
+  if [ ! -f $AIT_ANSIBLE_PLAYBOOK ]; then
+    echo_error "Invalid file: $AIT_ANSIBLE_PLAYBOOK"
+    exit 1
+  fi
+  inventory_file=${WORKSPACE}/${AIT_HOST_INVENTORY_ROOTDIR}/.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory
+  echo_info "Run playbook: ANSIBLE_GROUP_VARS=${WORKSPACE}/vars.yml AIT_UUT=aithost ansible-playbook -i ${inventory_file} ${AIT_ANSIBLE_PLAYBOOK}"
+  cd $(dirname $AIT_ANSIBLE_PLAYBOOK)
+  ANSIBLE_GROUP_VARS=${WORKSPACE}/vars.yml AIT_UUT=aithost ansible-playbook -i ${inventory_file} $AIT_ANSIBLE_PLAYBOOK
+  RC=$?
+  if [ $RC -ne 0 ]; then
+    echo_error "Playbook failed!"
     exit 1
   fi
 }

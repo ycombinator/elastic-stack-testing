@@ -20,7 +20,9 @@ python_install_packages
 generate_package_variables
 check_ansible_playbook
 check_ansible_script
+check_test_script
 run_ansible_script
+run_ansible_playbook
 run_test_script
 deactivate_python_virtual_env
 # ----------------------------------------------------------------------------

@@ -62,15 +62,10 @@ elastic-stack-testing/
         Example: AIT_ANSIBLE_SCRIPT=${AIT_SCRIPTS}/shell/setup_vagrant_vm.sh   
 
 * To run playbook on already running VM:
-    - source aitenv.sh
-    - export WORKSPACE=${AIT_ROOTDIR}/ait_workspace
-    - export ANSIBLE_HOST_VARS=${WORKSPACE}/${AIT_VAGRANT_DIR}/.vagrant/machines/provisioners/ansible/inventory
-    - cd playbooks
-    - ANSIBLE_GROUP_VARS=${WORKSPACE}/vars.yml AIT_UUT=${AIT_HOST} ansible-playbook ${AIT_ANSIBLE_PLAYBOOK}.yml
-      - AIT_VAGRANT_DIR is the directory of your running VM instance in ait_workspace
-      - AIT_HOST should be aithost
-      - AIT_ANSIBLE_PLAYBOOK is the name of the playbook
-      - Example: ANSIBLE_GROUP_VARS=${WORKSPACE}/vars.yml AIT_UUT=aithost ansible-playbook install_xpack.yml
+  In buildenv.sh:
+    - <b>IMPORTANT!</b> Uncomment out AIT_ANSIBLE_SCRIPT variable
+    - set AIT_HOST_INVENTORY_ROOTDIR, your running VM directory in your workspace ex: 6-0-0-rc2-3c6dc061_os_install_no_xpack
+    - set AIT_ANSIBLE_PLAYBOOK to the playbook you want to run
 
 
 * Pytest Variables [** Phases 2/3 Pilot Testing ** ] - coming soon
