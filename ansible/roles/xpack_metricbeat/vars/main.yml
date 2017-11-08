@@ -15,6 +15,10 @@ xpack_metricbeat_roles:
     - { action: 'xpack_metricbeat_config',  parent: '', args: {} }
     - { action: 'metricbeat_restart',  parent: 'metricbeat', args: {} }
     - { action: 'metricbeat_is_running', parent: 'metricbeat', args: {} }
+  xpack_metricbeat_config_start_verify:
+    - { action: 'xpack_metricbeat_config',  parent: '', args: {} }
+    - { action: 'metricbeat_restart',  parent: 'metricbeat', args: {} }
+    - { action: 'metricbeat_is_running', parent: 'metricbeat', args: {} }
   xpack_metricbeat_rmconfig_start_verify:
     - { action: 'xpack_metricbeat_config_remove', parent: '', args: {} }
     - { action: 'metricbeat_restart',  parent: 'metricbeat', args: {} }
