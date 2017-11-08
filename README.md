@@ -63,7 +63,7 @@ elastic-stack-testing/
 
 * To run playbook on already running VM:
   In buildenv.sh:
-    - <b>IMPORTANT!</b> Uncomment out AIT_ANSIBLE_SCRIPT variable
+    - <b>IMPORTANT!</b> Comment out AIT_ANSIBLE_SCRIPT variable
     - set AIT_HOST_INVENTORY_ROOTDIR, your running VM directory in your workspace ex: 6-0-0-rc2-3c6dc061_os_install_no_xpack
     - set AIT_ANSIBLE_PLAYBOOK to the playbook you want to run
 
