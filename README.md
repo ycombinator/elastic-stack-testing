@@ -64,7 +64,8 @@ elastic-stack-testing/
 * To run playbook on already running VM:
     - source aitenv.sh
     - export WORKSPACE=${AIT_ROOTDIR}/ait_workspace
-    - ANSIBLE_GROUP_VARS=/${WORKSPACE}/vars.yml AIT_UUT=${AIT_UUT} ansible-playbook ${AIT_ANSIBLE_PLAYBOOK}.yml
+    - export ANSIBLE_HOST_VARS=${WORKSPACE}/${VAGRANT_DIR}/.vagrant/machines/provisioners/ansible/inventory
+    - ANSIBLE_GROUP_VARS=${WORKSPACE}/vars.yml AIT_UUT=${AIT_HOST} ansible-playbook ${AIT_ANSIBLE_PLAYBOOK}.yml
 
 
 * Pytest Variables [** Phases 2/3 Pilot Testing ** ] - coming soon
