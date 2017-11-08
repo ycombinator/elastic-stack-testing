@@ -35,7 +35,7 @@ elastic-stack-testing/
 
 * Install Ansible
 
-  In this repo see file: .ansible-version for version to install
+  In this repo see file: .ansible-version for version to install (It is recommended to use pip install ansible==version)
 
   http://docs.ansible.com/ansible/latest/intro_installation.html
 
@@ -78,6 +78,19 @@ elastic-stack-testing/
   - Phase 2: Pytest tests - coming soon
 
   - Phase 3: Integrated Pytest ansible/tests - coming soon
+
+## Using Vagrant CLI
+
+  If using Vagrant/Virtualbox through buildenv.sh script, a directory is created in ait_workspace
+  that contains the Vagrantfile.  The directory is prefixed with the build id.  
+
+  If the VM is running and you want to ssh or destroy the vagrant machine, the AIT_ANSIBLE_PLAYBOOK env must
+  be set but does not have to point to an actual playbook.
+
+  AIT_ANSIBLE_PLAYBOOK=1 vagrant ssh
+  AIT_ANSIBLE_PLAYBOOK=1 vagrant destroy -f
+
+  If doing a vagrant up, then AIT_ANSIBLE_PLAYBOOK must point to a valid playbook.
 
 ## Contact
 
