@@ -90,12 +90,11 @@ elastic-stack-testing/
   that contains the Vagrantfile.  The directory is prefixed with the build id.  
 
   If the VM is running and you want to ssh or destroy the vagrant machine, the AIT_ANSIBLE_PLAYBOOK env must
-  be set but does not have to point to an actual playbook.
+  be set but does not have to point to an actual playbook.  If doing a vagrant up, then AIT_ANSIBLE_PLAYBOOK must point to a valid playbook.
 
-  AIT_ANSIBLE_PLAYBOOK=1 vagrant ssh
-  AIT_ANSIBLE_PLAYBOOK=1 vagrant destroy -f
+  - AIT_ANSIBLE_PLAYBOOK=1 vagrant ssh
+  - AIT_ANSIBLE_PLAYBOOK=1 vagrant destroy -f
 
-  If doing a vagrant up, then AIT_ANSIBLE_PLAYBOOK must point to a valid playbook.
 
 ## Contact
 
