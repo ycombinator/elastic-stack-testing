@@ -13,10 +13,6 @@ if ! ENV['AIT_ANSIBLE_PLAYBOOK']
     raise Vagrant::Errors::VagrantError.new, "This Vagrantfile requires env: AIT_ANSIBLE_PLAYBOOK to be defined"
 end
 
-if ! ENV['AIT_ANSIBLE_ES_VARS']
-    raise Vagrant::Errors::VagrantError.new, "This Vagrantfile requires env: AIT_ANSIBLE_ES_VARS to be defined"
-end
-
 VAGRANTFILE_API_VERSION = "2"
 
 module OS
