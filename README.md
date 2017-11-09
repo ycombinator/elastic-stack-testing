@@ -90,8 +90,8 @@ elastic-stack-testing/
   If using Vagrant/Virtualbox through buildenv.sh script, a directory is created in ait_workspace
   that contains the Vagrantfile.  The directory is prefixed with the build id.  
 
-  If the VM is running and you want to ssh or destroy the vagrant machine, the AIT_ANSIBLE_PLAYBOOK env must
-  be set but does not have to point to an actual playbook.  If doing a vagrant up, then AIT_ANSIBLE_PLAYBOOK must point to a valid playbook.
+  If the VM is running and you want to ssh, destroy or up the vagrant machine, the AIT_ANSIBLE_PLAYBOOK env must
+  be set but does not have to point to an actual playbook if you are running a playbook, but one has run before.  
 
   - AIT_ANSIBLE_PLAYBOOK=1 vagrant ssh
   - AIT_ANSIBLE_PLAYBOOK=1 vagrant destroy -f
