@@ -86,8 +86,8 @@ elastic-stack-testing/
   its not running and you want to start it, cd to this directory and run the vagrant command.
 
   Examples:
-    - vagrant ssh
-    - vagrant destroy -f
+  - vagrant ssh
+  - vagrant destroy -f
 
 ## Contact
 
