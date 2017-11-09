@@ -43,10 +43,14 @@ elastic-stack-testing/
     - ES_BUILD_URL - build URL format: server/build_num-hash   
     - ES_BUILD_PKG_EXT - package extension one of: tar, rpm, deb
 
-    - Elasticsearch and Kibana Host Ports
-      - To change the default ports use the following variables:
-        - AIT_ELASTICSEARCH_PORT
-        - AIT_KIBANA_PORT
+    - Elasticsearch and Kibana host ports default to 9200 and 5601
+      - To change the default ports add the following variables:
+        - export AIT_ELASTICSEARCH_PORT=
+        - export AIT_KIBANA_PORT=
+
+    - OS defaults to ubuntu 16.04
+      - To change the default OS add the following variable:
+        - export ES_BUILD_VAGRANT_BOX=
 
     - Ansible Standalone Variables (Product installation only - no Pytest) [** Phase 1 Pilot Testing ** ]
       - AIT_ANSIBLE_PLAYBOOK - playbook for product installation   
