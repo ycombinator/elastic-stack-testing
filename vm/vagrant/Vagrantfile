@@ -9,10 +9,6 @@
 #
 # --
 
-if ! ENV['AIT_ANSIBLE_PLAYBOOK']
-    raise Vagrant::Errors::VagrantError.new, "This Vagrantfile requires env: AIT_ANSIBLE_PLAYBOOK to be defined"
-end
-
 VAGRANTFILE_API_VERSION = "2"
 
 module OS
@@ -33,9 +29,12 @@ $script = <<-SCRIPT
   sysctl -w vm.max_map_count=262144
 SCRIPT
 
-VAGRANT_DEFAULT_BOX = "elastic/ubuntu-16.04-x86_64"  # To set use env VAGRANT_BOX
-VAGRANT_DEFAULT_MEM = "4096"                         # To set use env VAGRANT_MEM
-VAGRANT_DEFAULT_CPU = "2"                            # To set use env VAGRANT_CPU
+# Default variables
+
+# Vagrant Info
+VAGRANT_DEFAULT_BOX = "elastic/ubuntu-16.04-x86_64"
+VAGRANT_DEFAULT_MEM = "4096"
+VAGRANT_DEFAULT_CPU = "2"
 
 # Host Ports
 ELASTICSEARCH_DEFAULT_PORT = 9200
@@ -45,64 +44,88 @@ KIBANA_DEFAULT_PORT = 5601
 ELASTICSEARCH_GUEST_PORT = 9200
 KIBANA_GUEST_PORT = 5601
 
+# Ansible Playbook
+ANSIBLE_DEFAULT_PLAYBOOK = "pass_thru"
+ANSIBLE_DEFAULT_ES_VARS = ""
+
+# Environment variables
+
+# note: have to do if/else since you get warning messages if you init vars first, not sure why
+
+if ENV['ES_BUILD_VAGRANT_BOX']
+  VAGRANT_BOX = ENV['ES_BUILD_VAGRANT_BOX']
+else
+  VAGRANT_BOX = VAGRANT_DEFAULT_BOX
+end
+
+if ENV['ES_BUILD_VAGRANT_MEM']
+  VAGRANT_MEM = ENV['ES_BUILD_VAGRANT_MEM']
+else
+  VAGRANT_MEM = VAGRANT_DEFAULT_MEM
+end
+
+if ENV['ES_BUILD_VAGRANT_CPU']
+  VAGRANT_CPU = ENV['ES_BUILD_VAGRANT_CPU']
+else
+  VAGRANT_CPU = VAGRANT_DEFAULT_CPU
+end
+
+if ENV['AIT_ELASTICSEARCH_PORT']
+  ELASTICSEARCH_PORT = ENV['AIT_ELASTICSEARCH_PORT']
+else
+  ELASTICSEARCH_PORT = ELASTICSEARCH_DEFAULT_PORT
+end
+
+if ENV['AIT_KIBANA_PORT']
+  KIBANA_PORT = ENV['AIT_KIBANA_PORT']
+else
+  KIBANA_PORT = KIBANA_DEFAULT_PORT
+end
+
+if ENV['AIT_ANSIBLE_PLAYBOOK']
+  ANSIBLE_PLAYBOOK = ENV['AIT_ANSIBLE_PLAYBOOK']
+else
+  ANSIBLE_PLAYBOOK = ANSIBLE_DEFAULT_PLAYBOOK
+end
+
+if ENV['AIT_ANSIBLE_ES_VARS']
+  ANSIBLE_ES_VARS = ENV['AIT_ANSIBLE_ES_VARS']
+else
+  ANSIBLE_ES_VARS = ANSIBLE_DEFAULT_ES_VARS
+end
+
+# Configure Vagrant
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  if ENV['ES_BUILD_VAGRANT_BOX']
-    config.vm.box = ENV['ES_BUILD_VAGRANT_BOX']
-  else
-    config.vm.box = VAGRANT_DEFAULT_BOX
-  end
+  config.vm.box = VAGRANT_BOX
 
-  if ENV['AIT_ELASTICSEARCH_PORT']
-    ELASTICSEARCH_PORT = ENV['AIT_ELASTICSEARCH_PORT']
-  else
-    ELASTICSEARCH_PORT = ELASTICSEARCH_DEFAULT_PORT
-  end
-
-  if ENV['AIT_KIBANA_PORT']
-    KIBANA_PORT = ENV['AIT_KIBANA_PORT']
-  else
-    KIBANA_PORT = KIBANA_DEFAULT_PORT
-  end
-
-  config.vm.network :forwarded_port, guest:KIBANA_GUEST_PORT, host:KIBANA_PORT # kibana
-  config.vm.network :forwarded_port, guest:ELASTICSEARCH_GUEST_PORT, host:ELASTICSEARCH_PORT # elasticsearch
+  config.vm.network :forwarded_port, guest:ELASTICSEARCH_GUEST_PORT, host:ELASTICSEARCH_PORT
+  config.vm.network :forwarded_port, guest:KIBANA_GUEST_PORT, host:KIBANA_PORT
 
   config.ssh.insert_key = false
 
+  # Configure Provider
   config.vm.provider :virtualbox do |vb|
-
-    # vb.name = VAGRANT_DEFAULT_BOX_NAME
-
-    if ENV['ES_BUILD_VAGRANT_MEM']
-      vb.memory = ENV['ES_BUILD_VAGRANT_MEM']
-    else
-      vb.memory = VAGRANT_DEFAULT_MEM
-    end
-
-    if ENV['ES_BUILD_VAGRANT_CPU']
-      vb.cpus = ENV['ES_BUILD_VAGRANT_CPU']
-    else
-      vb.cpus = VAGRANT_DEFAULT_CPU
-    end
-
+    # vb.name = VAGRANT_BOX_NAME
+    vb.memory = VAGRANT_MEM
+    vb.cpus = VAGRANT_CPU
   end
 
   if ! OS.windows?
     config.vm.provision "shell", inline: $script, privileged: true
   end
 
-  # Ansible
+  # Configure Provisioner - Ansible
   config.vm.provision "ansible" do |ansible|
     ansible_host = "aithost"
-    ansible_var_file = ENV['AIT_ANSIBLE_ES_VARS']
+    ansible_var_file = ANSIBLE_ES_VARS
     config.vm.define ansible_host
     ansible.extra_vars = {
       "uut" => ansible_host,
       "es_var_file" => ansible_var_file
     }
     ansible.verbose = "v"
-    ansible.playbook = ENV['AIT_ANSIBLE_PLAYBOOK']
+    ansible.playbook = ANSIBLE_PLAYBOOK
   end
 
 end

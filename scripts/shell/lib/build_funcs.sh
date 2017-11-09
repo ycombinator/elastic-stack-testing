@@ -101,7 +101,7 @@ activate_python_virtual_env() {
     return
   fi
   echo_info "Create and activate python venv"
-  export PYTHON_VENV_NAME=${WORKSPACE}/venv-elastic-stack-testing
+  export PYTHON_VENV_NAME=${WORKSPACE}/es-venv
   # Create python virtual env
   python3 -m venv ${PYTHON_VENV_NAME}
   # Activate env
