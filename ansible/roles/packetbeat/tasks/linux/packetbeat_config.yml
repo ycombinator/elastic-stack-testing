@@ -51,6 +51,8 @@
         internal_packetbeat_config_params: >
           output.elasticsearch:
              hosts: ["{{ current_host_ip }}:{{ elasticsearch_port }}"]
+          setup.kibana:
+             host: "{{ current_host_ip }}:{{ kibana_port }}"
     - name: Add packetbeat configuration parameters
       blockinfile:
         path: '{{ packetbeat_config_file }}'

@@ -1,0 +1,32 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Import filebeat dashboards
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Check if setup dashboards is supported
+  shell: '{{ filebeat_exe }} setup --help'
+  args:
+    executable: /bin/bash
+  register: filebeat_setup_help_output
+  ignore_errors: yes
+
+- name: Check if import dashboards executable exists
+  stat:
+    path: '{{ filebeat_scripts }}/import_dashboards'
+  register: file_import_dashboards
+
+- name: Import filebeat dashboards through import_dashboards
+  shell: "{{ filebeat_scripts }}/import_dashboards -es http://{{ current_host_ip }}:{{ elasticsearch_port }}"
+  args:
+    executable: /bin/bash
+  when: file_import_dashboards.stat.exists is defined and file_import_dashboards.stat.exists
+
+- name: Import filebeat dashboards through setup
+  shell: '{{ filebeat_exe }} setup --dashboards -c {{ filebeat_config_file }}'
+  args:
+    executable: /bin/bash
+  become: true
+  when: filebeat_setup_help_output.failed is not defined and
+        filebeat_setup_help_output.stdout is defined and (filebeat_setup_help_output.stdout | search('--dashboards'))

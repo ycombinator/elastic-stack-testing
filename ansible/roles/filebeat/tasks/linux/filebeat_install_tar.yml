@@ -18,3 +18,17 @@
     dest: '{{ filebeat_install_dir }}'
     remote_src: True
   tags: install_filebeat
+
+- name: Check if modules directory exists
+  stat:
+    path: '{{ filebeat_modules }}'
+  register: p
+
+- name: Change permissions on modules directory
+  file:
+    path: '{{ filebeat_modules }}'
+    owner: root
+    group: root
+    recurse: true
+  become: true
+  when: p.stat.isdir is defined and p.stat.isdir

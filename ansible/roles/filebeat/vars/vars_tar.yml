@@ -28,3 +28,6 @@ filebeat_config_file: '{{ filebeat_config_dir }}/filebeat.yml'
 # filebeat log
 filebeat_log_dir: '{{ filebeat_rootdir | trim }}/logs'
 filebeat_log_file: '{{ filebeat_log_dir }}/filebeat'
+
+# filebeat modules
+filebeat_modules: '{{ filebeat_rootdir | trim }}/modules.d'

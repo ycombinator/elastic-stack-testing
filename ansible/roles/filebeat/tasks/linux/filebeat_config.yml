@@ -51,6 +51,8 @@
         internal_filebeat_config_params: >
           output.elasticsearch:
              hosts: ["{{ current_host_ip }}:{{ elasticsearch_port }}"]
+          setup.kibana:
+            host: "{{ current_host_ip }}:{{ kibana_port }}"
     - name: Add filebeat configuration parameters
       blockinfile:
         path: '{{ filebeat_config_file }}'

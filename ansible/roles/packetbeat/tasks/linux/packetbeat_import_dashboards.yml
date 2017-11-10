@@ -5,7 +5,28 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: Import packetbeat dashboards
+- name: Check if setup dashboards is supported
+  shell: '{{ packetbeat_exe }} setup --help'
+  args:
+    executable: /bin/bash
+  register: packetbeat_setup_help_output
+  ignore_errors: yes
+
+- name: Check if import dashboards executable exists
+  stat:
+    path: '{{ packetbeat_scripts }}/import_dashboards'
+  register: file_import_dashboards
+
+- name: Import packetbeat dashboards through import_dashboards
   shell: "{{ packetbeat_scripts }}/import_dashboards -es http://{{ current_host_ip }}:{{ elasticsearch_port }}"
   args:
     executable: /bin/bash
+  when: file_import_dashboards.stat.exists is defined and file_import_dashboards.stat.exists
+
+- name: Import packetbeat dashboards through setup
+  shell: '{{ packetbeat_exe }} setup --dashboards -c {{ packetbeat_config_file }}'
+  args:
+    executable: /bin/bash
+  become: true
+  when: packetbeat_setup_help_output.failed is not defined and
+        packetbeat_setup_help_output.stdout is defined and (packetbeat_setup_help_output.stdout | search('--dashboards'))

@@ -9,9 +9,6 @@ galaxy_info:
 dependencies:
   - {role: common}
   - {role: metricbeat}
-  - {role: elasticsearch}
   - {role: xpack_elasticsearch}
-  - {role: logstash}
-  - {role: xpack_elasticsearch}
-  - {role: kibana}
+  - {role: xpack_logstash}
   - {role: xpack_kibana}

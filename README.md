@@ -35,36 +35,33 @@ elastic-stack-testing/
 
 ## Runnning Scripts
 
-* buildenv.sh script will start the VM and run the playbook
-
-  Fill in information below and then run ./buildenv.sh   
+* buildenv.sh, fill in information below and then run ./buildenv.sh   
 
   - Build Variables
-    - ES_BUILD_URL - build URL format: server/build_num-hash   
-    - ES_BUILD_PKG_EXT - package extension one of: tar, rpm, deb
+    - export ES_BUILD_URL= build URL format: server/build_num-hash   
+    - export ES_BUILD_PKG_EXT= package extension one of: tar, rpm, deb
 
-    - Elasticsearch and Kibana host ports default to 9200 and 5601
-      - To change the default ports add the following variables:
-        - export AIT_ELASTICSEARCH_PORT=
-        - export AIT_KIBANA_PORT=
 
-    - OS defaults to ubuntu 16.04
-      - To change the default OS add the following variable:
-        - export ES_BUILD_VAGRANT_BOX=
+  - Elasticsearch and Kibana host ports default to 9200 and 5601, to change the default ports:
+    - export AIT_ELASTICSEARCH_PORT=
+    - export AIT_KIBANA_PORT=
 
-    - Ansible Standalone Variables (Product installation only - no Pytest) [** Phase 1 Pilot Testing ** ]
-      - AIT_ANSIBLE_PLAYBOOK - playbook for product installation   
-        Example: AIT_ANSIBLE_PLAYBOOK=${AIT_ANSIBLE_PLAYBOOK_DIR}/install_no_xpack.yml
 
-      - AIT_ANSIBLE_SCRIPT - machine setup which calls above playbook      
-        Example: AIT_ANSIBLE_SCRIPT=${AIT_SCRIPTS}/shell/setup_vagrant_vm.sh   
+  - OS defaults to ubuntu 16.04, to change the default OS:
+    - export ES_BUILD_VAGRANT_BOX=
 
-* To run playbook on already running VM:
-  In buildenv.sh:
+
+  - Ansible Standalone Variables (Product installation only - no Pytest) [** Phase 1 Pilot Testing ** ]
+    - AIT_ANSIBLE_PLAYBOOK - playbook for product installation   
+      Example: AIT_ANSIBLE_PLAYBOOK=${AIT_ANSIBLE_PLAYBOOK_DIR}/install_no_xpack.yml
+
+    - AIT_ANSIBLE_SCRIPT - machine setup which calls above playbook      
+      Example: AIT_ANSIBLE_SCRIPT=${AIT_SCRIPTS}/shell/setup_vagrant_vm.sh   
+
+  - To run playbook on already running VM:
     - <b>IMPORTANT!</b> Comment out AIT_ANSIBLE_SCRIPT variable
     - set AIT_HOST_INVENTORY_ROOTDIR, your running VM directory in your workspace ex: 6-0-0-rc2-3c6dc061_os_install_no_xpack
     - set AIT_ANSIBLE_PLAYBOOK to the playbook you want to run
-
 
 * Pytest Variables [** Phases 2/3 Pilot Testing ** ] - coming soon
 

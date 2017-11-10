@@ -51,6 +51,8 @@
         internal_metricbeat_config_params: >
           output.elasticsearch:
              hosts: ["{{ current_host_ip }}:{{ elasticsearch_port }}"]
+          setup.kibana:
+             host: "{{ current_host_ip }}:{{ kibana_port }}"
     - name: Add metricbeat configuration parameters
       blockinfile:
         path: '{{ metricbeat_config_file }}'
