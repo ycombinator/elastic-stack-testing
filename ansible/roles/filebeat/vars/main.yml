@@ -31,6 +31,12 @@ filebeat_roles:
     - { action: 'filebeat_config', args: {} }
     - { action: 'filebeat_startup', args: {} }
     - { action: 'filebeat_is_running', args: {} }
+  filebeat_install_config_start_verify_import_dashboards:
+    - { action: 'filebeat_install', args: {} }
+    - { action: 'filebeat_config', args: {} }
+    - { action: 'filebeat_startup', args: {} }
+    - { action: 'filebeat_is_running', args: {} }
+    - { action: 'filebeat_import_dashboards', args: {} }
   filebeat_shutdown_uninstall_verify:
     - { action: 'filebeat_shutdown', args: {} }
     - { action: 'filebeat_uninstall', args: {} }
