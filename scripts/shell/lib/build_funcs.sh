@@ -103,7 +103,7 @@ activate_python_virtual_env() {
   echo_info "Create and activate python venv"
   export PYTHON_VENV_NAME=${WORKSPACE}/es-venv
   # Create python virtual env
-  python3 -m venv ${PYTHON_VENV_NAME}
+  python3.6 -m venv ${PYTHON_VENV_NAME}
   # Activate env
   source ${PYTHON_VENV_NAME}/bin/activate
   echo_info "Python venv name: $PYTHON_VENV_NAME"
