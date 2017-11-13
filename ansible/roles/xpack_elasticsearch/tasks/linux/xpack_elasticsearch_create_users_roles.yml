@@ -1,0 +1,33 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Elasticsearch x-pack create user roles
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+
+- name: Add Users and Roles
+  uri:
+    url: "https://{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}:{{ elasticsearch_port }}/_xpack/security/{{ role_user.path }}"
+    method: POST
+    user: "{{ elasticsearch_username }}"
+    password: "{{ elasticsearch_password }}"
+    body: "{{ role_user.json_data }}"
+    body_format: json
+    validate_certs: no
+    status_code: 200
+  with_items:
+    - { path: 'role/beats_writer', json_data: '{ "cluster": ["manage_index_templates","monitor"], "indices": [ { "names": [ "*beat-*" ], "privileges": ["write","delete","create_index"] } ] }' }
+    - { path: 'role/kibana_readonly', json_data: '{ "cluster": [], "indices": [ { "names": [ ".kibana*" ], "privileges": ["read","view_index_metadata"] } ]}' }
+    - { path: role/logstash_writer', json_data: '{ "cluster": ["manage_index_templates","monitor"], "indices": [ { "names": [ "logstash-*" ], "privileges": ["write","delete","create_index"] } ]}' }
+    - { path: 'role/beats_reader', json_data: '{ "cluster": [], "indices": [ { "names": [ "*beat-*" ], "privileges": ["read","view_index_metadata"] } ]}' }
+    - { path: 'role/logstash_reader', json_data: '{ "cluster": [], "indices": [ { "names": [ "logstash-*", "makelogs-*","*:*"],   "privileges": ["read","view_index_metadata","read_cross_cluster"] } ]}' }
+    - { path: 'role/test_reader', json_data: '{ "cluster": [], "indices": [ { "names": [ "*test" ], "privileges": ["read","view_index_metadata"] } ]}' }
+    - { path: 'role/security_manager', json_data: '{ "cluster": ["manage_security"]}' }
+    - { path: 'user/beats_internal', json_data: '{ "password" : "changeme",  "roles" : [ "beats_writer","kibana_system" ], "full_name" : "beats_internal", "email" : "beats_internal@test.co"}' }
+    - { path: 'user/readonly', json_data: '{ "password" : "changeme", "roles" : [ "kibana_readonly" ], "full_name" : "Kibana ReadOnly user", "email" : "readonly@elastic.co" }' }
+    - { path: 'user/ironman', json_data: '{ "password" : "changeme", "roles" : [ "kibanaUser" ], "full_name" : "Tony Stark", "email" : "tony@starkcorp.co", "metadata" : { "intelligence" : 7  }}' }
+    - { path: 'user/logstash_internal', json_data: '{ "password" : "changeme", "roles" : [ "logstash_writer" ], "full_name" : "logstash_internal", "email" : "logstash_internal@test.co" }' }
+    - { path: 'user/power', json_data: '{ "password" : "changeme", "roles" : [ "beats_reader","logstash_reader","kibana_user", "monitoring_user","security_manager","reporting_user", "test_reader" ], "full_name" : "power", "email" : "poweruser@test.co" }' }
+  loop_control:
+    loop_var: role_user

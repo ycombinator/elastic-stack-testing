@@ -31,6 +31,28 @@ xpack_elasticsearch_roles:
     - { action: 'elasticsearch_is_running', parent: 'elasticsearch', args: {} }
     - { action: 'xpack_elasticsearch_set_passwords',  parent: '', args: {} }
     - { action: 'elasticsearch_api_get_info', parent: 'elasticsearch', args: {} }
+  xpack_elasticsearch_install_gencert_config_start_verify_create_users_roles:
+    - { action: 'elasticsearch_install', parent: 'elasticsearch', args: {} }
+    - { action: 'xpack_elasticsearch_install', parent: '', args: {} }
+    - { action: 'xpack_elasticsearch_certs',   parent: '', args: {} }
+    - { action: 'xpack_elasticsearch_config',  parent: '', args: {} }
+    - { action: 'elasticsearch_restart',  parent: 'elasticsearch', args: {} }
+    - { action: 'elasticsearch_log_tail', parent: 'elasticsearch', args: {ait_log_searchstr: started} }
+    - { action: 'elasticsearch_is_running', parent: 'elasticsearch', args: {} }
+    - { action: 'xpack_elasticsearch_set_passwords',  parent: '', args: {} }
+    - { action: 'elasticsearch_api_get_info', parent: 'elasticsearch', args: {} }
+    - { action: 'xpack_elasticsearch_create_users_roles',  parent: '', args: {} }
+  xpack_elasticsearch_plugin_gencert_config_start_verify_create_users_roles:
+    - { action: 'xpack_elasticsearch_install', parent: '', args: {} }
+    - { action: 'xpack_elasticsearch_certs',   parent: '', args: {} }
+    - { action: 'elasticsearch_config_remove', parent: 'elasticsearch', args: {} }
+    - { action: 'xpack_elasticsearch_config',  parent: '', args: {} }
+    - { action: 'elasticsearch_restart',  parent: 'elasticsearch', args: {} }
+    - { action: 'elasticsearch_log_tail', parent: 'elasticsearch', args: {ait_log_searchstr: started} }
+    - { action: 'elasticsearch_is_running', parent: 'elasticsearch', args: {} }
+    - { action: 'xpack_elasticsearch_set_passwords',  parent: '', args: {} }
+    - { action: 'elasticsearch_api_get_info', parent: 'elasticsearch', args: {} }
+    - { action: 'xpack_elasticsearch_create_users_roles',  parent: '', args: {} }
   xpack_elasticsearch_plugin_rmconfig_uninstall_start_verify:
     - { action: 'xpack_elasticsearch_config_remove', parent: '', args: {} }
     - { action: 'xpack_elasticsearch_uninstall', parent: '', args: {} }
