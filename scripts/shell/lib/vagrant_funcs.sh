@@ -43,6 +43,7 @@ goto_vagrant_directory() {
 }
 
 vagrant_up() {
+  vagrant_destroy
   goto_vagrant_directory
   vagrant up
   exit $?
