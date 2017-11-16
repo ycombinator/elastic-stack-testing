@@ -20,6 +20,7 @@ filebeat_rootdir: '{{ filebeat_package.split(filebeat_package_ext)[0] | trim }}'
 
 # filebeat bin
 filebeat_exe: '{{ filebeat_rootdir | trim }}/filebeat'
+filebeat_scripts: '{{ filebeat_rootdir | trim }}/scripts'
 
 # filebeat config
 filebeat_config_dir: '{{ filebeat_rootdir | trim }}'
