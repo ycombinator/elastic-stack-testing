@@ -65,6 +65,11 @@ elastic-stack-testing/
 
 * Pytest Variables [** Phases 2/3 Pilot Testing ** ] - coming soon
 
+## Running on Windows 
+
+  If running Ansible playbooks they need to be run from MacOS or Linux, although Windows Subsystem for Linux has support,
+  it is not recommended to use this option.
+
 ## Pilot Testing
 
   - Phase 1: Ansible standalone product installation/configuration
@@ -92,4 +97,4 @@ elastic-stack-testing/
 
 ## Contact
 
-  For help please contact: liza.dayoub@elastic.co
+  For questions or help please contact: liza.dayoub@elastic.co
