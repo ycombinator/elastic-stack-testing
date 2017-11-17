@@ -30,14 +30,14 @@ xpack_logstash_roles:
     - { action: 'xpack_logstash_install', parent: '', args: {} }
     - { action: 'xpack_logstash_config',  parent: '', args: {} }
     - { action: 'logstash_conf', parent: 'logstash', args: { ait_logstash_conf_xpack: "{{ xpack_logstash_conf_params }}" } }
-    - { action: 'logstash_restart',  parent: 'logstash', args: {} }
+    - { action: 'logstash_startup',  parent: 'logstash', args: {} }
     - { action: 'logstash_log_tail', parent: 'logstash', args: {ait_log_searchstr: started} }
     - { action: 'logstash_is_running', parent: 'logstash', args: {} }
   xpack_logstash_rmconfig_uninstall_start_verify:
     - { action: 'xpack_logstash_config_remove', parent: '', args: {} }
     - { action: 'xpack_logstash_uninstall', parent: '', args: {} }
     - { action: 'logstash_conf', parent: 'logstash', args: {} }
-    - { action: 'logstash_restart',  parent: 'logstash', args: {} }
+    - { action: 'logstash_startup',  parent: 'logstash', args: {} }
     - { action: 'logstash_log_tail', parent: 'logstash', args: {ait_log_searchstr: started} }
     - { action: 'logstash_is_running', parent: 'logstash', args: {} }
 

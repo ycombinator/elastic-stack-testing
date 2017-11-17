@@ -8,7 +8,7 @@
 
 - name: Add Users and Roles
   uri:
-    url: "https://{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}:{{ elasticsearch_port }}/_xpack/security/{{ role_user.path }}"
+    url: "https://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:{{ elasticsearch_port }}/_xpack/security/{{ role_user.path }}"
     method: POST
     user: "{{ elasticsearch_username }}"
     password: "{{ elasticsearch_password }}"

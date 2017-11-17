@@ -12,7 +12,7 @@ file_descriptor_limit: 65536
 vagrant_dirs:
   'windows': c:\vagrant
   'linux': /vagranelastic_pkgt
-current_host_ip: "{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}"
+current_host_ip: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
 install_dirs:
   'tar.gz': '/tmp'
   'zip':    'c:\temp'

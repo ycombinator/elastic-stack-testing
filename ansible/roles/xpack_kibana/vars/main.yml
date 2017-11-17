@@ -16,19 +16,19 @@ xpack_kibana_roles:
     - { action: 'xpack_kibana_install', parent: '', args: {} }
     - { action: 'kibana_config',  parent: 'kibana', args: {} }
     - { action: 'xpack_kibana_config',  parent: '', args: {} }
-    - { action: 'kibana_restart',  parent: 'kibana', args: {} }
+    - { action: 'kibana_startup',  parent: 'kibana', args: {} }
     - { action: 'kibana_log_tail', parent: 'kibana', args: {ait_log_searchstr: started} }
     - { action: 'kibana_is_running', parent: 'kibana', args: {} }
   xpack_kibana_plugin_config_start_verify:
     - { action: 'xpack_kibana_install', parent: '', args: {} }
     - { action: 'xpack_kibana_config',  parent: '', args: {} }
-    - { action: 'kibana_restart',  parent: 'kibana', args: {} }
+    - { action: 'kibana_startup',  parent: 'kibana', args: {} }
     - { action: 'kibana_log_tail', parent: 'kibana', args: {ait_log_searchstr: started} }
     - { action: 'kibana_is_running', parent: 'kibana', args: {} }
   xpack_kibana_plugin_rmconfig_uninstall_start_verify:
     - { action: 'xpack_kibana_config_remove', parent: '', args: {} }
     - { action: 'xpack_kibana_uninstall', parent: '', args: {} }
-    - { action: 'kibana_restart',  parent: 'kibana', args: {} }
+    - { action: 'kibana_startup',  parent: 'kibana', args: {} }
     - { action: 'kibana_log_tail', parent: 'kibana', args: {ait_log_searchstr: started} }
     - { action: 'kibana_is_running', parent: 'kibana', args: {} }
 

@@ -27,11 +27,21 @@ $script = <<-SCRIPT
 
   # update vm map count
   sysctl -w vm.max_map_count=262144
+  
+  # CentOS specific changes. pipes are added to allow skipping on other OS
+  
+  # install lsof for Kibana_is_running.yml
+  yum -i install lsof || true
+  # enable outside access to the VM
+  iptables -F
+  # allow logstash.tar.gz to read this file
+  chmod 777 /var/log/messages || true
 SCRIPT
 
 # Default variables
 
 # Vagrant Info
+#VAGRANT_DEFAULT_BOX = "elastic/centos-7-x86_64"
 VAGRANT_DEFAULT_BOX = "elastic/ubuntu-16.04-x86_64"
 VAGRANT_DEFAULT_MEM = "4096"
 VAGRANT_DEFAULT_CPU = "2"

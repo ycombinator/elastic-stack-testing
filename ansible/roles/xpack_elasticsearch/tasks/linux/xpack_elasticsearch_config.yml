@@ -11,7 +11,7 @@
     marker: '# {mark} ANSIBLE MANAGED BLOCK ELASTICSEARCH XPACK PARAMETERS'
     insertafter: EOF
     content: |
-      network.host: {{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}
+      network.host: {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}
       xpack.security.http.ssl.enabled: true
       xpack.ssl.key: {{ elasticsearch_xpack_config_dir }}/node/node.key
       xpack.ssl.certificate: {{ elasticsearch_xpack_config_dir }}/node/node.crt

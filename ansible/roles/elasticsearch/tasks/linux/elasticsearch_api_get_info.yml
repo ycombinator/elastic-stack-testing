@@ -13,7 +13,7 @@
   block:
     - name: Elasticsearch HTTP GET ?pretty
       uri:
-        url: "http://{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}:{{ elasticsearch_port }}/?pretty"
+        url: "http://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:{{ elasticsearch_port }}/?pretty"
         method: GET
         return_content: yes
         status_code: 200
@@ -26,7 +26,7 @@
   block:
     - name: Elasticsearch HTTPS GET ?pretty
       uri:
-        url: "https://{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}:{{ elasticsearch_port }}/?pretty"
+        url: "https://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:{{ elasticsearch_port }}/?pretty"
         method: GET
         user: "{{ elasticsearch_username }}"
         password: "{{ elasticsearch_password }}"

@@ -13,11 +13,11 @@ xpack_heartbeat_roles:
   xpack_heartbeat_install_config_start_verify:
     - { action: 'heartbeat_install', parent: 'heartbeat', args: {} }
     - { action: 'xpack_heartbeat_config',  parent: '', args: {} }
-    - { action: 'heartbeat_restart',  parent: 'heartbeat', args: {} }
+    - { action: 'heartbeat_startup',  parent: 'heartbeat', args: {} }
     - { action: 'heartbeat_is_running', parent: 'heartbeat', args: {} }
   xpack_heartbeat_rmconfig_start_verify:
     - { action: 'xpack_heartbeat_config_remove', parent: '', args: {} }
-    - { action: 'heartbeat_restart',  parent: 'heartbeat', args: {} }
+    - { action: 'heartbeat_startup',  parent: 'heartbeat', args: {} }
     - { action: 'heartbeat_is_running', parent: 'heartbeat', args: {} }
 
 # Task files for group use, keep in sync with tasks/main.yml except for parent tasks
