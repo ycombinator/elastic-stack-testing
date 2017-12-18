@@ -12,17 +12,11 @@ set +x
 source aitenv.sh
 source ${AIT_SCRIPTS}/shell/lib/build_funcs.sh
 
-create_workspace
-check_workspace
-source_additional_env
-activate_python_virtual_env
-python_install_packages
-generate_package_variables
-check_ansible_playbook
-check_ansible_script
-check_test_script
-run_ansible_script
-run_ansible_playbook
-run_test_script
-deactivate_python_virtual_env
+echo "This is a stub test"
+
+echo $ES_BUILD_URL
+echo $ES_BUILD_PKG_EXT
+echo $AIT_TEST_SUITE 
+
+echo "End test"
 # ----------------------------------------------------------------------------
