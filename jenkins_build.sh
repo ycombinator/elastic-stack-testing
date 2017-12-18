@@ -14,9 +14,9 @@ source ${AIT_SCRIPTS}/shell/lib/build_funcs.sh
 
 echo "This is a stub test"
 
-echo $ES_BUILD_URL
-echo $ES_BUILD_PKG_EXT
-echo $AIT_TEST_SUITE 
+echo_info $ES_BUILD_URL
+echo_error $ES_BUILD_PKG_EXT
+echo_warning $AIT_TEST_SUITE
 
 echo "End test"
 # ----------------------------------------------------------------------------
