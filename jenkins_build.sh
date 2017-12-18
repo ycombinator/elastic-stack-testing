@@ -14,6 +14,11 @@ source ${AIT_SCRIPTS}/shell/lib/build_funcs.sh
 
 echo "This is a stub test"
 
+if [ ! -z "${AIT_ENV_VARS}" ]; then
+  echo_info "Export environment variables"
+  eval export "${AIT_ENV_VARS}"
+fi
+
 echo_info $ES_BUILD_URL
 echo_error $ES_BUILD_PKG_EXT
 echo_warning $AIT_TEST_SUITE
