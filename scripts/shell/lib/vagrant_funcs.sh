@@ -43,8 +43,12 @@ goto_vagrant_directory() {
 }
 
 vagrant_up() {
-  vagrant_destroy
   goto_vagrant_directory
+  vagrant destroy -f
+  rc=$?
+  if [ $rc != 0 ]; then
+    exit $rc;
+  fi
   vagrant up
   exit $?
 }
