@@ -12,16 +12,17 @@ set +x
 source aitenv.sh
 source ${AIT_SCRIPTS}/shell/lib/build_funcs.sh
 
-echo "This is a stub test"
-
-if [ ! -z "${AIT_ENV_VARS}" ]; then
-  echo_info "Export environment variables"
-  eval export "${AIT_ENV_VARS}"
-fi
-
-echo_info $ES_BUILD_URL
-echo_error $ES_BUILD_PKG_EXT
-echo_warning $AIT_TEST_SUITE
-
-echo "End test"
+create_workspace
+check_workspace
+source_additional_env
+activate_python_virtual_env
+python_install_packages
+generate_package_variables
+check_ansible_playbook
+check_ansible_script
+check_test_script
+run_ansible_script
+run_ansible_playbook
+run_test_script
+deactivate_python_virtual_env
 # ----------------------------------------------------------------------------
