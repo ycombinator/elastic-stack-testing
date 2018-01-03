@@ -29,6 +29,8 @@ elastic-stack-testing/
 
  * Install Virtualbox and Vagrant
 
+   In this repo see file: .vagrant-version and .virtualbox-version for versions to install
+
   - https://www.virtualbox.org/wiki/Downloads
   - https://www.vagrantup.com/downloads.html
 
