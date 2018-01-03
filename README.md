@@ -1,13 +1,18 @@
 # elastic-stack-testing
 
-Automated Integration Testing (AIT)
+[WIP] Elastic Stack: Automated Integration Testing (AIT)
 
 ## Infrastructure
+
+This project is a work in progress to provide a common automation framework for elastic stack integration testing.
+The goal is to provide a powerful, easy to use and maintain framework to build test suites.
 
  - Software products under test: Elasticsearch, Kibana, Logstash, Beats
  - Ansible is used to install and configure the software products under test
  - Python, Pytest and Selenium will be used for the test framework
  - Automated virtual machine support for Vagrant boxes and AWS EC2 instances
+
+This project is in early stage development and many things are still being ironed out.
 
 ## Directory Structure
 
@@ -65,7 +70,7 @@ elastic-stack-testing/
 
 * Pytest Variables [** Phases 2/3 Pilot Testing ** ] - coming soon
 
-## Running on Windows 
+## Running on Windows
 
   If running Ansible playbooks they need to be run from MacOS or Linux, although Windows Subsystem for Linux has support,
   it is not recommended to use this option.
