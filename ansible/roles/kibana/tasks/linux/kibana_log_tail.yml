@@ -1,28 +1,28 @@
 #-----------------------------------------------------------------------------------------------------------------------
-# Log search
+# Kibana log tail
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-# TODO: maybe make this handler, it fails if it is already running on the second time
-- name: Wait for log file to be present
+- shell: date +"%Y-%m-%dT%H:%M"
+  register: kibana_date
+- set_fact:
+    kibana_date_ind0: "{{ kibana_date.stdout.split(':')[0] }}"
+    minute_minus1: "{{ kibana_date.stdout.split(':')[1] | int - 01 }}"
+    minute_plus1:  "{{ kibana_date.stdout.split(':')[1] | int + 01 }}"
+- set_fact:
+    kibana_date_now: "{{ kibana_date.stdout }}"
+    kibana_date_minus1: "{{ kibana_date_ind0 }}:{{ '%02d'|format(minute_minus1|int) }}"
+    kibana_date_plus1:  "{{ kibana_date_ind0 }}:{{ '%02d'|format(minute_plus1|int) }}"
+    search_str: "{%- if ait_args is defined -%}
+                    {{ kibana_log_find[ait_args.get('ait_log_searchstr')] }}
+                 {%- elif ait_log_searchstr is defined -%}
+                    {{ kibana_log_find[ait_log_searchstr] }}
+                 {%- endif -%}"
+
+- name: Wait for log file and search string to be present
   wait_for:
     path: '{{ kibana_log_file }}'
     timeout: '{{ kibana_timeout }}'
-  become: '{{ kibana_run_as_root | default(omit) }}'
-  tags: kibana_log_check
-
-# TODO: throw error exception thrown for the jinja2 template
-- name: Wait for kibana log string
-  shell: >-
-    timeout "{{ kibana_timeout }}"
-    sed -r '/{%- if ait_args is defined -%}
-                {{ kibana_log_find[ait_args.get('ait_log_searchstr')] }}
-             {%- elif ait_log_searchstr is defined -%}
-                {{ kibana_log_find[ait_log_searchstr] }}
-             {%- endif -%}/q' <(tail -n 0 -f "{{ kibana_log_file }}")
-  args:
-    executable: /bin/bash
-  become: '{{ kibana_run_as_root | default(omit) }}'
-  tags: kibana_log_check
+    search_regex: '({{ kibana_date_now }}|{{ kibana_date_minus1 }}|{{ kibana_date_plus1 }})([\w*\W*\n]*){{ search_str }}'
