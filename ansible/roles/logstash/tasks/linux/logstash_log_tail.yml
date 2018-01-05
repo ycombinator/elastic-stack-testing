@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------------------------------------------------
-# Log search
+# Logstash log tail
 #
 # Author: liza.dayoub@elastic.co
 #-----------------------------------------------------------------------------------------------------------------------
@@ -25,4 +25,4 @@
   wait_for:
     path: '{{ logstash_log_file }}'
     timeout: '{{ logstash_timeout }}'
-    search_regex: '{{ logstash_date_now }}|{{ logstash_date_minus1 }}|{{ logstash_date_plus1 }}{{ search_str }}'
+    search_regex: '({{ logstash_date_now }}|{{ logstash_date_minus1 }}|{{ logstash_date_plus1 }})([\w*\W*\n]*){{ search_str }}'
