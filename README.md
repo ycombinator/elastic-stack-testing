@@ -2,6 +2,8 @@
 
 [WIP] Elastic Stack: Automated Integration Testing (AIT)
 
+[ Project Wiki ] (https://github.com/elastic/elastic-stack-testing/wiki)
+
 ## Infrastructure
 
 This project is a work in progress to provide a common automation framework for elastic stack integration testing.
