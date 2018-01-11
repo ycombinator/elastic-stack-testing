@@ -2,7 +2,7 @@
 
 [WIP] Elastic Stack: Automated Integration Testing (AIT)
 
-[ Project Wiki ] (https://github.com/elastic/elastic-stack-testing/wiki)
+[More details, see Wiki*](https://github.com/elastic/elastic-stack-testing/wiki)
 
 ## Infrastructure
 
