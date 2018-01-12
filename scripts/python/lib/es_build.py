@@ -170,12 +170,14 @@ class ElasticStackBuild:
 
     @property
     def version(self):
-        if not self._env_build_id or self.server in self._snapshot_servers:
+        if not self._env_build_id:
             return self._env_build_id.strip()
         splitstr = self._env_build_id.split('-')
         if len(splitstr) > 1:
             del splitstr[-1]
         newstr = '-'.join(splitstr)
+        if self.server in self._snapshot_servers:
+            newstr += '-SNAPSHOT'
         return newstr.strip()
 
     @property
@@ -241,7 +243,7 @@ class ElasticStackBuild:
             server = self.server
             version = self.version
             if server and version and ext:
-                if server in self._public_servers or server in self._snapshot_servers:
+                if server in self._public_servers:
                     url = server + '/downloads/' + parent_name + '/' + name + '-' + version + '.' + ext
                 else:
                     url = server + '/' + self._env_build_id + '/downloads/' + parent_name + '/' + name + '-' + version + '.' + ext
@@ -266,7 +268,7 @@ class ElasticStackBuild:
                 arch = self.architecture
                 if name == 'kibana':
                     arch = re.sub('windows-x86_64', 'windows-x86', arch)
-                if server in self._public_servers or server in self._snapshot_servers:
+                if server in self._public_servers:
                     url = server + '/downloads/' + parent_name + '/' + name + '-' + version + '-' +  arch + '.' + ext
                 else:
                     url = server + '/' + self._env_build_id + '/downloads/' + parent_name + '/' + name + '-' + version + '-' +  arch + '.' + ext
