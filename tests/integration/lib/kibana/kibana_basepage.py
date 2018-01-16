@@ -1,7 +1,7 @@
 '''
 Created on Sep 23, 2017
 
-@author: liza
+@author: Liza Dayoub
 '''
 
 
@@ -13,8 +13,7 @@ from lib import config
 
 class KibanaBasePage(BasePage):
 
-    loading_indicator = Find(
-        by=By.CSS_SELECTOR, value='div[data-test-subj="globalLoadingIndicator"]')
+    loading_indicator = Find(by=By.CSS_SELECTOR, value='div[data-test-subj="globalLoadingIndicator"]')
 
     def __init__(self, url=config.kibana.url, **kwargs):
         self.url = url

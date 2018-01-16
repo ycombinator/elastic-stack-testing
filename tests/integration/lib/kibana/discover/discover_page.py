@@ -1,7 +1,7 @@
 '''
 Created on Sep 26, 2017
 
-@author: liza
+@author: Liza Dayoub
 '''
 
 
@@ -19,23 +19,15 @@ class DiscoverPage(KibanaBasePage):
     Kibana Discover Page
     '''
 
-    query_hits_label = Find(
-        by=By.CSS_SELECTOR, value='span[data-test-subj="discoverQueryHits"]')
-    new_button = Find(by=By.CSS_SELECTOR,
-                      value='button[data-test-subj="discoverNewButton"]')
-    save_button = Find(by=By.CSS_SELECTOR,
-                       value='button[data-test-subj="discoverSaveButton"]')
-    open_button = Find(by=By.CSS_SELECTOR,
-                       value='button[data-test-subj="discoverOpenButton"]')
-    share_button = Find(by=By.CSS_SELECTOR,
-                        value='button[data-test-subj="discoverShareButton"]')
-    time_picker_button = Find(
-        by=By.CSS_SELECTOR, value='button[data-test-subj="globalTimepickerButton"]')
+    query_hits_label = Find(by=By.CSS_SELECTOR, value='span[data-test-subj="discoverQueryHits"]')
+    new_button = Find(by=By.CSS_SELECTOR, value='button[data-test-subj="discoverNewButton"]')
+    save_button = Find(by=By.CSS_SELECTOR, value='button[data-test-subj="discoverSaveButton"]')
+    open_button = Find(by=By.CSS_SELECTOR, value='button[data-test-subj="discoverOpenButton"]')
+    share_button = Find(by=By.CSS_SELECTOR, value='button[data-test-subj="discoverShareButton"]')
+    time_picker_button = Find(by=By.CSS_SELECTOR, value='button[data-test-subj="globalTimepickerButton"]')
 
-    query_text_field = Find(
-        by=By.CSS_SELECTOR, value='input[ng-model="state.query"]')
-    query_search_button = Find(
-        by=By.CSS_SELECTOR, value='button[aria-label="Search"]')
+    query_text_field = Find(by=By.CSS_SELECTOR, value='input[ng-model="state.query"]')
+    query_search_button = Find(by=By.CSS_SELECTOR, value='button[aria-label="Search"]')
 
     sidebar_item_fields = Finds(by=By.CLASS_NAME, value='sidebar-item')
 
@@ -80,10 +72,8 @@ class IndexPatternOptions(WebElement):
 class IndexPatternSideList(KibanaBasePage):
 
     index_pattern_link = Find(by=By.CLASS_NAME, value='index-pattern')
-    index_pattern_dropdown = Find(
-        by=By.CLASS_NAME, value='index-pattern-selection')
-    index_pattern_dropdown_options = Find(
-        IndexPatternOptions, by=By.CLASS_NAME, value='index-pattern-selection')
+    index_pattern_dropdown = Find(by=By.CLASS_NAME, value='index-pattern-selection')
+    index_pattern_dropdown_options = Find(IndexPatternOptions, by=By.CLASS_NAME, value='index-pattern-selection')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
