@@ -20,7 +20,6 @@ class LoginPage(KibanaBasePage):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.url += '/login'
 
     def loaded(self):
         wait(lambda: self.is_element_present('username_field') is True)
