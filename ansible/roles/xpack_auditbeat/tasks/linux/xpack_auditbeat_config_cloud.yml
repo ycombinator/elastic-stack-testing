@@ -1,0 +1,31 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# auditbeat cloud
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+
+- name: Save original auditbeat configuration
+  copy:
+    src: '{{ auditbeat_config_file }}'
+    dest: '{{ auditbeat_config_file }}.org'
+    remote_src: True
+    force: no
+  become: true
+
+- name: Change auditbeat configuration file owner to root
+  file:
+    path: '{{ auditbeat_config_file }}'
+    owner: root
+    group: root
+  become: true
+
+- name: Add auditbeat x-pack configuration parameters
+  blockinfile:
+    path: '{{ auditbeat_config_file }}'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK auditbeat X-PACK PARAMETERS'
+    insertafter: EOF
+    content: |
+      cloud.auth: "{{ elasticsearch_username }}:{{ elasticsearch_password }}"
+      cloud.id: "{{ elastic_cloud_id }}"
+  become: true
