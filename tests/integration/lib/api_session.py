@@ -27,6 +27,7 @@ class ApiSession(object):
         cfg = kwargs.get('cfg')
         if cfg:
             self.url = cfg.get('url') or self.url
+            self.url = self.url.strip('/')
             self.username = cfg.get('username') or self.username
             self.password = cfg.get('password') or self.password
             if cfg.get('xpack'):

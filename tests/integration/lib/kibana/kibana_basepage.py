@@ -16,7 +16,7 @@ class KibanaBasePage(BasePage):
     loading_indicator = Find(by=By.CSS_SELECTOR, value='div[data-test-subj="globalLoadingIndicator"]')
 
     def __init__(self, url=config.kibana.url, **kwargs):
-        self.url = url
+        self.url = url.strip('/')
         super().__init__(**kwargs)
 
     def wait_for_loading_indicator(self, timeout=5):
