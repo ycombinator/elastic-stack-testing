@@ -19,3 +19,10 @@
         - '{{ ansible_system | lower }}/{{ ait_action }}.yml'
       skip: true
   when: ait_action is defined
+
+# If tasks are for cloud, fail if cloud id is not set 
+- fail:
+    msg: "Please set env var: ELASTIC_CLOUD_ID to run cloud tasks"
+  when: ((ait_role is defined and ait_role | search("cloud")) or
+         (ait_action is defined and ait_action | search("cloud"))) and
+        (elastic_cloud_id is not defined or not elastic_cloud_id)

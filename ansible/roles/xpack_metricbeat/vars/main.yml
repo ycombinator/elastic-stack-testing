@@ -34,6 +34,15 @@ xpack_metricbeat_roles:
     - { action: 'xpack_metricbeat_config_remove', parent: '', args: {} }
     - { action: 'metricbeat_restart',  parent: 'metricbeat', args: {} }
     - { action: 'metricbeat_is_running', parent: 'metricbeat', args: {} }
+  xpack_metricbeat_install_cloud_start_verify:
+    - { action: 'metricbeat_install', parent: 'metricbeat', args: {} }
+    - { action: 'xpack_metricbeat_config_cloud',  parent: '', args: {} }
+    - { action: 'metricbeat_restart',  parent: 'metricbeat', args: {} }
+    - { action: 'metricbeat_is_running', parent: 'metricbeat', args: {} }
+  xpack_metricbeat_cloud_start_verify:
+    - { action: 'xpack_metricbeat_config_cloud',  parent: '', args: {} }
+    - { action: 'metricbeat_restart',  parent: 'metricbeat', args: {} }
+    - { action: 'metricbeat_is_running', parent: 'metricbeat', args: {} }
 
 # Task files for group use, keep in sync with tasks/main.yml except for parent tasks
 xpack_metricbeat_task_files:

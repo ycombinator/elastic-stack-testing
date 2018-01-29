@@ -16,6 +16,9 @@ logstash_package_ext: "{{ logstash_package_url | splitext | last | regex_replace
 logstash_username: "{{ lookup('env','AIT_LOGSTASH_USERNAME') | default('logstash_system', true) }}"
 logstash_password: "{{ lookup('env','AIT_LOGSTASH_PASSWORD') | default('changeme', true) }}"
 
+# Default netflow UDP port
+logstash_netflow_udp_port: 9996
+
 # Variables to run multiple role task files in a group
 # Must have role name (key), action and args that map to individual task files
 logstash_roles:

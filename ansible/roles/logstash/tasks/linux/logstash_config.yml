@@ -52,6 +52,7 @@
         internal_logstash_config_params: |
           server.host:  {{ current_host_ip }}
           logging.dest: {{ logstash_log_file | trim }}
+          path.config:  {{ logstash_conf_path }} 
     - name: Add logstash configuration parameters
       blockinfile:
         path: '{{ logstash_config_file }}'

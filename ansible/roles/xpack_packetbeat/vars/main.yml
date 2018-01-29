@@ -34,6 +34,15 @@ xpack_packetbeat_roles:
     - { action: 'xpack_packetbeat_config_remove', parent: '', args: {} }
     - { action: 'packetbeat_restart',  parent: 'packetbeat', args: {} }
     - { action: 'packetbeat_is_running', parent: 'packetbeat', args: {} }
+  xpack_packetbeat_install_cloud_start_verify:
+    - { action: 'packetbeat_install', parent: 'packetbeat', args: {} }
+    - { action: 'xpack_packetbeat_config_cloud',  parent: '', args: {} }
+    - { action: 'packetbeat_restart',  parent: 'packetbeat', args: {} }
+    - { action: 'packetbeat_is_running', parent: 'packetbeat', args: {} }
+  xpack_packetbeat_cloud_start_verify:
+    - { action: 'xpack_packetbeat_config_cloud',  parent: '', args: {} }
+    - { action: 'packetbeat_restart',  parent: 'packetbeat', args: {} }
+    - { action: 'packetbeat_is_running', parent: 'packetbeat', args: {} }
 
 # Task files for group use, keep in sync with tasks/main.yml except for parent tasks
 xpack_packetbeat_task_files:

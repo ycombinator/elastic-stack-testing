@@ -34,6 +34,16 @@ xpack_filebeat_roles:
     - { action: 'xpack_filebeat_config_remove', parent: '', args: {} }
     - { action: 'filebeat_restart',  parent: 'filebeat', args: {} }
     - { action: 'filebeat_is_running', parent: 'filebeat', args: {} }
+  xpack_filebeat_install_cloud_start_verify:
+    - { action: 'filebeat_install', parent: 'filebeat', args: {} }
+    - { action: 'xpack_filebeat_config_cloud',  parent: '', args: {} }
+    - { action: 'filebeat_restart',  parent: 'filebeat', args: {} }
+    - { action: 'filebeat_is_running', parent: 'filebeat', args: {} }
+  xpack_filebeat_cloud_start_verify:
+    - { action: 'xpack_filebeat_config_cloud',  parent: '', args: {} }
+    - { action: 'filebeat_restart',  parent: 'filebeat', args: {} }
+    - { action: 'filebeat_is_running', parent: 'filebeat', args: {} }
+
 
 # Task files for group use, keep in sync with tasks/main.yml except for parent tasks
 xpack_filebeat_task_files:

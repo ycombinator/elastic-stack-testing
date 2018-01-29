@@ -6,6 +6,7 @@
 
 ---
 url_timeout: 60
+elastic_cloud_id: "{{ lookup('env','ES_CLOUD_ID') }}"
 nodes_in_cluster: "{{ hostvars | length }}"
 vm_max_map_count: 262144
 file_descriptor_limit: 65536
