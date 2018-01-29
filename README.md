@@ -53,24 +53,32 @@ buildenv.sh, fill in information below and then run ./buildenv.sh
   - <b>Build Variables</b>
     - export ES_BUILD_URL= build URL format: server/build_num-hash   
     - export ES_BUILD_PKG_EXT= package extension one of: tar, rpm, deb
-    -  <b>Elasticsearch and Kibana change the default ports:</b>
+    -  <b>Elasticsearch and Kibana change the default ports</b>
       - export AIT_ELASTICSEARCH_PORT=
       - export AIT_KIBANA_PORT=
-    - <b>OS defaults to ubuntu 16.04, to change the default OS:</b>
+    - <b>OS defaults to ubuntu 16.04, to change the default OS</b>
         - export ES_BUILD_VAGRANT_BOX=
   - <b>Ansible Standalone Variables</b>
     - AIT_ANSIBLE_PLAYBOOK - playbook for product installation   
       Example: AIT_ANSIBLE_PLAYBOOK=${AIT_ANSIBLE_PLAYBOOK_DIR}/install_no_xpack.yml
     - AIT_ANSIBLE_SCRIPT - machine setup which calls above playbook      
       Example: AIT_ANSIBLE_SCRIPT=${AIT_SCRIPTS}/shell/setup_vagrant_vm.sh   
-  - <b>Run playbook on an already running Virtualbox/Vagrant VM:</b>
+  - <b>Run playbook on an already running Virtualbox/Vagrant VM</b>
     - <b>IMPORTANT!</b> Comment out AIT_ANSIBLE_SCRIPT variable
     - set AIT_HOST_INVENTORY_ROOTDIR, your running VM directory in your workspace ex: 6-0-0-rc2-3c6dc061_os_install_no_xpack
     - set AIT_ANSIBLE_PLAYBOOK to the playbook you want to run
-  - <b>Run against Cloud:</b>
+  - <b>Cloud</b>
     - export ES_CLOUD_ID=
     - export AIT_ELASTICSEARCH_PASSWORD=
     - export AIT_ANSIBLE_PLAYBOOK=(ex: install_cloud)
+  - <b>Pytest</b>
+    <br>cd tests/integration/tests
+    - <b>No X-Pack</b>
+      -  pytest test_basic_integration
+    - <b>X-Pack</b>
+      - AIT_XPACK=true pytest test_basic_integration
+    - <b>Cloud</b>
+      - AIT_XPACK=true AIT_ELASTICSEARCH_URL=es_url AIT_KIBANA_URL=kbn_url AIT_ELASTICSEARCH_PASSWORD=es_pw AIT_KIBANA_PASSWORD=kbn_pw pytest test_basic_integration
 
 ## Currently Supported
 
