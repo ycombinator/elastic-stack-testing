@@ -21,40 +21,46 @@ class IndexPatternsPage(KibanaBasePage):
     '''
 
     TIME_FILTER_TIMESTAMP = '@timestamp'
-    TIME_FILTER_NONE = 'I don\'t want to use the Time Filter'
+    TIME_FILTER_DO_NOT_USE = 'I don\'t want to use the Time Filter'
+    TIME_FILTER_NOT_APPLICABLE = True
 
-    index_pattern_field = Find(
-        by=By.CSS_SELECTOR, value='input[data-test-subj="createIndexPatternNameInput"]')
+    SUBMIT_BUTTON_TIME_FILTER_IS_REQUIRED = 'Time Filter field name is required'
+    SUBMIT_BUTTON = 'Create'
+
+    sidebar_list_elem = Find(by=By.CSS_SELECTOR, value='div.sidebar-list')
+
+    index_pattern_field = Find(by=By.CSS_SELECTOR, value='input[data-test-subj="createIndexPatternNameInput"]')
     advanced_options_link = Find(by=By.LINK_TEXT, value='advanced options')
-    index_pattern_id_field = Find(
-        by=By.CSS_SELECTOR, value='input[data-test-subj="createIndexPatternIdInput"]')
+    index_pattern_id_field = Find(by=By.CSS_SELECTOR, value='input[data-test-subj="createIndexPatternIdInput"]')
 
-    time_filter_dropdown = Find(
-        Select, by=By.CSS_SELECTOR, value='select[data-test-subj="createIndexPatternTimeFieldSelect"]')
+    time_filter_dropdown = Find(Select, by=By.CSS_SELECTOR, value='select[data-test-subj="createIndexPatternTimeFieldSelect"]')
+
     refresh_fields_link = Find(by=By.LINK_TEXT, value='refresh fields')
 
-    create_button = Find(
-        by=By.CSS_SELECTOR, value='button[data-test-subj="createIndexPatternCreateButton"]')
+    submit_button = Find(by=By.CSS_SELECTOR, value='button[type="submit"]')
 
-    set_default_index_button = Find(
-        by=By.CSS_SELECTOR, value='button[data-test-subj="setDefaultIndexPatternButton"]')
+    set_default_index_button = Find(by=By.CSS_SELECTOR, value='button[data-test-subj="setDefaultIndexPatternButton"]')
+
+    # In 6.1.x
+    next_button = Find(by=By.CSS_SELECTOR, value='button[data-test-subj="createIndexPatternGoToStep2Button"]')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.url += '/app/kibana#/management/kibana/index'
 
     def loaded(self):
-        wait(lambda: self.is_element_present('index_pattern_field')
-             is True, waiting_for='Index pattern field to be visible')
+        wait(lambda: self.is_element_present('index_pattern_field') is True)
 
     def click_advanced_options(self):
         self.advanced_options_link.click()
 
-    def click_create_button(self):
-        wait(lambda: self.create_button.is_enabled(),
-             waiting_for='Create button to be enabled',
-             timeout_seconds=5)
-        self.create_button.click()
+    def click_submit_button(self):
+        wait(lambda: self.submit_button.is_enabled())
+        self.submit_button.click()
+
+    def click_next_button(self):
+        wait(lambda: self.next_button.is_enabled())
+        self.next_button.click()
 
     def click_refresh_fields(self):
         self.refresh_fields_link.click()
@@ -62,9 +68,29 @@ class IndexPatternsPage(KibanaBasePage):
     def click_set_as_default_index(self):
         self.set_default_index_button.click()
 
+    def click_index_pattern(self, pattern):
+        self.get_pattern_link_by_text(pattern).click()
+
+    def pattern_in_sidebar(self, pattern):
+        pattern_list_items = self.sidebar_list_elem.text.split('\n')
+        if pattern in pattern_list_items:
+            return True
+        return False
+
+    def get_pattern_link_by_text(self, pattern):
+        return Find(by=By.LINK_TEXT, value=pattern, context=self)
+
     def enter_index_pattern(self, pattern):
         self.index_pattern_field.clear()
+        if self.is_element_present('submit_button'):
+            wait(lambda: not self.submit_button.is_enabled())
+        if self.is_element_present('next_button'):
+            wait(lambda: not self.next_button.is_enabled())
         self.index_pattern_field.send_keys(pattern)
+
+    def check_pattern(self, pattern):
+        if self.index_pattern_field.get_attribute('value') == pattern + '*':
+            self.enter_index_pattern(pattern.rstrip('*'))
 
     def enter_index_pattern_id(self, pattern_id):
         if not self.is_element_present('index_pattern_id_field'):
@@ -81,20 +107,26 @@ class IndexPatternsPage(KibanaBasePage):
         return None
 
     def select_time_filter(self, selfilter):
-        if self.time_filter_dropdown.is_enabled():
-            self.time_filter_dropdown.select_by_visible_text(selfilter)
+        wait(lambda: len(self.time_filter_dropdown.get_options()) > 1)
+        self.time_filter_dropdown.select_by_visible_text(selfilter)
 
     def create_index(self, pattern_name, time_filter, pattern_id=None):
         self.open()
         self.loaded()
-        self.enter_index_pattern(pattern_name)
-        if pattern_id:
-            self.enter_index_pattern_id(pattern_id)
-        self.select_time_filter(time_filter)
-        self.click_create_button()
+        if self.pattern_in_sidebar(pattern_name):
+            self.click_index_pattern(pattern_name)
+        else:
+            self.enter_index_pattern(pattern_name)
+            self.check_pattern(pattern_name)
+            if self.is_element_present('next_button'):
+                self.click_next_button()
+            if pattern_id:
+                self.enter_index_pattern_id(pattern_id)
+            if time_filter != self.TIME_FILTER_NOT_APPLICABLE:
+                self.select_time_filter(time_filter)
+            self.click_submit_button()
         self.wait_for_loading_indicator()
-        wait(lambda: self.get_index_id_from_url() is not None,
-             waiting_for='Index pattern field to be visible', timeout_seconds=5)
+        wait(lambda: self.get_index_id_from_url() is not None, timeout_seconds=5)
         index_id = self.get_index_id_from_url()
         if not index_id:
             raise IndexPatternDoesNotExist('Index pattern not created')
