@@ -31,9 +31,9 @@
     marker: '# {mark} ANSIBLE MANAGED BLOCK LOGSTASH XPACK PARAMETERS'
     insertafter: EOF
     content: |
-      xpack.monitoring.elasticsearch.url: https://{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}:{{ elasticsearch_port }}
+      xpack.monitoring.elasticsearch.url: https://{{ current_host_ip }}:{{ elasticsearch_port }}
       xpack.monitoring.elasticsearch.username: {{ elasticsearch_username }}
       xpack.monitoring.elasticsearch.password: {{ elasticsearch_password }}
       xpack.monitoring.elasticsearch.ssl.ca: {{ logstash_rootdir | trim }}/ca/ca.crt
-      path.config:  {{ logstash_conf_path }} 
+      path.config:  {{ logstash_conf_path }}
   become: '{{ logstash_run_as_root | default(omit) }}'

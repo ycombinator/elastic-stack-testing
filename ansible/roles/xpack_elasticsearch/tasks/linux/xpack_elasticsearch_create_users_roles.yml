@@ -8,7 +8,7 @@
 
 - name: Add Users and Roles
   uri:
-    url: "https://{{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}:{{ elasticsearch_port }}/_xpack/security/{{ role_user.path }}"
+    url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/_xpack/security/{{ role_user.path }}"
     method: POST
     user: "{{ elasticsearch_username }}"
     password: "{{ elasticsearch_password }}"
@@ -19,7 +19,7 @@
   with_items:
     - { path: 'role/beats_writer', json_data: '{ "cluster": ["manage_index_templates","monitor"], "indices": [ { "names": [ "*beat-*" ], "privileges": ["write","delete","create_index"] } ] }' }
     - { path: 'role/kibana_readonly', json_data: '{ "cluster": [], "indices": [ { "names": [ ".kibana*" ], "privileges": ["read","view_index_metadata"] } ]}' }
-    - { path: role/logstash_writer', json_data: '{ "cluster": ["manage_index_templates","monitor"], "indices": [ { "names": [ "logstash-*" ], "privileges": ["write","delete","create_index"] } ]}' }
+    - { path: 'role/logstash_writer', json_data: '{ "cluster": ["manage_index_templates","monitor"], "indices": [ { "names": [ "logstash-*" ], "privileges": ["write","delete","create_index"] } ]}' }
     - { path: 'role/beats_reader', json_data: '{ "cluster": [], "indices": [ { "names": [ "*beat-*" ], "privileges": ["read","view_index_metadata"] } ]}' }
     - { path: 'role/logstash_reader', json_data: '{ "cluster": [], "indices": [ { "names": [ "logstash-*", "makelogs-*","*:*"],   "privileges": ["read","view_index_metadata","read_cross_cluster"] } ]}' }
     - { path: 'role/test_reader', json_data: '{ "cluster": [], "indices": [ { "names": [ "*test" ], "privileges": ["read","view_index_metadata"] } ]}' }
