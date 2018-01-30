@@ -1,0 +1,30 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Variables for tar package
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Run as root
+apm_server_run_as_root: '{{ install_as_root }}'
+
+# apm_server install directory
+apm_server_install_dir: "{{ install_dir }}"
+
+# apm_server package
+apm_server_package: '{{ apm_server_install_dir }}/{{ apm_server_package_url | basename }}'
+
+# apm_server root directory
+apm_server_rootdir: '{{ apm_server_package.split(apm_server_package_ext)[0] | trim }}'
+
+# apm_server bin
+apm_server_exe: '{{ apm_server_rootdir | trim }}/apm-server'
+
+# apm_server config
+apm_server_config_dir: '{{ apm_server_rootdir | trim }}'
+apm_server_config_file: '{{ apm_server_config_dir }}/apm-server.yml'
+
+# apm_server log
+apm_server_log_dir: '{{ apm_server_rootdir | trim }}/logs'
+apm_server_log_file: '{{ apm_server_log_dir }}/apm-server'

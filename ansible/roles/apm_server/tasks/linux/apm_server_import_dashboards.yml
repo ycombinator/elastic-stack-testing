@@ -1,0 +1,12 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Import apm_server dashboards
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Import apm_server dashboards through setup
+  shell: '{{ apm_server_exe }} setup --dashboards -c {{ apm_server_config_file }}'
+  args:
+    executable: /bin/bash
+  become: true

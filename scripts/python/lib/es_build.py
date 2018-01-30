@@ -67,8 +67,10 @@ class ElasticStackBuild:
                     '_env_heartbeat_url': 'ES_BUILD_HEARTBEAT_URL',
                     '_env_metricbeat_url': 'ES_BUILD_METRICBEAT_URL',
                     '_env_packetbeat_url': 'ES_BUILD_PACKETBEAT_URL',
+                    '_env_auditbeat_url': 'ES_BUILD_AUDITBEAT_URL',
                     '_env_winlogbeat_url': 'ES_BUILD_WINLOGBEAT_URL',
                     '_env_beats_dashboards_url': 'ES_BUILD_BEATS_DASHBOARDS_URL',
+                    '_env_apm_server_url': 'ES_BUILD_APM_SERVER_URL',
                     '_env_xpack_url': 'ES_BUILD_XPACK_URL',
                     '_env_xpack_elasticsearch_url': 'ES_BUILD_XPACK_ELASTICSEARCH_URL',
                     '_env_xpack_kibana_url': 'ES_BUILD_XPACK_KIBANA_URL',
@@ -135,12 +137,20 @@ class ElasticStackBuild:
         return self._get_url_arch(self._env_packetbeat_url, 'packetbeat', parent_name='beats/packetbeat')
 
     @property
+    def auditbeat_package_url(self):
+        return self._get_url_arch(self._env_auditbeat_url, 'auditbeat', parent_name='beats/auditbeat')
+
+    @property
     def winlogbeat_package_url(self):
         return self._get_url_arch(self._env_winlogbeat_url, 'winlogbeat', parent_name='beats/winlogbeat')
 
     @property
     def beats_dashboards_package_url(self):
         return self._get_url(self._env_beats_dashboards_url, 'beats-dashboards', parent_name='beats/beats-dashboards', ext='zip')
+
+    @property
+    def apm_server_package_url(self):
+        return self._get_url_arch(self._env_apm_server_url, 'apm-server', parent_name='apm-server')
 
     @property
     def xpack_package_url(self):

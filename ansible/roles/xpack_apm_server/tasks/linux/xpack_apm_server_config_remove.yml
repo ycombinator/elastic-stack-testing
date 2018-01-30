@@ -1,0 +1,14 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# apm_server remove x-pack configuration
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Remove apm_server x-pack configuration
+  blockinfile:
+    path: '{{ apm_server_config_file }}'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK apm_server X-PACK PARAMETERS'
+    insertafter: EOF
+    content: ""
+  become: true

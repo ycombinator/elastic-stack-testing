@@ -1,0 +1,18 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Check if apm_server is not running
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Verify apm_server is not running
+  block:
+    - name: Get apm_server process
+      shell: "ps -efw | grep apm-server | grep -v grep | awk '{print $2}'"
+      args:
+        executable: /bin/bash
+      register: apm_server_process_id
+    - name: Fail if apm_server process is running
+      fail:
+        msg: 'apm_server is running'
+      when: apm_server_process_id.stdout != ""

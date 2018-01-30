@@ -1,0 +1,53 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# apm_server vars file
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Timeout
+apm_server_timeout: 60
+
+# Extension tyoes
+apm_server_linux_package_types:
+  - '.tar.gz'
+  - '.deb'
+  - '.rpm'
+
+# Extension types
+apm_server_windows_package_types:
+  - '.msi'
+  - '.zip'
+
+# Default netflow UDP port
+apm_server_port: 8200
+
+# Extract package extension
+apm_server_package_ext: "{{ apm_server_package_url | splitext | last | regex_replace('.gz', '.tar.gz') }}"
+
+# Variables to run multiple role task files in a group
+# Must have role name (key), action and args that map to individual task files
+apm_server_roles:
+  apm_server_install_config_start_verify:
+    - { action: 'apm_server_install', args: {} }
+    - { action: 'apm_server_config', args: {} }
+    - { action: 'apm_server_startup', args: {} }
+    - { action: 'apm_server_is_running', args: {} }
+  apm_server_install_config_start_verify_import_dashboards:
+    - { action: 'apm_server_install', args: {} }
+    - { action: 'apm_server_config', args: {} }
+    - { action: 'apm_server_startup', args: {} }
+    - { action: 'apm_server_is_running', args: {} }
+    - { action: 'apm_server_import_dashboards', args: {} }
+  apm_server_shutdown_uninstall_verify:
+    - { action: 'apm_server_shutdown', args: {} }
+    - { action: 'apm_server_uninstall', args: {} }
+    - { action: 'apm_server_is_not_running', args: {} }
+
+# Task files for group use, keep in sync with tasks/main.yml
+apm_server_task_files:
+  - '{{ ansible_system | lower }}/{{ item.action }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_apm_server_pkg_ext }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_apm_server_pkg_mgr | trim }}.yml'
+  - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_apm_server_srv_mgr | trim }}.yml'

@@ -1,0 +1,53 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# apm_server vars file
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+xpack_apm_server_package: '{{ apm_server_install_dir }}/apm_server_{{ xpack_apm_server_package_url | basename }}'
+
+# Variables to run multiple role task files in a group
+# Must have role name (key), action and args that map to individual task files
+xpack_apm_server_roles:
+  xpack_apm_server_install_config_start_verify:
+    - { action: 'apm_server_install', parent: 'apm_server', args: {} }
+    - { action: 'xpack_apm_server_config',  parent: '', args: {} }
+    - { action: 'apm_server_restart',  parent: 'apm_server', args: {} }
+    - { action: 'apm_server_is_running', parent: 'apm_server', args: {} }
+  xpack_apm_server_config_start_verify:
+    - { action: 'xpack_apm_server_config',  parent: '', args: {} }
+    - { action: 'apm_server_restart',  parent: 'apm_server', args: {} }
+    - { action: 'apm_server_is_running', parent: 'apm_server', args: {} }
+  xpack_apm_server_install_config_start_verify_import_dashboards:
+    - { action: 'apm_server_install', parent: 'apm_server', args: {} }
+    - { action: 'xpack_apm_server_config',  parent: '', args: {} }
+    - { action: 'apm_server_restart',  parent: 'apm_server', args: {} }
+    - { action: 'apm_server_is_running', parent: 'apm_server', args: {} }
+    - { action: 'apm_server_import_dashboards', parent: 'apm_server', args: {} }
+  xpack_apm_server_config_start_verify_import_dashboards:
+    - { action: 'xpack_apm_server_config',  parent: '', args: {} }
+    - { action: 'apm_server_restart',  parent: 'apm_server', args: {} }
+    - { action: 'apm_server_is_running', parent: 'apm_server', args: {} }
+    - { action: 'apm_server_import_dashboards', parent: 'apm_server', args: {} }
+  xpack_apm_server_rmconfig_start_verify:
+    - { action: 'xpack_apm_server_config_remove', parent: '', args: {} }
+    - { action: 'apm_server_restart',  parent: 'apm_server', args: {} }
+    - { action: 'apm_server_is_running', parent: 'apm_server', args: {} }
+  xpack_apm_server_install_cloud_start_verify:
+    - { action: 'apm_server_install', parent: 'apm_server', args: {} }
+    - { action: 'xpack_apm_server_config_cloud',  parent: '', args: {} }
+    - { action: 'apm_server_restart',  parent: 'apm_server', args: {} }
+    - { action: 'apm_server_is_running', parent: 'apm_server', args: {} }
+  xpack_apm_server_cloud_start_verify:
+    - { action: 'xpack_apm_server_config_cloud',  parent: '', args: {} }
+    - { action: 'apm_server_restart',  parent: 'apm_server', args: {} }
+    - { action: 'apm_server_is_running', parent: 'apm_server', args: {} }
+
+# Task files for group use, keep in sync with tasks/main.yml except for parent tasks
+xpack_apm_server_task_files:
+  - '{{ ansible_system | lower }}/{{ item.action }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}_{{ ait_apm_server_pkg_ext }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}_{{ ait_apm_server_pkg_mgr | trim }}.yml'
+  - '../{{ item.parent }}/tasks/{{ ansible_system | lower }}/{{ item.action }}_{{ ait_apm_server_srv_mgr | trim }}.yml'

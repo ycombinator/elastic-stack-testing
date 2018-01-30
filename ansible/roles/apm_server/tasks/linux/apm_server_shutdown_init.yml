@@ -1,0 +1,13 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Shutdown apm_server
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Stop apm_server service
+  service:
+    name: 'apm_server'
+    state: stopped
+  become: true
+  tags: stop_apm_server

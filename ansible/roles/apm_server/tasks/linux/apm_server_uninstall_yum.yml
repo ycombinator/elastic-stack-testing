@@ -1,0 +1,13 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Uninstall Linux apm_server packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Uninstall apm_server rpm package
+  yum:
+    name: 'apm_server'
+    state: absent
+  become: true
+  tags: uninstall_apm_server

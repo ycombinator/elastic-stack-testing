@@ -1,0 +1,14 @@
+---
+
+galaxy_info:
+  author: Liza Dayoub
+  description: Elastic Stack
+  company: elastic.co
+  license: 'License (Apache)'
+
+dependencies:
+  - {role: common}
+  - {role: apm_server}
+  - {role: xpack_elasticsearch}
+  - {role: xpack_logstash}
+  - {role: xpack_kibana}

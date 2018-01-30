@@ -1,0 +1,63 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Configure apm_server on Linux
+#
+# Set certain parameters in apm_server configuration
+#
+# If a user specifies a file, it takes higher precedence
+# If a user specifies apm_server_config_params_strict=True internal params are appended, otherwise they are appended
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Save original apm_server configuration
+  copy:
+    src: '{{ apm_server_config_file }}'
+    dest: '{{ apm_server_config_file }}.org'
+    remote_src: True
+    force: no
+  become: true
+
+- name: Change apm_server configuration file owner to root
+  file:
+    path: '{{ apm_server_config_file }}'
+    owner: root
+    group: root
+  become: true
+
+- name: apm_server configuration - append
+  lineinfile:
+    path: '{{ apm_server_config_file }}'
+    insertafter: EOF
+    line: '{{ config_item }}'
+  with_items: '{{ apm_server_config_params  }}'
+  loop_control:
+    loop_var: config_item
+  become: true
+  when: apm_server_config_params_file is not defined and
+        apm_server_config_params is defined
+
+- name: apm_server configuration - new file
+  copy:
+    src: '{{ apm_server_config_params_file }}'
+    dest: '{{ apm_server_config_file }}'
+  become: true
+  when: apm_server_config_params_file is defined
+
+- name: apm_server configuration - append internal
+  block:
+    - name: Set network host
+      set_fact:
+        internal_apm_server_config_params: >
+          output.elasticsearch:
+             hosts: ["{{ current_host_ip }}:{{ elasticsearch_port }}"]
+          setup.kibana:
+             host: "{{ current_host_ip }}:{{ kibana_port }}"
+    - name: Add apm_server configuration parameters
+      blockinfile:
+        path: '{{ apm_server_config_file }}'
+        marker: '# {mark} ANSIBLE MANAGED BLOCK apm_server PARAMETERS'
+        insertafter: EOF
+        content: '{{ internal_apm_server_config_params }}'
+      become: true
+  when: apm_server_config_params_strict is not defined or not apm_server_config_params_strict

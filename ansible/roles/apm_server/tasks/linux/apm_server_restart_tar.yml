@@ -1,0 +1,21 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Restart apm_server
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Restart apm_server
+  block:
+    - name: Stop apm_server process
+      shell: "ps -efw | grep apm_server | grep -v grep | awk '{print $2}' | xargs kill -SIGTERM"
+      args:
+        executable: /bin/bash
+      become: true
+    - name: Start apm_server process
+      shell: '{{ apm_server_exe }} -c {{ apm_server_config_file }} &'
+      args:
+        executable: /bin/bash
+      async: 5
+      poll: 0
+      become: true

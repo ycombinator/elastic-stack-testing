@@ -1,0 +1,68 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# apm_server x-pack configuration
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+
+
+- name: Copy certificates ca from localhost
+  copy:
+    src: "{{ local_certs_dir }}/ca"
+    dest: "{{ apm_server_rootdir }}"
+    owner: root
+    group: root
+  become: true
+
+- name: Copy certificates cert and key from localhost
+  copy:
+    src: "{{ local_certs_dir }}/node"
+    dest: "{{ apm_server_rootdir }}"
+    owner: root
+    group: root
+  become: true
+
+- name: Save original apm_server configuration file
+  copy:
+    src: '{{ apm_server_config_file }}'
+    dest: '{{ apm_server_config_file }}.org'
+    remote_src: True
+    force: no
+  become: true
+
+- name: Change owner of apm_server config to root
+  file:
+    path: '{{ apm_server_config_file }}'
+    owner: root
+    group: root
+  become: true
+
+- name: Add apm_server x-pack configuration parameters
+  blockinfile:
+    path: '{{ apm_server_config_file }}'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK apm_server X-PACK PARAMETERS'
+    insertafter: EOF
+    content: |
+      output.elasticsearch:
+        username: {{ elasticsearch_username }}
+        password: {{ elasticsearch_password }}
+        protocol: https
+        hosts: ["{{ current_host_ip }}:{{ elasticsearch_port }}"]
+        ssl.certificate_authorities: {{ apm_server_rootdir | trim }}/ca/ca.crt
+        ssl.certificate: {{ apm_server_rootdir | trim }}/node/node.crt
+        ssl.key: {{ apm_server_rootdir | trim }}/node/node.key
+      setup.kibana:
+        host: "{{ current_host_ip }}:{{ kibana_port }}"
+        protocol: https
+        username: {{ kibana_username }}
+        password: {{ kibana_password }}
+        ssl.certificate_authorities: {{ apm_server_rootdir | trim }}/ca/ca.crt
+        ssl.certificate: {{ apm_server_rootdir | trim }}/node/node.crt
+        ssl.key: {{ apm_server_rootdir | trim }}/node/node.key
+  become: true
+
+- name: Set host ip
+  replace:
+    path: '{{ apm_server_config_file }}'
+    regexp: '(^apm-server:)(\n)*(^\s*#.*\n)*(\s)*(host: "localhost:{{apm_server_port }}")'
+    replace: '\1\2\3\4 host: "{{ current_host_ip }}:{{ apm_server_port }}"'
+  become: true

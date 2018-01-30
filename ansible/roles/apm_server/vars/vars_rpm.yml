@@ -1,0 +1,28 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Variables for rpm package
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+---
+
+# Run as root
+apm_server_run_as_root: true
+
+# apm_server package
+apm_server_package: '/tmp/{{ apm_server_package_url | basename }}'
+
+# apm_server bin
+apm_server_bin_dir: '/usr/share/apm_server/bin'
+apm_server_exe: '{{ apm_server_bin_dir }}/apm_server'
+apm_server_plugin_exe: '{{ apm_server_bin_dir }}/apm_server-plugin'
+apm_server_certgen_exe: '{{ apm_server_bin_dir }}/x-pack/certgen'
+
+# apm_server logs
+apm_server_log_dir: '/var/log/apm_server'
+apm_server_log_file: '{{ apm_server_log_dir }}/apm_server.log'
+
+# apm_server config
+apm_server_config_dir: '/etc/apm_server'
+apm_server_config_file: '{{ apm_server_config_dir }}/apm_server.yml'
+apm_server_xpack_config_dir: '{{ apm_server_config_dir | trim }}/x-pack'

@@ -1,0 +1,13 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Shutdown apm_server
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Stop apm_server systemd
+  systemd:
+      name: 'apm_server.service'
+      state: stopped
+  become: true
+  tags: stop_apm_server

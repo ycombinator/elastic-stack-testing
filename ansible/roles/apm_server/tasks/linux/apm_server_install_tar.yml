@@ -1,0 +1,20 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Install Linux apm_server packages
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Download apm_server tar package
+  get_url:
+    url: '{{ apm_server_package_url }}'
+    dest: '{{ apm_server_package }}'
+    timeout: '{{ url_timeout }}'
+  tags: package_apm_server
+
+- name: Install apm_server tar package
+  unarchive:
+    src: '{{ apm_server_package }}'
+    dest: '{{ apm_server_install_dir }}'
+    remote_src: True
+  tags: install_apm_server

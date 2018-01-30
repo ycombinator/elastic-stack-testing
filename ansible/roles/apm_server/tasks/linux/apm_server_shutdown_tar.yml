@@ -1,0 +1,13 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Stop apm_server
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Stop apm_server process
+  shell: "ps -efw | grep apm_server | grep -v grep | awk '{print $2}' | xargs kill -SIGTERM"
+  args:
+    executable: /bin/bash
+  become: true
+  tags: stop_apm_server
