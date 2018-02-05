@@ -5,7 +5,7 @@ Created on Sep 25, 2017
 '''
 
 
-from lib.kibana.kibana_basepage import KibanaBasePage
+from lib.kibana.kibana_basepage import KibanaBasePage, data_test_subj
 from webium import Find
 from selenium.webdriver.common.by import By
 from webium.wait import wait
@@ -29,20 +29,20 @@ class IndexPatternsPage(KibanaBasePage):
 
     sidebar_list_elem = Find(by=By.CSS_SELECTOR, value='div.sidebar-list')
 
-    index_pattern_field = Find(by=By.CSS_SELECTOR, value='input[data-test-subj="createIndexPatternNameInput"]')
+    index_pattern_field = Find(**data_test_subj('createIndexPatternNameInput'))
     advanced_options_link = Find(by=By.LINK_TEXT, value='advanced options')
-    index_pattern_id_field = Find(by=By.CSS_SELECTOR, value='input[data-test-subj="createIndexPatternIdInput"]')
+    index_pattern_id_field = Find(**data_test_subj('createIndexPatternIdInput'))
 
-    time_filter_dropdown = Find(Select, by=By.CSS_SELECTOR, value='select[data-test-subj="createIndexPatternTimeFieldSelect"]')
+    time_filter_dropdown = Find(Select, **data_test_subj('createIndexPatternTimeFieldSelect'))
 
     refresh_fields_link = Find(by=By.LINK_TEXT, value='refresh fields')
 
     submit_button = Find(by=By.CSS_SELECTOR, value='button[type="submit"]')
 
-    set_default_index_button = Find(by=By.CSS_SELECTOR, value='button[data-test-subj="setDefaultIndexPatternButton"]')
+    set_default_index_button = Find(**data_test_subj('setDefaultIndexPatternButton'))
 
     # In 6.1.x
-    next_button = Find(by=By.CSS_SELECTOR, value='button[data-test-subj="createIndexPatternGoToStep2Button"]')
+    next_button = Find(**data_test_subj('createIndexPatternGoToStep2Button'))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

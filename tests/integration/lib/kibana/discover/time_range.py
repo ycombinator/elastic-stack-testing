@@ -4,7 +4,7 @@ Created on Sep 26, 2017
 @author: Liza Dayoub
 '''
 
-from lib.kibana.kibana_basepage import KibanaBasePage
+from lib.kibana.kibana_basepage import KibanaBasePage, data_test_subj
 from webium import Find, Finds
 from selenium.webdriver.common.by import By
 from webium.wait import wait
@@ -31,14 +31,14 @@ class TimeRangeQuick(KibanaBasePage):
     relative_link = ''
     absolute_link = ''
 
-    time_picker_button = Find(by=By.CSS_SELECTOR, value='button[data-test-subj="globalTimepickerButton"]')
+    time_picker_button = Find(**data_test_subj('globalTimepickerButton'))
     advanced_options_link = Find(by=By.LINK_TEXT, value='advanced options')
-    index_pattern_id_field = Find(by=By.CSS_SELECTOR, value='input[data-test-subj="createIndexPatternIdInput"]')
+    index_pattern_id_field = Find(**data_test_subj('createIndexPatternIdInput'))
 
-    time_filter_dropdown = Find(Select, by=By.CSS_SELECTOR, value='select[data-test-subj="createIndexPatternTimeFieldSelect"]')
+    time_filter_dropdown = Find(Select, **data_test_subj('createIndexPatternTimeFieldSelect'))
     refresh_fields_link = Find(by=By.LINK_TEXT, value='refresh fields')
 
-    create_button = Find(by=By.CSS_SELECTOR, value='button[data-test-subj="createIndexPatternCreateButton"]')
+    create_button = Find(**data_test_subj('createIndexPatternCreateButton'))
 
     def __init__(self, **kwargs):
         '''

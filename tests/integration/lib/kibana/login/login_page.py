@@ -4,7 +4,7 @@ Created on Jan 16, 2018
 @author: Liza Dayoub
 '''
 
-from lib.kibana.kibana_basepage import KibanaBasePage
+from lib.kibana.kibana_basepage import KibanaBasePage, data_test_subj
 from webium import Find
 from webium.wait import wait
 from selenium.webdriver.common.by import By
@@ -14,9 +14,10 @@ class LoginPage(KibanaBasePage):
     '''
     Kibana Login Page
     '''
-    username_field = Find(by=By.CSS_SELECTOR, value='input[data-test-subj="loginUsername"]')
-    password_field = Find(by=By.CSS_SELECTOR, value='input[data-test-subj="loginPassword"]')
-    login_button = Find(by=By.CSS_SELECTOR, value='button[data-test-subj="loginSubmit"]')
+
+    username_field = Find(**data_test_subj('loginUsername'))
+    password_field = Find(**data_test_subj('loginPassword'))
+    login_button = Find(**data_test_subj('loginSubmit'))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

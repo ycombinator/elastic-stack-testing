@@ -6,7 +6,7 @@ Created on Jan 16, 2017
 
 
 import re
-from lib.kibana.kibana_basepage import KibanaBasePage
+from lib.kibana.kibana_basepage import KibanaBasePage, data_test_subj
 from webium import Finds, Find
 from webium.wait import wait
 from webium.controls.link import Link
@@ -34,7 +34,7 @@ class Sidebar(KibanaBasePage):
     LOGOUT = 'Logout'
 
     sidebar_main = Find(by=By.CLASS_NAME, value='global-nav__links')
-    sidebar_links = Finds(Link, by=By.CSS_SELECTOR, value='div.global-nav-link')
+    sidebar_links = Finds(Link, **data_test_subj('global-nav-link appLink'))
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

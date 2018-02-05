@@ -10,10 +10,15 @@ from webium import BasePage, Find
 from webium.wait import wait
 from lib import config
 
+def data_test_subj(elem_names):
+    if not elem_names:
+        raise IOError('Element name/s can not be empty')
+    return {'by': By.CSS_SELECTOR,
+            'value': "".join(['[data-test-subj={}]'.format(name) for name in elem_names.split()])}
 
 class KibanaBasePage(BasePage):
 
-    loading_indicator = Find(by=By.CSS_SELECTOR, value='div[data-test-subj="globalLoadingIndicator"]')
+    loading_indicator = Find(**data_test_subj('globalLoadingIndicator'))
 
     def __init__(self, url=config.kibana.url, **kwargs):
         self.url = url.strip('/')
