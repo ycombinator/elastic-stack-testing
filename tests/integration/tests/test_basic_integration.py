@@ -32,9 +32,8 @@ class TestBasicIntegration:
         index_patterns_page = IndexPatternsPage()
         index_patterns_page.create_index(kibana_index, IndexPatternsPage.TIME_FILTER_NOT_APPLICABLE)
         discover_page = DiscoverPage()
-        discover_page.select_pattern(kibana_index)
-        hits = discover_page.get_hits()
-        assert int(hits) == data.entries
+        hits = discover_page.get_hits(kibana_index)
+        assert hits == data.entries
 
     @pytest.mark.kibana
     @pytest.mark.parametrize("kibana_index", testdata)
@@ -43,6 +42,5 @@ class TestBasicIntegration:
        index_patterns_page = IndexPatternsPage()
        index_patterns_page.create_index(kibana_index, IndexPatternsPage.TIME_FILTER_TIMESTAMP)
        discover_page = DiscoverPage()
-       discover_page.select_pattern(kibana_index)
-       hits = discover_page.get_hits()
+       hits = discover_page.get_hits(kibana_index)
        assert hits > 0
