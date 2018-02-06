@@ -5,7 +5,7 @@
 This project is a work in progress to provide a common automation framework for elastic stack testing.
 <br>The goal is to provide a powerful, easy to use and maintain framework to build test suites.  
 <br>One main project for this framework is the development of a product integration test suite.
- - Automated Integration Testing (AIT)
+  - Automated Integration Testing (AIT)
 
 This project is in early stage development and many things are still being ironed out.  
 
@@ -20,35 +20,30 @@ More details can be found:
  - Python, Pytest and Selenium/Webium will be used for the test framework
  - Automated virtual machine support for Vagrant boxes, AWS EC2 and GCP
 
-## Directory Structure
-
-```
-elastic-stack-testing/
-  ansible/         directory for Ansible
-  buildenv.sh      shell script for running scripts locally
-  playbooks/       Ansible playbooks
-  tests/           test scripts
-  vm/              automated VM files
-```
-
 ## Environment Setup
 
  * Install Python 3
 
-   In this repo see file: .python-version for version to install
+   In this repo see version file: .python-version
 
    https://www.python.org/downloads/
 
- * Install Virtualbox and Vagrant
+ * Install Vagrant
 
-   In this repo see file: .vagrant-version and .virtualbox-version for versions to install
+   In this repo see version: .vagrant-version
 
-  - https://www.virtualbox.org/wiki/Downloads
-  - https://www.vagrantup.com/downloads.html
+   https://www.vagrantup.com/downloads.html
+
+ * Install Virtualbox
+
+   In this repo see version file: .virtualbox-version
+
+   https://www.virtualbox.org/wiki/Downloads
 
 ## Runnning Scripts
 
-buildenv.sh, fill in information below and then run ./buildenv.sh   
+Run VM setup, product installation/configuration and tests
+<br>buildenv.sh, fill in information below and then run ./buildenv.sh
 
   - <b>Build Variables</b>
     - export ES_BUILD_URL= build URL format: server/build_num-hash   
@@ -58,27 +53,44 @@ buildenv.sh, fill in information below and then run ./buildenv.sh
       - export AIT_KIBANA_PORT=
     - <b>OS defaults to ubuntu 16.04, to change the default OS</b>
         - export ES_BUILD_VAGRANT_BOX=
-  - <b>Ansible Standalone Variables</b>
+  - <b>Ansible Variables</b>
     - AIT_ANSIBLE_PLAYBOOK - playbook for product installation   
       Example: AIT_ANSIBLE_PLAYBOOK=${AIT_ANSIBLE_PLAYBOOK_DIR}/install_no_xpack.yml
-    - AIT_ANSIBLE_SCRIPT - machine setup which calls above playbook      
-      Example: AIT_ANSIBLE_SCRIPT=${AIT_SCRIPTS}/shell/setup_vagrant_vm.sh   
-  - <b>Run playbook on an already running Virtualbox/Vagrant VM</b>
-    - <b>IMPORTANT!</b> Comment out AIT_ANSIBLE_SCRIPT variable
-    - set AIT_HOST_INVENTORY_ROOTDIR, your running VM directory in your workspace ex: 6-0-0-rc2-3c6dc061_os_install_no_xpack
-    - set AIT_ANSIBLE_PLAYBOOK to the playbook you want to run
-  - <b>Cloud</b>
+    - AIT_VM - machine setup which calls above playbook      
+      Example: AIT_VM=${AIT_SCRIPTS}/shell/vagrant_vm.sh   
+  - <b>Cloud Variables</b>
     - export ES_CLOUD_ID=
     - export AIT_ELASTICSEARCH_PASSWORD=
     - export AIT_ANSIBLE_PLAYBOOK=(ex: install_cloud)
-  - <b>Pytest</b>
-    <br>cd tests/integration/tests
+  - <b>Test Variables</b>
     - <b>No X-Pack</b>
-      -  pytest test_basic_integration
+      -  export AIT_TESTS=run_pytest_integration_tests
     - <b>X-Pack</b>
-      - AIT_XPACK=true pytest test_basic_integration
+      - export AIT_XPACK=true
+      - export AIT_TESTS=run_pytest_integration_tests
     - <b>Cloud</b>
-      - AIT_XPACK=true AIT_ELASTICSEARCH_URL=es_url AIT_KIBANA_URL=kbn_url AIT_ELASTICSEARCH_PASSWORD=es_pw AIT_KIBANA_PASSWORD=kbn_pw pytest test_basic_integration
+      - export AIT_XPACK=true
+      - export AIT_ELASTICSEARCH_URL=es_url
+      - export AIT_KIBANA_URL=kbn_url
+      - export AIT_ELASTICSEARCH_PASSWORD=es_pw
+      - export AIT_KIBANA_PASSWORD=kbn_pw
+      - export AIT_TESTS=run_pytest_integration_tests
+  - <b>Run playbook on an already running Vagrant VM</b>
+    - <b>IMPORTANT!</b> Comment out AIT_VM variable
+    - set AIT_HOST_INVENTORY_DIR, your running VM directory in your workspace ex:   
+      6-0-0-rc2-3c6dc061_os_install_no_xpack
+    - set AIT_ANSIBLE_PLAYBOOK to the playbook you want to run
+
+Run Python Tests
+<br>Pytest, run ./pyvenv.sh and cd to specific directory (ex: cd integration/tests)
+
+  - <b>No X-Pack</b>
+    -  pytest test_basic_integration
+  - <b>X-Pack</b>
+    - AIT_XPACK=true pytest test_basic_integration
+  - <b>Cloud</b>
+    - AIT_XPACK=true AIT_ELASTICSEARCH_URL=es_url AIT_KIBANA_URL=kbn_url
+      AIT_ELASTICSEARCH_PASSWORD=es_pw AIT_KIBANA_PASSWORD=kbn_pw pytest test_basic_integration
 
 ## Currently Supported
 
@@ -96,8 +108,8 @@ buildenv.sh, fill in information below and then run ./buildenv.sh
   its not running and you want to start it, cd to this directory and run the vagrant command.
 
   Examples:
-    - vagrant ssh
-    - vagrant destroy -f
+  - vagrant ssh
+  - vagrant destroy -f
 
 ## Contact
 
