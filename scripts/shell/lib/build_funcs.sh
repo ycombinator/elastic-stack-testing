@@ -118,10 +118,10 @@ check_env_tests() {
 # ----------------------------------------------------------------------------
 check_python_virtual_env() {
   # Check if you are in python virtual envrionment
-  if [ -z $VIRTUAL_ENV ]; then
-      echo_error "Python virtual envrionment is not activated"
-      exit 1
-  fi
+  if (([ -z $AIT_RUN_LOCAL ] || [ `whoami` == "jenkins" ]) && [ -z $PYENV_VIRTUALENV_INIT ]) || [ -z $VIRTUAL_ENV ]; then
+    echo "Python virtual envrionment is not activated"
+    exit 1
+  fi    
 }
 
 # ----------------------------------------------------------------------------
