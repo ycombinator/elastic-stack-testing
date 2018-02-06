@@ -12,17 +12,14 @@ set +x
 source aitenv.sh
 source ${AIT_SCRIPTS}/shell/lib/build_funcs.sh
 
-create_workspace
-check_workspace
-source_additional_env
+export_env_vars
+check_env_workspace
 activate_python_virtual_env
 python_install_packages
-generate_package_variables
-check_ansible_playbook
-check_ansible_script
-check_test_script
-run_ansible_script
+generate_build_variables
+run_vm
 run_ansible_playbook
-run_test_script
+run_tests
+run_vm cleanup
 deactivate_python_virtual_env
 # ----------------------------------------------------------------------------
