@@ -22,7 +22,7 @@ export_env_vars() {
     eval export "${AIT_ENV_VARS}"
   fi
   # If running in Jenkins, set to run headless browser
-  if [ $(running_in_jenkins) -eq 1 ]; then
+  if [ $(running_in_jenkins) == 1 ]; then
     export AIT_RUN_HEADLESS_BROWSER=true
   fi
   env | sort
@@ -31,7 +31,7 @@ export_env_vars() {
 # ----------------------------------------------------------------------------
 create_workspace() {
   # If running in Jenkins, return
-  if [ $(running_in_jenkins) -eq 1 ]; then
+  if [ $(running_in_jenkins) == 1 ]; then
     return
   fi
   # If not running in Jenkins, create a local workspace
@@ -78,7 +78,7 @@ check_env_vm() {
 # ----------------------------------------------------------------------------
 check_env_ansible_playbook() {
   # If running in Jenkins or variable is empty or points to a valid file, return
-  if [ $(running_in_jenkins) -eq 1 ] ||
+  if [ $(running_in_jenkins) == 1 ] ||
      [ -z $AIT_ANSIBLE_PLAYBOOK ] || [ -f $AIT_ANSIBLE_PLAYBOOK ]; then
     return
   fi
@@ -125,8 +125,8 @@ check_env_tests() {
 
 # ----------------------------------------------------------------------------
 check_python_virtual_env() {
-  if [ $(running_in_jenkins) -eq 1 ] && [ -z $PYENV_VIRTUALENV_INIT ] ||
-     [ $(running_in_jenkins) -eq 0 ] && [ -z $VIRTUAL_ENV ]; then
+  if [ $(running_in_jenkins) == 1 ] && [ -z $PYENV_VIRTUALENV_INIT ] ||
+     [ $(running_in_jenkins) == 0 ] && [ -z $VIRTUAL_ENV ]; then
     echo "Python virtual envrionment is not activated"
     exit 1
   fi
@@ -135,7 +135,7 @@ check_python_virtual_env() {
 # ----------------------------------------------------------------------------
 activate_python_virtual_env() {
   # If running in Jenkins, return
-  if [ $(running_in_jenkins) -eq 1 ]; then
+  if [ $(running_in_jenkins) == 1 ]; then
     return
   fi
   echo_info "Create and activate python venv"
@@ -151,7 +151,7 @@ activate_python_virtual_env() {
 python_install_packages() {
   check_python_virtual_env
   # If running in Jenkins, return
-  if [ $(running_in_jenkins) -eq 1 ] && [ -z $PYENV_VIRTUALENV_INIT ]; then
+  if [ $(running_in_jenkins) == 1 ] && [ -z $PYENV_VIRTUALENV_INIT ]; then
     pyver = $(cat .python-version)
     pyenv install -s $pyver
     pyenv global $pyver
@@ -235,7 +235,7 @@ run_ansible_playbook() {
   fi
   check_env_ansible_playbook
   # If running in Jenkins or AIT_VM is not empty or AIT_ANSIBLE_PLAYBOOK is empty, return
-  if [ $(running_in_jenkins) -eq 1 ] ||
+  if [ $(running_in_jenkins) == 1 ] ||
      [ ! -z $AIT_VM ] || [ -z $AIT_ANSIBLE_PLAYBOOK ]; then
     return
   fi
@@ -296,7 +296,7 @@ run_tests() {
 
 deactivate_python_virtual_env() {
   # If running in Jenkins, return
-  if [ $(running_in_jenkins) -eq 1 ]; then
+  if [ $(running_in_jenkins) == 1 ]; then
     return
   fi
   echo_info "Deactivate python venv"
