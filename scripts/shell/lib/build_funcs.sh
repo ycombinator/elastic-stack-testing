@@ -144,9 +144,9 @@ python_install_packages() {
   check_python_virtual_env
   # Install required python packages
   echo_info "Install python packages"
-  pip install -r requirements.txt
+  pip3.6 install -r requirements.txt
   echo_info "List installed python packages"
-  pip list
+  pip3.6 list
 }
 
 # ----------------------------------------------------------------------------
