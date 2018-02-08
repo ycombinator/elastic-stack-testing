@@ -14,7 +14,7 @@ def data_test_subj(elem_names):
     if not elem_names:
         raise IOError('Element name/s can not be empty')
     return {'by': By.CSS_SELECTOR,
-            'value': "".join(['[data-test-subj={}]'.format(name) for name in elem_names.split()])}
+            'value': " ".join(['[data-test-subj={}]'.format(name) for name in elem_names.split()])}
 
 class KibanaBasePage(BasePage):
 
