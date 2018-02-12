@@ -75,7 +75,7 @@ check_env_vm() {
     export AIT_VM=$chk2
     return
   fi
-  echo_error "Invalid build script!"
+  echo_error "Invalid VM setup script: $AIT_VM, check directory ${AIT_SCRIPTS}/shell"
   exit 1
 }
 
