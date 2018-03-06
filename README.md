@@ -111,6 +111,15 @@ Run Python Tests
   - vagrant ssh
   - vagrant destroy -f
 
-## Contact
+## Contributing
+
+  Please use the issue tracker to report any bugs or enhancement requests.  Pull requests are welcome.
+
+## Author
 
   Elastic Stack Testing Framework created by [Liza Dayoub](https://github.com/liza-mae)
+
+## License
+
+   Apache License 2.0
+
