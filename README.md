@@ -15,7 +15,7 @@ More details can be found:
 
 ## Infrastructure
 
- - Software products under test: Elasticsearch, Kibana, Logstash, Beats, Cloud, APM
+ - Software products under test: Elasticsearch, Kibana, Logstash, Beats, Cloud, APM, ML
  - Ansible is used to install and configure the software products under test
  - Python, Pytest and Selenium/Webium will be used for the test framework
  - Automated virtual machine support for Vagrant boxes, AWS EC2 and GCP
