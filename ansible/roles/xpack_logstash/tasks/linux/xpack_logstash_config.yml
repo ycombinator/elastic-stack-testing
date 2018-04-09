@@ -36,4 +36,5 @@
       xpack.monitoring.elasticsearch.password: {{ elasticsearch_password }}
       xpack.monitoring.elasticsearch.ssl.ca: {{ logstash_rootdir | trim }}/ca/ca.crt
       path.config:  {{ logstash_conf_path }}
+      path.logs: {{ logstash_log_dir }}
   become: '{{ logstash_run_as_root | default(omit) }}'

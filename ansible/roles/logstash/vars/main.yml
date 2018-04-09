@@ -24,6 +24,7 @@ logstash_netflow_udp_port: 9996
 logstash_roles:
   logstash_install_config_start_verify:
     - { action: 'logstash_install', args: {} }
+    - { action: 'logstash_config', args: {} }
     - { action: 'logstash_conf', args: {} }
     - { action: 'logstash_startup', args: {} }
     - { action: 'logstash_log_tail', args: {ait_log_searchstr: started} }
