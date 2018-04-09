@@ -5,6 +5,33 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
+- name: Save original elasticsearch configuration
+  copy:
+    src: '{{ elasticsearch_config_file }}'
+    dest: '{{ elasticsearch_config_file }}.org'
+    remote_src: True
+    force: no
+  become: '{{ elasticsearch_run_as_root | default(omit) }}'
+
+- name: Elasticsearch configuration - append
+  lineinfile:
+    path: '{{ elasticsearch_config_file }}'
+    insertafter: EOF
+    line: '{{ config_item }}'
+  with_items: '{{ elasticsearch_config_params  }}'
+  loop_control:
+    loop_var: config_item
+  become: '{{ elasticsearch_run_as_root | default(omit) }}'
+  when: elasticsearch_config_params_file is not defined and
+        elasticsearch_config_params is defined
+
+- name: Elasticsearch configuration - new file
+  copy:
+    src: '{{ elasticsearch_config_params_file }}'
+    dest: '{{ elasticsearch_config_file }}'
+  become: '{{ elasticsearch_run_as_root | default(omit) }}'
+  when: elasticsearch_config_params_file is defined
+
 - name: Add elasticsearch x-pack configuration parameters
   blockinfile:
     path: '{{ elasticsearch_config_file }}'
