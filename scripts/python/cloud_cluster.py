@@ -125,16 +125,23 @@ class CloudCluster:
             raise ValueError('cluster id must be set')
         self.client.shutdown_cluster(cluster_id)
 
+    def delete(self, cluster_id=None):
+        if not cluster_id and getattr(self, 'cluster_id'):
+            cluster_id = self.cluster_id
+        if not cluster_id:
+            raise ValueError('cluster id must be set')
+        self.client.delete_cluster(cluster_id)
+
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv, "hcd:", ["create", "stop="])
+        opts, args = getopt.getopt(argv, "hcd:", ["create", "stop=", "delete="])
     except getopt.GetoptError:
-        print('cloud_cluster.py -c -s <cluster_id>')
+        print('cloud_cluster.py -c -s <cluster_id> -d <cluster_id>')
         sys.exit(2)
     print(opts)
     for opt, arg in opts:
         if opt == '-h':
-            print('cloud_cluster.py -c -s <cluster_id>')
+            print('cloud_cluster.py -c -s <cluster_id> -d <cluster_id>')
             sys.exit()
         elif opt in ("-c", "--create"):
             print('Create Cluster')
@@ -145,6 +152,11 @@ def main(argv):
             print('Stop Cluster: ' + str(cluster_id))
             cluster = CloudCluster()
             cluster.stop(cluster_id)
+        elif opt in ("-d", "--delete"):
+            cluster_id = arg
+            print('Delete Cluster: ' + str(cluster_id))
+            cluster = CloudCluster()
+            cluster.delete(cluster_id)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
