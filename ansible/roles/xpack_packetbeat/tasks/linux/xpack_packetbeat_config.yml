@@ -53,8 +53,8 @@
       setup.kibana:
          host: "{{ current_host_ip }}:{{ kibana_port }}"
          protocol: https
-         username: {{ kibana_username }}
-         password: {{ kibana_password }}
+         username: {{ elasticsearch_username }}
+         password: {{ elasticsearch_password }}
          ssl.certificate_authorities: {{ packetbeat_rootdir | trim }}/ca/ca.crt
          ssl.certificate: {{ packetbeat_rootdir | trim }}/node/node.crt
          ssl.key: {{ packetbeat_rootdir | trim }}/node/node.key
