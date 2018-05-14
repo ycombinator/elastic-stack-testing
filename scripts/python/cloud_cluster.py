@@ -16,10 +16,12 @@ from cloud_sdk_py.client import Client
 
 class CloudCluster:
 
+    # ------------------------------------------------------------------------------------------------------------------
+    # Constructor
     def __init__(self):
         vault_addr = os.environ.get('VAULT_ADDR')
         vault_token = os.environ.get('VAULT_TOKEN')
-        vault_path = os.environ.get("VAULT_PATH", 'secret/ui-team/estf/cloud')
+        vault_path = os.environ.get("VAULT_PATH", 'secret/stack-testing/cloud')
         if vault_addr and vault_token:
             vault_client = hvac.Client(url=vault_addr)
             vault_client.auth_github(vault_token)
@@ -37,18 +39,23 @@ class CloudCluster:
         if not host or not version or not username or not password:
             raise ValueError('Cloud host, version, username and password must be set')
 
+
         region = os.environ.get("ESTF_CLOUD_REGION", 'us-east-1')
         monitoring = ast.literal_eval(os.environ.get("ESTF_CLOUD_MONITORING", 'true').title())
 
         plan = json.loads(self.basic_plan(version))
         plan['cluster_name'] = 'ESTF_' + str(uuid.uuid4())
+
         client = Client(plan=plan, username=username, password=password, host=host, region=region)
+
         self.client = client
         self.monitoring = monitoring
         self.plan = plan
         self.version = version
         self.region = region
 
+    # ------------------------------------------------------------------------------------------------------------------
+    # Create
     def create(self):
         data = self.client.create_cluster(self.plan)
         self.cluster_id = data['cluster_id']
@@ -57,9 +64,84 @@ class CloudCluster:
         if self.monitoring:
             self.client.set_monitoring(self.cluster_id)
             cluster = self.client.get_cluster_info(self.cluster_id)
-            assert self.cluster_id in cluster['elasticsearch_monitoring_info']['destination_cluster_ids']
+            assert self.cluster_id in cluster['elasticsearch_monitoring_info']['source_cluster_ids']
         return self.format_data(data)
 
+    # ------------------------------------------------------------------------------------------------------------------
+    # Format return data
+    def format_data(self, cluster_data):
+        cluster_id = cluster_data['cluster_id']
+        kibana_cluster_id = cluster_data['kibana_cluster_id']
+        provider = 'aws.staging'
+        if 'gcp' in self.region:
+            provider = 'gcp'
+        elasticsearch_url = 'https://{0}.{1}.{2}.foundit.no:9243'.format(cluster_id, self.region, provider)
+        kibana_url ='https://{0}.{1}.{2}.foundit.no:9243'.format(kibana_cluster_id, self.region, provider)
+        cluster_data.update({'elasticsearch_url': elasticsearch_url, 'kibana_url': kibana_url})
+        return cluster_data
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # Shutdown
+    def shutdown(self, cluster_id=None):
+        if not cluster_id and getattr(self, 'cluster_id'):
+            cluster_id = self.cluster_id
+        if not cluster_id:
+            raise ValueError('Cluster ID must be set')
+        self.client.shutdown_cluster(cluster_id)
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # Delete
+    def delete(self, cluster_id=None):
+        if not cluster_id and getattr(self, 'cluster_id'):
+            cluster_id = self.cluster_id
+        if not cluster_id:
+            raise ValueError('Cluster ID must be set')
+        self.client.delete_cluster(cluster_id)
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # Create properties file
+    def create_properties_file(self, cluster_data):
+        cluster_id = cluster_data.get('cluster_id')
+        if not cluster_id:
+            raise ValueError('Data does not contain cluster_id')
+        filename = self.get_filename(cluster_id)
+        file = open(filename, "w")
+        for key in cluster_data.keys():
+            file.write(key + "=" + cluster_data[key] + "\n")
+        file.close()
+        return filename
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # Delete properties file
+    def delete_properties_file(self, cluster_id):
+        filename = self.check_filename(cluster_id)
+        if filename:
+            os.remove(filename)
+        else:
+            print("[WARNING] Could not find file to delete: " + filename)
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # Get filename
+    def get_filename(self, cluster_id, useCurrentDir=False):
+        workspace = os.getenv('WORKSPACE')
+        if not os.path.isdir(workspace) or useCurrentDir:
+            workspace = os.getcwd()
+        filename = workspace + '/' + cluster_id + ".properties"
+        return filename
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # Check filename
+    def check_filename(self, cluster_id):
+        file1 = self.get_filename(cluster_id)
+        file2 = self.get_filename(cluster_id, True)
+        if os.path.isfile(file1):
+            return file1
+        if os.path.isfile(file2):
+            return file2
+        return None
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # Basic Plan
     def basic_plan(self, version, mem=1024, zone=1):
         return json.dumps({
             "cluster_name": "",
@@ -107,56 +189,46 @@ class CloudCluster:
             }
         })
 
-    def format_data(self, cluster_data):
-        cluster_id = cluster_data['cluster_id']
-        kibana_cluster_id = cluster_data['kibana_cluster_id']
-        provider = 'aws.staging'
-        if 'gcp' in self.region:
-            provider = 'gcp'
-        elasticsearch_url = 'https://{0}.{1}.{2}.foundit.no:9243'.format(cluster_id, self.region, provider)
-        kibana_url ='https://{0}.{1}.{2}.foundit.no:9243'.format(kibana_cluster_id, self.region, provider)
-        cluster_data.update({'elasticsearch_url': elasticsearch_url, 'kibana_url': kibana_url})
-        return cluster_data
 
-    def stop(self, cluster_id=None):
-        if not cluster_id and getattr(self, 'cluster_id'):
-            cluster_id = self.cluster_id
-        if not cluster_id:
-            raise ValueError('cluster id must be set')
-        self.client.shutdown_cluster(cluster_id)
-
-    def delete(self, cluster_id=None):
-        if not cluster_id and getattr(self, 'cluster_id'):
-            cluster_id = self.cluster_id
-        if not cluster_id:
-            raise ValueError('cluster id must be set')
-        self.client.delete_cluster(cluster_id)
-
+# ----------------------------------------------------------------------------------------------------------------------
 def main(argv):
+
+    help_msg = """cloud_cluster.py -c | -s <cluster_id> | -d <cluster_id>
+        -c: create a cluster 
+        -s <cluster_id>: shutdown a cluster using cluster id 
+        -d <cluster_id>: delete a cluster using cluster id
+    """
+
     try:
-        opts, args = getopt.getopt(argv, "hcd:", ["create", "stop=", "delete="])
+        opts, args = getopt.getopt(argv, "hcs:d:", ["create", "shutdown=", "delete="])
     except getopt.GetoptError:
-        print('cloud_cluster.py -c -s <cluster_id> -d <cluster_id>')
+        print(help_msg)
         sys.exit(2)
-    print(opts)
+
+    if ('-c' in argv and len(argv) != 1) or len(argv) > 2:
+        print(help_msg)
+        sys.exit(2)
+
     for opt, arg in opts:
         if opt == '-h':
-            print('cloud_cluster.py -c -s <cluster_id> -d <cluster_id>')
+            print(help_msg)
             sys.exit()
         elif opt in ("-c", "--create"):
-            print('Create Cluster')
+            print('\n******Create Cluster')
             cluster = CloudCluster()
-            print(cluster.create())
-        elif opt in ("-s", "--stop"):
+            filename = cluster.create_properties_file(cluster.create())
+            print("\ncloud_properties_file: " + filename)
+        elif opt in ("-s", "--shutdown"):
             cluster_id = arg
-            print('Stop Cluster: ' + str(cluster_id))
+            print('\n******Shutdown Cluster: ' + str(cluster_id))
             cluster = CloudCluster()
-            cluster.stop(cluster_id)
+            cluster.shutdown(cluster_id)
         elif opt in ("-d", "--delete"):
             cluster_id = arg
-            print('Delete Cluster: ' + str(cluster_id))
+            print('\n*****Delete Cluster: ' + str(cluster_id))
             cluster = CloudCluster()
             cluster.delete(cluster_id)
+            cluster.delete_properties_file(cluster_id)
 
 if __name__ == "__main__":
     main(sys.argv[1:])
