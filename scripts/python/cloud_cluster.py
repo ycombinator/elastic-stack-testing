@@ -23,8 +23,7 @@ class CloudCluster:
         vault_token = os.environ.get('VAULT_TOKEN')
         vault_path = os.environ.get("VAULT_PATH", 'secret/stack-testing/cloud')
         if vault_addr and vault_token:
-            vault_client = hvac.Client(url=vault_addr)
-            vault_client.auth_github(vault_token)
+            vault_client = hvac.Client(url=vault_addr, token=vault_token)
             if vault_client.is_authenticated():
                 creds = vault_client.read(vault_path)
                 username = creds['data']['username']
