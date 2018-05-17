@@ -19,6 +19,7 @@ export_env_vars() {
   # Export environment variables
   if [ ! -z "${AIT_ENV_VARS}" ]; then
     echo_info "Export environment variables"
+    AIT_ENV_VARS="${AIT_ENV_VARS//$'\n'/ }"
     eval export "${AIT_ENV_VARS}"
   fi
   # If running in Jenkins, set to run headless browser
