@@ -117,7 +117,7 @@ class CloudCluster:
         if filename:
             os.remove(filename)
         else:
-            print("[WARNING] Could not find file to delete: " + filename)
+            print("[WARNING] Could not find file to delete for cluster_id: " + cluster_id)
 
     # ------------------------------------------------------------------------------------------------------------------
     # Get filename
