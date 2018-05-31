@@ -1,0 +1,45 @@
+/*
+    @description: Build tasks for cloud provisioning and executing tests
+
+    @author: Liza Dayoub
+
+ */
+
+import com.sun.org.apache.xalan.internal.xslt.Process
+import org.estf.gradle.SetupCloudCluster
+import org.estf.gradle.DeleteCloudCluster
+
+group 'org.estf.cloud'
+version '1.0'
+
+apply plugin: 'groovy'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.3.11'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+def genSetupTask(testname) {
+    return tasks.create("setup_" + testname, SetupCloudCluster)
+}
+
+def genCleanupTask(testname, clusterId) {
+    return tasks.create("cleanup_" + testname, DeleteCloudCluster) {
+        cluster_id = clusterId
+    }
+}
+
+task someTest {
+    doFirst {
+        def _setup_task = genSetupTask(name)
+        _setup_task.execute()
+        println "sleeping 25s ......."
+        // TODO: Here is where we plugin in the callable for system test
+        sleep(25 * 1000)
+        genCleanupTask(name, _setup_task.getClusterId()).execute()
+    }
+}

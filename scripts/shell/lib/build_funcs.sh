@@ -160,6 +160,7 @@ activate_python_virtual_env() {
 
 # ----------------------------------------------------------------------------
 python_install_packages() {
+  type=$1; # cloud or empty
   check_python_virtual_env
   # If running in Jenkins, return
   running_in_jenkins
@@ -170,7 +171,13 @@ python_install_packages() {
     pyenv global $pyver
   fi
   echo_info "Install python packages"
-  pip install -r requirements.txt
+  if [ ! -z $type ] && [ "$type" == "cloud" ]; then
+    echo_info "requirements_cloud.txt"
+    pip install -r requirements_cloud.txt
+  else
+    echo_info "requirements.txt"
+    pip install -r requirements.txt
+   fi
   echo_info "List installed python packages"
   pip list
 }
@@ -307,6 +314,23 @@ run_tests() {
       exit 1
     fi
   fi
+}
+
+# ----------------------------------------------------------------------------
+run_cloud_tests() {
+  test_task=$1
+  if [ -z $test_task ]; then
+    echo_error "Gradle task name must be supplied"
+    exit 1
+  fi
+  cd ${AIT_CI_CLOUD_DIR}
+  ./gradlew $test_task
+  RC=$?
+  if [ $RC -ne 0 ]; then
+    echo_error "Tests failed!"
+    exit 1
+  fi
+
 }
 
 deactivate_python_virtual_env() {

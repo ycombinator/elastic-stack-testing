@@ -18,3 +18,5 @@ export ANSIBLE_TEMPLATES=${ANSIBLE_ROOTDIR}/templates
 export AIT_ANSIBLE_PLAYBOOK_DIR=${AIT_ROOTDIR}/playbooks
 export AIT_VAGRANT_DIR=${AIT_ROOTDIR}/vm/vagrant
 export AIT_VAGRANT_FILE=${AIT_VAGRANT_DIR}/Vagrantfile
+
+export AIT_CI_CLOUD_DIR=${AIT_ROOTDIR}/ci/cloud
