@@ -6,19 +6,84 @@
  */
 
 import com.sun.org.apache.xalan.internal.xslt.Process
+import groovy.json.JsonSlurper
+import groovy.json.JsonException
 import org.estf.gradle.SetupCloudCluster
 import org.estf.gradle.DeleteCloudCluster
 
 group 'org.estf.cloud'
 version '1.0'
+project.ext.sdkVersion = '1.2.0-SNAPSHOT'
 
 apply plugin: 'groovy'
 
 repositories {
     mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+/**
+ * This task download the cloud-java-sdk to libs/
+ * Github makes it difficult to download artifacts from the releases page.
+ * First, we must locate the asset for the release by tag.
+ * Next, we must find the asset's URL in the response, and make a request to download it following redirects.
+ *
+ * THIS IS TEMPORARY UNTIL WE HAVE A PRIVATE COMMON MAVEN FOR ALL TEAMS TO SHARE
+ */
+task getJavaSdk {
+    def libsFolder = new File('libs')
+    if (!libsFolder.exists()) {
+        libsFolder.mkdirs()
+    }
+    def ghOwner = System.env['GH_OWNER']
+    def ghToken = System.env['GH_TOKEN']
+    if (ghOwner == null || ghToken == null) {
+        throw new GradleException('GH_OWNER and GH_TOKEN must be set.')
+    }
+
+    def getReleaseByTagTemplate = 'https://api.github.com/repos/%s/cloud-sdk-java/releases/tags/v%s?access_token=%s'
+    def getReleaseByTagUrl = String.format(getReleaseByTagTemplate, ghOwner, project.sdkVersion, ghToken)
+    def getReleaseByTagCommand = ['curl', getReleaseByTagUrl]
+    def getReleaseByTagResponse = getReleaseByTagCommand.execute()
+    handleCurlExitCode(getReleaseByTagResponse, getReleaseByTagCommand)
+    def json = new JsonSlurper().parseText(getReleaseByTagResponse.text)
+    handleErrorMessage(json, getReleaseByTagUrl)
+
+    def assetUrl = json.assets[0].url + "?access_token=${ghToken}"
+    def filename = "libs/${json.assets[0].name}"
+    def getAssetCommand =
+            ['curl', '-L', '-H', 'Accept: application/octet-stream', assetUrl, '-o', filename]
+    def getAssetResponse = getAssetCommand.execute()
+    handleCurlExitCode(getAssetResponse, getAssetCommand)
+    // If the download fails, the error message will be written as the contents of the .jar.
+    // If the .jar is a parseable json body we can assume something went wrong with the download.
+    try {
+        json = new JsonSlurper().parseText(new File(filename).text)
+        handleErrorMessage(json, assetUrl)
+    } catch (JsonException jsonException) {
+        // NOP
+    }
+}
+
+def handleErrorMessage(json, url) {
+    if (json.message) {
+        throw new GradleException("An error message was returned when attempting to find the release by tag\n" +
+                "URL: ${url}\n" +
+                "ERROR: ${json.message}")
+    }
+}
+
+def handleCurlExitCode(response, command) {
+    if (response.waitFor() != 0) {
+        throw new GradleException("The following command exited with nonzero status\n" +
+                "Command: ${command}")
+    }
 }
 
 dependencies {
+    compile group: 'co.elastic.cloud', name: 'sdk-java', version: project.sdkVersion
     compile 'org.codehaus.groovy:groovy-all:2.3.11'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
