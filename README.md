@@ -66,6 +66,17 @@ For more options see file: `CONTRIBUTING.md`
   - Product Packages: `tar.gz`
   - Product Types: `Regular and OSS`  
 
+## Cloud Environment
+
+  Building the `ci/cloud` project requires a [github API token](https://blog.github.com/2013-05-16-personal-api-tokens/).
+  The API key will need repo access (repo checkbox).
+
+  Once a github API token has been acquired two environment variables must be set: `GH_OWNER` and `GH_TOKEN`.
+
+  `GH_OWNER` should be set to `elastic` but can be overridden to your fork if necessary.
+
+  `GH_OWNER=elastic GH_TOKEN=mytoken ./gradlew build`
+
 ## Contributing
 
   Please use the [issue tracker](https://github.com/elastic/elastic-stack-testing/issues) to report any bugs or enhancement requests.  Pull requests are welcome.
@@ -79,14 +90,3 @@ For more options see file: `CONTRIBUTING.md`
 ## License
 
   Apache License 2.0
-  
-## Cloud Environment
-
-  Building the `ci/cloud` project requires a [github API token](https://blog.github.com/2013-05-16-personal-api-tokens/).
-  The API key will need repo access (repo checkbox).
-  
-  Once a github API token has been acquired two environment variables must be set: `GH_OWNER` and `GH_TOKEN`.
-  
-  `GH_OWNER` should be set to `elastic` but can be overridden to your fork if necessary.
-  
-  `GH_OWNER=elastic GH_TOKEN=mytoken ./gradlew build`
