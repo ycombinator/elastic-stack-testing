@@ -165,10 +165,7 @@ python_install_packages() {
   # If running in Jenkins, return
   running_in_jenkins
   RC=$?
-  echo "here: "
-  echo $RC 
-  echo $PYENV_VIRTUALENV_INIT
-  if [ $RC == 1 ] && [ -z $PYENV_VIRTUALENV_INIT ]; then
+  if [ $RC == 1 ] && [ ! -z $PYENV_VIRTUALENV_INIT ]; then
     echo_info "Install python"
     pyver = $(cat .python-version)
     pyenv install -s $pyver
