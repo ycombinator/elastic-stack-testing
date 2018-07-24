@@ -127,12 +127,10 @@ task kibana_tests {
         def _setup_task = genSetupTask(name)
         _setup_task.execute()
         def propFile = _setup_task.getPropertiesFile()
-        println "debug: "
-        println propFile
- 
+
         // Load properties file
         Properties properties = new Properties()
-        File propertiesFile = new File(propFile)
+        File propertiesFile = new File(propFile.trim())
         propertiesFile.withInputStream {
             properties.load(it)
         }
