@@ -11,8 +11,7 @@ class ShellCmd {
     public static String run(cmd) {
         def sout = new StringBuilder(), serr = new StringBuilder()
         def proc = (cmd).execute()
-        proc.consumeProcessOutput(sout, serr)
-        proc.waitFor()
+        proc.waitForProcessOutput(sout, serr)
         if (proc.exitValue() != 0) {
             if (serr) {
                 throw new Exception(serr.toString())
