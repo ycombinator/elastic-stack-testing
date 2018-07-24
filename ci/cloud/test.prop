@@ -1,0 +1,7 @@
+apm_tests=false
+beats_tests=false 
+elasticsearch_tests=false
+kibana_tests=true
+logstash_tests=false
+ml_tests=false
+stack_tests=false
