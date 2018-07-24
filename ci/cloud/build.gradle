@@ -126,7 +126,6 @@ task kibana_tests {
         // Setup cloud cluster
         def _setup_task = genSetupTask(name)
         _setup_task.execute()
-        _setup_task.waitFor()
 
         // Load properties file
         Properties properties = new Properties()
