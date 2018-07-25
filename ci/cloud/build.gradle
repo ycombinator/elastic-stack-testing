@@ -181,7 +181,7 @@ task kibana_tests {
         println "sleeping 25s ......."
         sleep(25 * 1000)
 
-        ShellCommand shell = new ShellCommand("ls", "/tmp", envList )
+        ShellCommand shell = new ShellCommand("./foo.sh", "/tmp", envList )
         shell.waitFor()
 
         println "**************"
