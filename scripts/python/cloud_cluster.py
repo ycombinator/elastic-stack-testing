@@ -34,7 +34,15 @@ class CloudCluster:
 
         host = os.environ.get("ESTF_CLOUD_HOST")
         version = os.environ.get("ESTF_CLOUD_VERSION")
-
+        print('debug:')
+        print(vault_addr)
+        print(vault_token)
+        print(vault_addr)
+        print(host)
+        print(version)
+        print(username)
+        print(password)
+        print('end debug')
         if not host or not version or not username or not password:
             raise ValueError('Cloud host, version, username and password must be set')
 

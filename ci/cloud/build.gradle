@@ -126,6 +126,7 @@ task kibana_tests {
         // Setup cloud cluster
         def _setup_task = genSetupTask(name)
         _setup_task.execute()
+        /*
         def propFile = _setup_task.getPropertiesFile()
 
         // Load properties file
@@ -167,6 +168,11 @@ task kibana_tests {
         }  else {
              genCleanupTask(name, _setup_task.getClusterId()).execute()
         }
+        */
+        println "sleeping 25s ......."
+        // TODO: Here is where we plugin in the callable for system test
+        sleep(25 * 1000)
+        genCleanupTask(name, _setup_task.getClusterId()).execute()
     }
 }
 
