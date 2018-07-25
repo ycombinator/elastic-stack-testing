@@ -34,7 +34,8 @@ class CloudCluster:
 
         host = os.environ.get("ESTF_CLOUD_HOST")
         version = os.environ.get("ESTF_CLOUD_VERSION")
-        print('debug:')
+        
+        print('in python script debug:')
         print(vault_addr)
         print(vault_token)
         print(vault_addr)
@@ -43,9 +44,9 @@ class CloudCluster:
         print(username)
         print(password)
         print('end debug')
+
         if not host or not version or not username or not password:
             raise ValueError('Cloud host, version, username and password must be set')
-
 
         region = os.environ.get("ESTF_CLOUD_REGION", 'us-east-1')
         monitoring = ast.literal_eval(os.environ.get("ESTF_CLOUD_MONITORING", 'true').title())

@@ -148,6 +148,10 @@ task kibana_tests {
             envList.add(key + "=" + value)
         }
 
+        println "**************"
+        println System.getenv() 
+        println "**************"
+
         // Add specific Kibana environment variables
         envList.add("TEST_KIBANA_HOSTNAME=" + kibanaUri?.getHost())
         envList.add("TEST_KIBANA_PROTOCOL=" + 'https')
@@ -177,17 +181,21 @@ task kibana_tests {
         println "sleeping 25s ......."
         sleep(25 * 1000)
 
-        ShellCommand shell = new ShellCommand("ls", "", envList )
+        ShellCommand shell = new ShellCommand("ls", "/tmp", envList )
         shell.waitFor()
+
+        println "**************"
+        println System.getenv() 
+        println "**************"
+
         def _cleanup_task = genCleanupTask('kibana', _setup_task.getClusterId())
 
         if (shell.getRc() != 0) {
             _cleanup_task.execute()    
-         throw new GradleException("Kibana Tests Failed")
+             throw new GradleException("Kibana Tests Failed")
         }  else {
              _cleanup_task.execute()
         }
-
     }
 }
 
