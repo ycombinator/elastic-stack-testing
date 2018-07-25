@@ -129,7 +129,7 @@ task kibana_tests {
         // Setup cloud cluster
         def _setup_task = genSetupTask('kibana')
         _setup_task.execute()
-        /*
+        
         def propFile = _setup_task.getPropertiesFile()
 
         // Load properties file
@@ -161,6 +161,7 @@ task kibana_tests {
         envList.add("TEST_ES_USER=" + properties.es_username)
         envList.add("TEST_ES_PASS=" + properties.es_password)
 
+        /*
         // Run Kibana tests
         ShellCommand shell = new ShellCommand("./test/scripts/jenkins_cloud.sh", "$buildDir/kibana", envList )
         shell.waitFor()
@@ -176,7 +177,7 @@ task kibana_tests {
         println "sleeping 25s ......."
         sleep(25 * 1000)
 
-        ShellCommand shell = new ShellCommand("ls" )
+        ShellCommand shell = new ShellCommand("ls", "", envList )
         shell.waitFor()
         def _cleanup_task = genCleanupTask('kibana', _setup_task.getClusterId())
 
@@ -186,7 +187,7 @@ task kibana_tests {
         }  else {
              _cleanup_task.execute()
         }
-         
+
     }
 }
 
