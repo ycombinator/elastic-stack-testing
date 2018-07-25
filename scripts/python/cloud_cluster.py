@@ -23,19 +23,21 @@ class CloudCluster:
         vault_token = os.environ.get('VAULT_TOKEN')
         vault_path = os.environ.get("VAULT_PATH", 'secret/stack-testing/cloud')
         if vault_addr and vault_token:
+            print('in vault')
             vault_client = hvac.Client(url=vault_addr, token=vault_token)
             if vault_client.is_authenticated():
                 creds = vault_client.read(vault_path)
                 username = creds['data']['username']
                 password = creds['data']['password']
         else:
+            print('in other')
             username = os.environ.get("ESTF_CLOUD_USERNAME")
             password = os.environ.get("ESTF_CLOUD_PASSWORD")
 
         host = os.environ.get("ESTF_CLOUD_HOST")
         version = os.environ.get("ESTF_CLOUD_VERSION")
         
-        print('in python script debug:')
+        print('in python script debug')
         print(vault_addr)
         print(vault_token)
         print(vault_addr)
@@ -43,7 +45,7 @@ class CloudCluster:
         print(version)
         print(username)
         print(password)
-        print('end debug')
+        print('end python script debug')
 
         if not host or not version or not username or not password:
             raise ValueError('Cloud host, version, username and password must be set')
