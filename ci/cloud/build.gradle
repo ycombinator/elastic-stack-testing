@@ -114,17 +114,20 @@ def genCleanupTask(testname, clusterId) {
  */
 task get_kibana_repo {
   doLast {
+    println 'clone'
+    /*
     def grgit = Grgit.clone(dir: "$buildDir/kibana",
                             uri: 'git@github.com:elastic/kibana.git',
                             refToCheckout: System.env.ESTF_KIBANA_VERSION)
     println grgit.describe()
+    */
   }
 }
 
 task kibana_tests {
     doFirst {
         // Setup cloud cluster
-        def _setup_task = genSetupTask(name)
+        def _setup_task = genSetupTask('kibana')
         _setup_task.execute()
         /*
         def propFile = _setup_task.getPropertiesFile()
@@ -169,10 +172,21 @@ task kibana_tests {
              genCleanupTask(name, _setup_task.getClusterId()).execute()
         }
         */
+
         println "sleeping 25s ......."
-        // TODO: Here is where we plugin in the callable for system test
         sleep(25 * 1000)
-        genCleanupTask(name, _setup_task.getClusterId()).execute()
+
+        ShellCommand shell = new ShellCommand("ls" )
+        shell.waitFor()
+        def _cleanup_task = genCleanupTask('kibana', _setup_task.getClusterId())
+
+        if (shell.getRc() != 0) {
+            _cleanup_task.execute()    
+         throw new GradleException("Kibana Tests Failed")
+        }  else {
+             _cleanup_task.execute()
+        }
+         
     }
 }
 
