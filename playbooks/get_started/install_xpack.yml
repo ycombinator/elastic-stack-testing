@@ -16,3 +16,4 @@
     - { role: xpack_filebeat, ait_role: xpack_filebeat_install_config_start_verify }
     - { role: xpack_metricbeat, ait_role: xpack_metricbeat_install_config_start_verify }
     - { role: xpack_packetbeat, ait_role: xpack_packetbeat_install_config_start_verify }
+    - { role: xpack_apm_server, ait_role: xpack_apm_server_install_config_start_verify }

@@ -2,12 +2,25 @@
 #
 # @author: Liza Dayoub
 
+# When set, we are running locally not in Jenkins
 export AIT_RUN_LOCAL=true
 
-export ES_BUILD_URL=staging.elastic.co/5.6.3-d64d30d8
+# Build URL
+export ES_BUILD_URL=
+
+# Build Type 
+export ES_BUILD_OSS=false
+
+# Build package extension
 export ES_BUILD_PKG_EXT=tar
 
-export AIT_ANSIBLE_PLAYBOOK=install_no_xpack
+# Install package 
+export AIT_ANSIBLE_PLAYBOOK=get_started/install_xpack
+
+# Setup VM
 export AIT_VM=vagrant_vm
+
+# Skip destroying the VM 
+export AIT_SKIP_VM_CLEANUP=true
 
 source jenkins_build.sh

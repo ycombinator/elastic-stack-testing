@@ -16,4 +16,4 @@
     - { role: filebeat, ait_role: filebeat_install_config_start_verify }
     - { role: metricbeat, ait_role: metricbeat_install_config_start_verify }
     - { role: packetbeat, ait_role: packetbeat_install_config_start_verify }
-  
+    - { role: apm_server, ait_role: apm_server_install_config_start_verify }
