@@ -16,7 +16,7 @@ heartbeat_install_dir: "{{ install_dir }}"
 heartbeat_package: '{{ heartbeat_install_dir }}/{{ heartbeat_package_url | basename }}'
 
 # heartbeat root directory
-heartbeat_rootdir: '{{ heartbeat_package.split(heartbeat_package_ext)[0] | trim }}'
+heartbeat_rootdir: '{{ heartbeat_package.split(heartbeat_package_ext)[0] | replace("oss-", "") | trim }}'
 
 # heartbeat bin
 heartbeat_exe: '{{ heartbeat_rootdir | trim }}/heartbeat'

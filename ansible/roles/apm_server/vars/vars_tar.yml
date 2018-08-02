@@ -16,7 +16,7 @@ apm_server_install_dir: "{{ install_dir }}"
 apm_server_package: '{{ apm_server_install_dir }}/{{ apm_server_package_url | basename }}'
 
 # apm_server root directory
-apm_server_rootdir: '{{ apm_server_package.split(apm_server_package_ext)[0] | trim }}'
+apm_server_rootdir: '{{ apm_server_package.split(apm_server_package_ext)[0] | replace("oss-", "") | trim }}'
 
 # apm_server bin
 apm_server_exe: '{{ apm_server_rootdir | trim }}/apm-server'

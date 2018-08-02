@@ -16,7 +16,7 @@ kibana_install_dir: '{{ install_dir }}'
 kibana_package: '{{ kibana_install_dir }}/{{ kibana_package_url | basename }}'
 
 # Kibana root directory
-kibana_rootdir: '{{ kibana_package.split(kibana_package_ext)[0] | trim }}'
+kibana_rootdir: '{{ kibana_package.split(kibana_package_ext)[0] | replace("oss-", "") | trim }}'
 
 # Kibana bin
 kibana_bin_dir: '{{ kibana_rootdir | trim }}/bin'

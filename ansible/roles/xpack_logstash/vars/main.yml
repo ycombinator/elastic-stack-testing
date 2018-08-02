@@ -20,14 +20,12 @@ xpack_logstash_conf_params: |
 xpack_logstash_roles:
   xpack_logstash_install_config_start_verify:
     - { action: 'logstash_install', parent: 'logstash', args: {} }
-    - { action: 'xpack_logstash_install', parent: '', args: {} }
     - { action: 'xpack_logstash_config',  parent: '', args: {} }
     - { action: 'logstash_conf', parent: 'logstash', args: { ait_logstash_conf_xpack: "{{ xpack_logstash_conf_params }}" } }
     - { action: 'logstash_startup',  parent: 'logstash', args: {} }
     - { action: 'logstash_log_tail', parent: 'logstash', args: {ait_log_searchstr: started} }
     - { action: 'logstash_is_running', parent: 'logstash', args: {} }
   xpack_logstash_plugin_config_start_verify:
-    - { action: 'xpack_logstash_install', parent: '', args: {} }
     - { action: 'xpack_logstash_config',  parent: '', args: {} }
     - { action: 'logstash_conf', parent: 'logstash', args: { ait_logstash_conf_xpack: "{{ xpack_logstash_conf_params }}" } }
     - { action: 'logstash_restart',  parent: 'logstash', args: {} }
@@ -42,13 +40,11 @@ xpack_logstash_roles:
     - { action: 'logstash_is_running', parent: 'logstash', args: {} }
   xpack_logstash_install_cloud_start_verify:
     - { action: 'logstash_install', parent: 'logstash', args: {} }
-    - { action: 'xpack_logstash_install', parent: '', args: {} }
     - { action: 'xpack_logstash_config_cloud',  parent: '', args: {} }
     - { action: 'logstash_startup',  parent: 'logstash', args: {} }
     - { action: 'logstash_log_tail', parent: 'logstash', args: {ait_log_searchstr: started} }
     - { action: 'logstash_is_running', parent: 'logstash', args: {} }
   xpack_logstash_plugin_cloud_start_verify:
-    - { action: 'xpack_logstash_install', parent: '', args: {} }
     - { action: 'xpack_logstash_config_cloud',  parent: '', args: {} }
     - { action: 'logstash_restart',  parent: 'logstash', args: {} }
     - { action: 'logstash_log_tail', parent: 'logstash', args: {ait_log_searchstr: started} }

@@ -16,7 +16,7 @@ metricbeat_install_dir: "{{ install_dir }}"
 metricbeat_package: '{{ metricbeat_install_dir }}/{{ metricbeat_package_url | basename }}'
 
 # metricbeat root directory
-metricbeat_rootdir: '{{ metricbeat_package.split(metricbeat_package_ext)[0] | trim }}'
+metricbeat_rootdir: '{{ metricbeat_package.split(metricbeat_package_ext)[0] | replace("oss-", "") | trim }}'
 
 # metricbeat bin
 metricbeat_exe: '{{ metricbeat_rootdir | trim }}/metricbeat'

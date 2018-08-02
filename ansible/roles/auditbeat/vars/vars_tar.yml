@@ -16,7 +16,7 @@ auditbeat_install_dir: "{{ install_dir }}"
 auditbeat_package: '{{ auditbeat_install_dir }}/{{ auditbeat_package_url | basename }}'
 
 # auditbeat root directory
-auditbeat_rootdir: '{{ auditbeat_package.split(auditbeat_package_ext)[0] | trim }}'
+auditbeat_rootdir: '{{ auditbeat_package.split(auditbeat_package_ext)[0] | replace("oss-", "") | trim }}'
 
 # auditbeat bin
 auditbeat_exe: '{{ auditbeat_rootdir | trim }}/auditbeat'

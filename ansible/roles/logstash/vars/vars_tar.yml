@@ -16,7 +16,7 @@ logstash_install_dir: '{{ install_dir }}'
 logstash_package: '{{ logstash_install_dir }}/{{ logstash_package_url | basename }}'
 
 # logstash root directory
-logstash_rootdir: '{{ logstash_package.split(logstash_package_ext)[0] | trim }}'
+logstash_rootdir: '{{ logstash_package.split(logstash_package_ext)[0] | replace("oss-", "") | trim }}'
 
 # logstash bin
 logstash_bin_dir: '{{ logstash_rootdir | trim }}/bin'

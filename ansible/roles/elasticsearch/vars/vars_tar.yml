@@ -16,24 +16,25 @@ elasticsearch_install_dir: "{{ install_dir }}"
 elasticsearch_package: '{{ elasticsearch_install_dir }}/{{ elasticsearch_package_url | basename }}'
 
 # Elasticsearch root directory
-elasticsearch_rootdir: '{{ elasticsearch_package.split(elasticsearch_package_ext)[0] | trim }}'
+elasticsearch_rootdir: '{{ elasticsearch_package.split(elasticsearch_package_ext)[0] | replace("oss-", "") | trim }}'
 
 # Elasticsearch bin
 elasticsearch_bin_dir: '{{ elasticsearch_rootdir | trim }}/bin'
 elasticsearch_exe: '{{ elasticsearch_bin_dir }}/elasticsearch'
 elasticsearch_plugin_exe: '{{ elasticsearch_bin_dir }}/elasticsearch-plugin'
-elasticsearch_xpack_bin_dir: '{{ elasticsearch_bin_dir }}/x-pack'
-elasticsearch_certgen_exe: '{{ elasticsearch_xpack_bin_dir }}/certgen'
-elasticsearch_setup_passwords_exe: '{{ elasticsearch_xpack_bin_dir }}/setup-passwords'
+elasticsearch_xpack_bin_dir: '{{ elasticsearch_bin_dir }}'
+elasticsearch_certgen_exe: '{{ elasticsearch_xpack_bin_dir }}/elasticsearch-certgen'
+elasticsearch_setup_passwords_exe: '{{ elasticsearch_xpack_bin_dir }}/elasticsearch-setup-passwords'
 
 # Elasticsearch config
 elasticsearch_config_dir: '{{ elasticsearch_rootdir | trim }}/config'
 elasticsearch_config_file: '{{ elasticsearch_config_dir }}/elasticsearch.yml'
-elasticsearch_xpack_config_dir: '{{ elasticsearch_config_dir | trim }}/x-pack'
+elasticsearch_xpack_config_dir: '{{ elasticsearch_config_dir | trim }}'
 
 # Elasticsearch log
 elasticsearch_log_dir: '{{ elasticsearch_rootdir | trim }}/logs'
-elasticsearch_log_file: '{{ elasticsearch_log_dir }}/elasticsearch.log'
+elasticsearch_log_name: 'elasticsearch.log'
+elasticsearch_log_file: '{{ elasticsearch_log_dir }}/{{ elasticsearch_log_name }}'
 
 # Elasticsearch pid file
 elasticsearch_pid_file: '{{ elasticsearch_rootdir | trim }}/pid.txt'

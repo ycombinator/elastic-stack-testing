@@ -16,7 +16,7 @@ packetbeat_install_dir: "{{ install_dir }}"
 packetbeat_package: '{{ packetbeat_install_dir }}/{{ packetbeat_package_url | basename }}'
 
 # packetbeat root directory
-packetbeat_rootdir: '{{ packetbeat_package.split(packetbeat_package_ext)[0] | trim }}'
+packetbeat_rootdir: '{{ packetbeat_package.split(packetbeat_package_ext)[0] | replace("oss-", "") | trim }}'
 
 # packetbeat bin
 packetbeat_exe: '{{ packetbeat_rootdir | trim }}/packetbeat'

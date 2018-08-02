@@ -16,7 +16,7 @@ filebeat_install_dir: "{{ install_dir }}"
 filebeat_package: '{{ filebeat_install_dir }}/{{ filebeat_package_url | basename }}'
 
 # filebeat root directory
-filebeat_rootdir: '{{ filebeat_package.split(filebeat_package_ext)[0] | trim }}'
+filebeat_rootdir: '{{ filebeat_package.split(filebeat_package_ext)[0] | replace("oss-", "") | trim }}'
 
 # filebeat bin
 filebeat_exe: '{{ filebeat_rootdir | trim }}/filebeat'

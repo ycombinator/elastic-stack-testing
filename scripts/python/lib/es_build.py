@@ -8,7 +8,7 @@ Created on Sep 12, 2017
 import os
 import requests
 import re
-#import yaml
+import ast
 from urllib.parse import urlparse
 
 
@@ -79,7 +79,8 @@ class ElasticStackBuild:
                     '_env_server': 'ES_BUILD_SERVER',
                     '_env_build_id': 'ES_BUILD_ID',
                     '_env_extension': 'ES_BUILD_PKG_EXT',
-                    '_env_architecture': 'ES_BUILD_ARCH'
+                    '_env_architecture': 'ES_BUILD_ARCH',
+                    '_env_oss': 'ES_BUILD_OSS'
                     }
 
         for attr in env_vars.keys():
@@ -87,6 +88,8 @@ class ElasticStackBuild:
                 value = os.getenv('UPGRADE_' + env_vars[attr], '')
             else:
                 value = os.getenv(env_vars[attr], '')
+                if attr == '_env_oss':
+                    value = ast.literal_eval(value.title())
             setattr(self, attr, value)
 
         # If msi is specified, default env_extension to zip, since only elasticsearch has an msi
@@ -255,8 +258,12 @@ class ElasticStackBuild:
             if server and version and ext:
                 if server in self._public_servers:
                     url = server + '/downloads/' + parent_name + '/' + name + '-' + version + '.' + ext
+                elif self._env_oss and 'beats-dashboards' not in parent_name:
+                    name += '-oss'
+                    url = server + '/' + self._env_build_id + '/downloads/' + parent_name + '/' + name + '-' + version + '.' + ext
                 else:
                     url = server + '/' + self._env_build_id + '/downloads/' + parent_name + '/' + name + '-' + version + '.' + ext
+
                 if self.ping(url):
                     return url
         return ''
@@ -280,6 +287,12 @@ class ElasticStackBuild:
                     arch = re.sub('windows-x86_64', 'windows-x86', arch)
                 if server in self._public_servers:
                     url = server + '/downloads/' + parent_name + '/' + name + '-' + version + '-' +  arch + '.' + ext
+                elif self._env_oss:
+                    name += '-oss'
+                    if 'beats' in parent_name:
+                        url = server + '/' + self._env_build_id + '/downloads/' + parent_name + '/' + name + '-' + version + '-' + arch + '.' + ext
+                    else:
+                        url = server + '/' + self._env_build_id + '/downloads/' + parent_name + '/' + name + '-' + version + '-' + arch + '.' + ext
                 else:
                     url = server + '/' + self._env_build_id + '/downloads/' + parent_name + '/' + name + '-' + version + '-' +  arch + '.' + ext
                 if self.ping(url):
