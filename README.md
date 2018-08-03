@@ -6,7 +6,7 @@ This project is a work in progress to provide a common automation framework for 
 <br>The goal is to provide a powerful, easy to use and maintain framework to build test suites.  
 <br>One main project for this framework is the development of a product integration test suite.
   - Automated Integration Testing (AIT)
- 
+
 This project is in early stage development and many things are still being ironed out.  
 
 More details can be found:
@@ -22,31 +22,31 @@ More details can be found:
 
 ## Environment Setup
 
- * Install Python 3
+ * Install Python 3*
 
-   In this repo see version file: `.python-version`
+   *In this repo see version file: <b>[.python-version](https://github.com/elastic/elastic-stack-testing/blob/master/.python-version)</b>
 
    https://www.python.org/downloads/
 
- * Install Vagrant
+ * Install Vagrant*
 
-   In this repo see version: `.vagrant-version`
+   *In this repo see version: <b>[.vagrant-version](https://github.com/elastic/elastic-stack-testing/blob/master/.vagrant-version)</b>
 
    https://www.vagrantup.com/downloads.html
 
- * Install Virtualbox
+ * Install Virtualbox*
 
-   In this repo see version file: `.virtualbox-version`
+   *In this repo see version file: <b>[.virtualbox-version](https://github.com/elastic/elastic-stack-testing/blob/master/.virtualbox-version)</b>
 
    https://www.virtualbox.org/wiki/Downloads
 
 ## Quick Start
-Running a playbook for provisioning 
+Running a playbook for provisioning
 
 1. Clone repository: `git clone https://github.com/elastic/elastic-stack-testing.git` 
-2. `cd elastic-stack-testing` 
+2. `cd elastic-stack-testing`
 3. Edit file: `buildenv.sh`  
-4. Fill in information 
+4. Fill in information
     - export AIT_RUN_LOCAL=true
     - export ES_BUILD_URL=artifacts.elastic.co/[version] ex: 6.2.3
     - export ES_BUILD_PKG_EXT=tar
@@ -55,7 +55,7 @@ Running a playbook for provisioning
     - export AIT_SKIP_VM_CLEANUP=true
 5. Execute file: `./buildenv.sh`
 
-For more options see file: `CONTRIBUTING.md` 
+For more options see file: `CONTRIBUTING.md`
 
 ## Currently Supported
 
@@ -85,7 +85,7 @@ For more options see file: `CONTRIBUTING.md`
 
   Elastic Stack Testing Framework created by [Liza Dayoub](https://github.com/liza-mae).  
   
-  Also see a list of [contributors](https://github.com/elastic/elastic-stack-testing/graphs/contributors) who participated in the project. 
+  Also see a list of [contributors](https://github.com/elastic/elastic-stack-testing/graphs/contributors) who participated in the project.
 
 ## License
 
