@@ -11,6 +11,7 @@
     dest: '{{ auditbeat_package }}'
     timeout: '{{ url_timeout }}'
   tags: package_auditbeat
+  become: true
 
 - name: Install auditbeat tar package
   unarchive:
@@ -18,3 +19,4 @@
     dest: '{{ auditbeat_install_dir }}'
     remote_src: True
   tags: install_auditbeat
+  become: true

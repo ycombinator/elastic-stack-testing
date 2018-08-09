@@ -10,3 +10,4 @@
     state: absent
     path: '{{ metricbeat_rootdir | trim }}'
   tags: uninstall_metricbeat
+  become: true

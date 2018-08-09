@@ -10,3 +10,4 @@
     state: absent
     path: '{{ auditbeat_rootdir | trim }}'
   tags: uninstall_auditbeat
+  become: true

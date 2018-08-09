@@ -12,6 +12,7 @@
       args:
         executable: /bin/bash
       register: filebeat_process_id
+      become: true
     - name: Fail if filebeat process is not running
       fail:
         msg: 'filebeat is not running'

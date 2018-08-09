@@ -11,6 +11,7 @@
     dest: '{{ packetbeat_package }}'
     timeout: '{{ url_timeout }}'
   tags: package_packetbeat
+  become: true
 
 - name: Install packetbeat tar package
   unarchive:
@@ -18,3 +19,4 @@
     dest: '{{ packetbeat_install_dir }}'
     remote_src: True
   tags: install_packetbeat
+  become: true

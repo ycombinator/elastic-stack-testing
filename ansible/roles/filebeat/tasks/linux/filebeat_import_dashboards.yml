@@ -29,16 +29,19 @@
     executable: /bin/bash
   register: filebeat_setup_help_output
   ignore_errors: yes
+  become: true
 
 - name: Check if import dashboards executable exists
   stat:
     path: '{{ filebeat_scripts }}/import_dashboards'
+  become: true
   register: file_import_dashboards
 
 - name: Import filebeat dashboards through import_dashboards
   shell: "{{ filebeat_scripts }}/import_dashboards --insecure -es {{ filebeat_es_url }} -url {{ beats_dashboards_package_url }}"
   args:
     executable: /bin/bash
+  become: true
   when: file_import_dashboards.stat.exists is defined and file_import_dashboards.stat.exists
 
 - name: Import filebeat dashboards through setup

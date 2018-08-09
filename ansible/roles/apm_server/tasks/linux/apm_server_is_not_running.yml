@@ -12,6 +12,7 @@
       args:
         executable: /bin/bash
       register: apm_server_process_id
+      become: true
     - name: Fail if apm_server process is running
       fail:
         msg: 'apm_server is running'

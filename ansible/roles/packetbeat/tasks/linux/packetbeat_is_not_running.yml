@@ -11,6 +11,7 @@
       shell: "ps -efw | grep packetbeat | grep -v grep | awk '{print $2}'"
       args:
         executable: /bin/bash
+      become: true
       register: packetbeat_process_id
     - name: Fail if packetbeat process is running
       fail:

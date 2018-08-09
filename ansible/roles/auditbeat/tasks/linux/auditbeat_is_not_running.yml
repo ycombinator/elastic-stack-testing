@@ -12,7 +12,9 @@
       args:
         executable: /bin/bash
       register: auditbeat_process_id
+      become: true
     - name: Fail if auditbeat process is running
       fail:
         msg: 'auditbeat is running'
       when: auditbeat_process_id.stdout != ""
+     

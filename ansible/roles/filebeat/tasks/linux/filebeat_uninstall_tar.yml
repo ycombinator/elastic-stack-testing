@@ -10,3 +10,4 @@
     state: absent
     path: '{{ filebeat_rootdir | trim }}'
   tags: uninstall_filebeat
+  become: true

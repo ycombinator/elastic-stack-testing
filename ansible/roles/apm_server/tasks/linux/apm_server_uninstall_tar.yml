@@ -10,3 +10,4 @@
     state: absent
     path: '{{ apm_server_rootdir | trim }}'
   tags: uninstall_apm_server
+  become: true

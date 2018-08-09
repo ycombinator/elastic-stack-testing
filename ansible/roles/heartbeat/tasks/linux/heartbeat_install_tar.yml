@@ -11,6 +11,7 @@
     dest: '{{ heartbeat_package }}'
     timeout: '{{ url_timeout }}'
   tags: package_heartbeat
+  become: true
 
 - name: Install heartbeat tar package
   unarchive:
@@ -18,3 +19,4 @@
     dest: '{{ heartbeat_install_dir }}'
     remote_src: True
   tags: install_heartbeat
+  become: true

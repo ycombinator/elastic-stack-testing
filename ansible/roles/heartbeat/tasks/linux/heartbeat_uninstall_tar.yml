@@ -10,3 +10,4 @@
     state: absent
     path: '{{ heartbeat_rootdir | trim }}'
   tags: uninstall_heartbeat
+  become: true

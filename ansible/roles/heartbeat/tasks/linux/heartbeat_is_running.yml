@@ -12,6 +12,7 @@
       args:
         executable: /bin/bash
       register: heartbeat_process_id
+      become: true
     - name: Fail if heartbeat process is not running
       fail:
         msg: 'heartbeat is not running'

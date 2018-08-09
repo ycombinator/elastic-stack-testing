@@ -11,6 +11,7 @@
     dest: '{{ metricbeat_package }}'
     timeout: '{{ url_timeout }}'
   tags: package_metricbeat
+  become: true 
 
 - name: Install metricbeat tar package
   unarchive:
@@ -18,17 +19,4 @@
     dest: '{{ metricbeat_install_dir }}'
     remote_src: True
   tags: install_metricbeat
-
-- name: Check if modules directory exists
-  stat:
-    path: '{{ metricbeat_modules }}'
-  register: p
-
-- name: Change permissions on modules directory
-  file:
-    path: '{{ metricbeat_modules }}'
-    owner: root
-    group: root
-    recurse: true
-  become: true
-  when: p.stat.isdir is defined and p.stat.isdir
+  become: true 

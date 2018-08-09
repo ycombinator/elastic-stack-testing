@@ -12,6 +12,7 @@
       args:
         executable: /bin/bash
       register: metricbeat_process_id
+      become: true
     - name: Fail if metricbeat process is not running
       fail:
         msg: 'metricbeat is not running'

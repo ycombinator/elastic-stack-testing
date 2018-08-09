@@ -9,3 +9,4 @@
   shell: "{{ heartbeat_scripts }}/import_dashboards -es http://{{ current_host_ip }}:{{ elasticsearch_port }}"
   args:
     executable: /bin/bash
+  become: true
