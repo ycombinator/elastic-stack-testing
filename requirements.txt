@@ -6,3 +6,4 @@ pytest===3.2.2
 selenium==3.5.0
 webium==1.2.1
 xvfbwrapper==0.2.9
+jsondiff==1.1.2
