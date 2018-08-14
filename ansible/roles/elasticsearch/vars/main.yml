@@ -34,6 +34,13 @@ elasticsearch_roles:
     - { action: 'elasticsearch_config', args: {} }
     - { action: 'elasticsearch_startup', args: {} }
     - { action: 'elasticsearch_log_tail', args: {ait_log_searchstr: started} }
+  elasticsearch_startup_verify:
+    - { action: 'elasticsearch_startup', args: {} }
+    - { action: 'elasticsearch_log_tail', args: {ait_log_searchstr: started} }
+    - { action: 'elasticsearch_is_running', args: {} }
+  elasticsearch_shutdown_verify:
+    - { action: 'elasticsearch_shutdown', args: {} }
+    - { action: 'elasticsearch_is_not_running', args: {} }
   elasticsearch_shutdown_uninstall_verify:
     - { action: 'elasticsearch_shutdown', args: {} }
     - { action: 'elasticsearch_uninstall', args: {} }
