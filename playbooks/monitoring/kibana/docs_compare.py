@@ -1,6 +1,6 @@
 '''
 Usage:
-  python kibana_compare.py /path/to/internal/docs /path/to/metricbeat/docs
+  python docs_compare.py /path/to/internal/docs /path/to/metricbeat/docs
 '''
 
 import os
