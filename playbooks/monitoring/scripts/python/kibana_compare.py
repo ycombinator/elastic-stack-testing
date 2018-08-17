@@ -20,7 +20,40 @@ def get_doc(docs_path, doc_type):
     with open(os.path.join(docs_path, doc_type + ".json")) as f:
         data = f.read()
     f.closed
-    return data
+    return json.loads(data)
+
+def remove_field(doc, field):
+    field_path_segments = field.split(".")
+    last_segment = field_path_segments.pop()
+
+    d = doc
+    for segment in field_path_segments:
+        if segment in d:
+            d = d[segment]
+
+    d.pop(last_segment, None)
+
+def remove_optional_fields(doc, fields):
+    for field in fields:
+        remove_field(doc, field)
+
+def has_insertions_recursive(obj):
+    obj_type = type(obj)
+
+    if obj_type is dict:
+        keys = obj.keys()
+        if '$insert' in keys:
+            return True
+
+        for key in keys:
+            if has_insertions_recursive(obj[key]):
+                return True
+    elif obj_type is list:
+        for el in obj:
+            if has_insertions_recursive(el):
+                return True
+    else:
+        return False
 
 def has_deletions_recursive(obj):
     obj_type = type(obj)
@@ -75,7 +108,30 @@ for doc_type in internal_doc_types:
     internal_doc = get_doc(internal_docs_path, doc_type)
     metricbeat_doc = get_doc(metricbeat_docs_path, doc_type)
 
-    difference = diff(internal_doc, metricbeat_doc, syntax='explicit', load=True, marshal=True)
+    # Certain fields are expected to be optional, as they depend on the time of collection. We omit those from the comparison.
+    optional_fields = [
+        "kibana_stats.response_times.average"
+    ]
+    remove_optional_fields(internal_doc, optional_fields)
+    remove_optional_fields(metricbeat_doc, optional_fields)
+
+    difference = diff(internal_doc, metricbeat_doc, syntax='explicit', marshal=True)
+
+    # Expect there to be exactly four top-level insertions to the metricbeat-indexed doc: beat, @timestamp, host, and metricset
+    expected_insertions = [ "beat", "@timestamp", "host", "metricset" ]
+    insertions = difference.get('$insert')
+    if insertions == None or len(insertions) < 1:
+        log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has no insertions. Expected 'beat', '@timestamp', 'host', and 'metricset' to be inserted.")
+
+    if len(insertions) > 4:
+        log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has too many insertions: " + json.dumps(deletions))
+
+    insertion_keys = insertions.keys()
+    for expected_insertion in expected_insertions:
+        if expected_insertion not in insertion_keys:
+            log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' does not have '" + expected_insertion + "' inserted.")
+
+    difference.pop('$insert') 
 
     # Expect there to be exactly one top-level deletion from metricbeat-indexed doc: source_node
     deletions = difference.get('$delete')
@@ -90,7 +146,10 @@ for doc_type in internal_doc_types:
 
     difference.pop('$delete') 
 
-    # Inserts and updates are okay in metricbeat-indexed docs, but deletions are not
+    # Updates are okay in metricbeat-indexed docs, but insertions and deletions are not
+    if has_insertions_recursive(difference):
+        log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has unexpected insertions. Difference: " + json.dumps(difference, indent=2))
+
     if has_deletions_recursive(difference):
         log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has unexpected deletions. Difference: " + json.dumps(difference, indent=2))
 
