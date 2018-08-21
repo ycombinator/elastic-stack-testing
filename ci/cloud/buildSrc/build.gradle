@@ -1,0 +1,9 @@
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    compile group: 'co.elastic.cloud', name: 'sdk-java', version: "1.2.0-SNAPSHOT"
+}

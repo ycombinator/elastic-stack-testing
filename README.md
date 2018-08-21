@@ -71,11 +71,13 @@ For more options see file: `CONTRIBUTING.md`
   Building the `ci/cloud` project requires a [github API token](https://blog.github.com/2013-05-16-personal-api-tokens/).
   The API key will need repo access (repo checkbox).
 
-  Once a github API token has been acquired two environment variables must be set: `GH_OWNER` and `GH_TOKEN`.
+  Once a github API token has been acquired three environment variables must be set: `GH_OWNER`, `GH_TOKEN`, and `SDK_VERSION`.
 
   `GH_OWNER` should be set to `elastic` but can be overridden to your fork if necessary.
 
-  `GH_OWNER=elastic GH_TOKEN=mytoken ./gradlew build`
+  `chmod +x getJavaSdk.sh`
+
+  `GH_OWNER=elastic GH_TOKEN=mytoken SDK_VERSION=1.2.0-SNAPSHOT ./getJavaSdk.sh`
 
 ## Contributing
 
