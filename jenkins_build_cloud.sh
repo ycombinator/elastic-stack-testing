@@ -16,5 +16,6 @@ export_env_vars
 check_env_workspace
 activate_python_virtual_env
 python_install_packages "cloud"
+java_install_packages
 run_cloud_tests ${1}
 deactivate_python_virtual_env

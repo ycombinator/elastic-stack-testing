@@ -6,7 +6,7 @@
  */
 
 import com.sun.org.apache.xalan.internal.xslt.Process
-import org.estf.gradle.SetupCloudCluster
+import org.estf.gradle.CreateCloudCluster
 import org.estf.gradle.DeleteCloudCluster
 import org.estf.gradle.ShellCommand
 import org.ajoberstar.grgit.Grgit
@@ -33,12 +33,12 @@ dependencies {
  General Methods
  */
 def genSetupTask(testname) {
-    return tasks.create("setup_" + testname, SetupCloudCluster)
+    return tasks.create("setup_" + testname, CreateCloudCluster)
 }
 
-def genCleanupTask(testname, clusterId) {
+def genCleanupTask(testname, cluster_id) {
     return tasks.create("cleanup_" + testname, DeleteCloudCluster) {
-        cluster_id = clusterId
+        clusterId = cluster_id
     }
 }
 

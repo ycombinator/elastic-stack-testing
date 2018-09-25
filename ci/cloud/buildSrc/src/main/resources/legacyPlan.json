@@ -1,0 +1,46 @@
+{
+    "cluster_name": "ESTF",
+    "plan": {
+      "zone_count": 1,
+      "cluster_topology": [
+        {
+          "node_configuration": "highio.legacy",
+          "node_count_per_zone": 1,
+          "memory_per_node": 1024
+        }
+      ],
+      "elasticsearch": {
+        "include_default_plugins": true,
+        "enabled_built_in_plugins": [],
+        "user_bundles": [],
+        "user_plugins": [],
+        "system_settings": {
+          "auto_create_index": true,
+          "destructive_requires_name": true,
+          "scripting": {
+            "inline": {
+              "enabled": true
+            },
+            "stored": {
+              "enabled": true
+            }
+          }
+        },
+        "version": "6.3.2"
+      }
+    },
+    "settings": {},
+    "kibana": {
+      "plan": {
+        "zone_count": 1,
+        "kibana": {},
+        "cluster_topology": [
+          {
+            "memory_per_node": 1024,
+            "node_count_per_zone": 1
+          }
+        ]
+      }
+    }
+  } 
+  

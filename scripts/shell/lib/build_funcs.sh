@@ -162,7 +162,6 @@ activate_python_virtual_env() {
 python_install_packages() {
   type=$1; # cloud or empty
   check_python_virtual_env
-  # If running in Jenkins, return
   running_in_jenkins
   RC=$?
   if [ $RC == 1 ] && [ ! -z $PYENV_VIRTUALENV_INIT ]; then
@@ -181,6 +180,18 @@ python_install_packages() {
    fi
   echo_info "List installed python packages"
   pip list
+}
+
+# ----------------------------------------------------------------------------
+java_install_packages() {
+  check_python_virtual_env
+  echo_info "Install java sdk package"
+  python ${AIT_SCRIPTS}/python/install_cloud_sdk.py
+  RC=$?
+  if [ $RC -ne 0 ]; then
+    echo_error "FAILED! Java SDK not installed"
+    exit 1
+  fi
 }
 
 # ----------------------------------------------------------------------------

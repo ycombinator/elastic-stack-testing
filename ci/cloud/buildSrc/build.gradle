@@ -4,7 +4,7 @@ repositories {
     }
 }
 
-/* TODO: uncomment later
 dependencies {
     compile group: 'co.elastic.cloud', name: 'sdk-java', version: "1.2.0-SNAPSHOT"
-}*/
+    compile group: 'com.bettercloud', name: 'vault-java-driver', version: '3.1.0'
+}
