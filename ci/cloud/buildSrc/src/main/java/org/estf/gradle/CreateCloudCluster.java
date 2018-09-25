@@ -57,7 +57,7 @@ public class CreateCloudCluster extends DefaultTask {
         String esPassword = clusterCreds.getPassword();
         ElasticsearchClusterInfo esInfo = clusterClient.getEsCluster(clusterId);
         String region = esInfo.getRegion();
-        String domain = "foundit.no:9243";
+        String domain = "foundit.no";
         String port = "9243";
         String provider = "aws.staging";
         if (region.contains("gcp")) {
