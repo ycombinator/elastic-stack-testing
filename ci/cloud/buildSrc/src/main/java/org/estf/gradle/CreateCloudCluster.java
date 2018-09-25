@@ -10,6 +10,8 @@ package org.estf.gradle;
 import co.elastic.cloud.api.client.ClusterClient;
 import co.elastic.cloud.api.model.generated.CreateElasticsearchClusterRequest;
 import co.elastic.cloud.api.model.generated.ElasticsearchClusterInfo;
+import co.elastic.cloud.api.model.generated.ClusterCrudResponse;
+import co.elastic.cloud.api.model.generated.ClusterCredentials;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import org.gradle.api.DefaultTask;
