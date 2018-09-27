@@ -107,14 +107,19 @@ task kibana_tests {
                                             --exclude ./test/functional/apps/dashboard/_panel_expand_toggle.js \
                                             --exclude ./test/functional/apps/dashboard/_dashboard_grid.js \
                                             --exclude ./test/functional/apps/dashboard/_dashboard_snapshots.js \
+                                            --exclude ./test/functional/apps/dashboard/_panel_controls.js \
+                                            --exclude ./test/functional/apps/dashboard/_dashboard_state.js \
                                             --exclude ./test/functional/apps/discover/_discover.js \
                                             --exclude ./test/functional/apps/discover/_field_data.js \
                                             --exclude ./test/functional/apps/home/_sample_data.js \
+                                            --exclude ./test/functional/apps/management/_scripted_fields.js \
                                             --exclude ./test/functional/apps/management/_scripted_fields_preview.js \
                                             --exclude ./test/functional/apps/timelion/_expression_typeahead.js \
+                                            --exclude ./test/functional/apps/visualize/_area_chart.js \
                                             --exclude ./test/functional/apps/visualize/_data_table.js \
                                             --exclude ./test/functional/apps/visualize/_heatmap_chart.js \
-                                            --exclude ./test/functional/apps/visualize/_input_control_vis.js
+                                            --exclude ./test/functional/apps/visualize/_input_control_vis.js \
+                                            --exclude ./test/functional/apps/visualize/_tile_map.js \
                                             --exclude ./test/functional/apps/visualize/_tsvb_chart.js
                                     '''
 
