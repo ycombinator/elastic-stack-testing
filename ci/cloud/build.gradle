@@ -108,7 +108,7 @@ task kibana_tests {
                                             --exclude ./test/functional/apps/dashboard/_dashboard_grid.js \
                                             --exclude ./test/functional/apps/dashboard/_dashboard_snapshots.js \
                                             --exclude ./test/functional/apps/discover/_discover.js \
-                                            --exclude ./test/functional/apps/discover_field_data.js \
+                                            --exclude ./test/functional/apps/discover/_field_data.js \
                                             --exclude ./test/functional/apps/home/_sample_data.js \
                                             --exclude ./test/functional/apps/management/_scripted_fields_preview.js \
                                             --exclude ./test/functional/apps/timelion/_expression_typeahead.js \
