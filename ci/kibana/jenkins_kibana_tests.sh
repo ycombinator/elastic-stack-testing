@@ -230,7 +230,7 @@ function get_kibana_url() {
 
   Glb_Kibana_Url="$_host/$_path/$Glb_Pkg_Name"
 
-  local _urlExists=$(wget --spider "${Glb_Kibana_Url}"; echo $?)
+  local _urlExists=$(curl --head -f "${Glb_Kibana_Url}"; echo $?)
   if [[ $_urlExists -ne 0 ]]; then
     echo_error_exit "URL does not exist: $Glb_Kibana_Url"
   fi
