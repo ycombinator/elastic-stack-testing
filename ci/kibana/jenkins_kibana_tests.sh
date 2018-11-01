@@ -426,6 +426,7 @@ function run_selenium_tests() {
     --kibana-install-dir=${Glb_Kibana_Dir} \
     --esFrom snapshot \
     --config test/functional/config.js \
+    --grep @skipcloud --invert \
     --debug
 }
 
