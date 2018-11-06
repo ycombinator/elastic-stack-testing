@@ -123,7 +123,7 @@ task kibana_tests {
                                             --exclude ./test/functional/apps/visualize/_tsvb_chart.js
                                     '''
 
-        ShellCommand shell = new ShellCommand(kibana_tests_filtered, "$buildDir/kibana", envList )
+        ShellCommand shell = new ShellCommand("./test/scripts/jenkins_cloud.sh", "$buildDir/kibana", envList )
         shell.waitFor()
 
         println "**************"
