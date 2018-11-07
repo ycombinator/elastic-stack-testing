@@ -364,7 +364,11 @@ function install_node() {
   hash -r
 
   echo_debug "Node is here: "
-  echo_debug $(where node)
+  if [[ "$Glb_OS" == "windows" ]]; then
+    echo_debug $(where node)
+  else
+    echo_debug $(which node)
+  fi 
   echo_debug "$PATH"
 }
 
