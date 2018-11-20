@@ -261,6 +261,7 @@ function download_and_extract_package() {
     _dirName=$(zipinfo -1 "$_pkgName" | head -n 1)
   else
     _dirName=$(tar tf "$_pkgName" | head -n 1)
+    _dirName=${_dirName%%/*}
   fi
 
   Glb_Kibana_Dir="$Glb_Install_Dir/$_dirName"
