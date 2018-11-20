@@ -260,9 +260,9 @@ function download_and_extract_package() {
   if [[ "$Glb_OS" == "windows" ]]; then
     _dirName=$(zipinfo -1 "$_pkgName" | head -n 1)
   else
-    _dirName=$(tar tf "$_pkgName" | head -n 1)
-    _dirName=${_dirName%%/*}
+    _dirName=$(tar tf "$_pkgName" | head -n 1)  
   fi
+  _dirName=${_dirName%%/*}
 
   Glb_Kibana_Dir="$Glb_Install_Dir/$_dirName"
   if [ -d "$Glb_Kibana_Dir" ]; then
