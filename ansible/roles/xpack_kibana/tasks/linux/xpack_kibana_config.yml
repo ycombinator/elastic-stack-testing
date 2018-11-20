@@ -32,8 +32,8 @@
     insertafter: EOF
     content: |
       elasticsearch.url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}"
-      elasticsearch.username: {{ elasticsearch_username }}
-      elasticsearch.password: {{ elasticsearch_password }}
+      elasticsearch.username: {{ kibana_username }}
+      elasticsearch.password: {{ kibana_password }}
       server.ssl.enabled: true
       server.ssl.certificate: {{ kibana_rootdir | trim }}/node/node.crt
       server.ssl.key: {{ kibana_rootdir | trim }}/node/node.key
