@@ -1,0 +1,19 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Playbook: Install products without x-pack
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+- hosts: "{{ uut | default(lookup('env','AIT_UUT')) }}"
+
+  vars_files:
+    - "{{ es_var_file | default(lookup('env','ANSIBLE_GROUP_VARS')) }}"
+
+  roles:
+    - { role: elasticsearch, ait_role: elasticsearch_install_config_start_verify }
+    - { role: kibana, ait_role: kibana_install_config_start_verify }
+    - { role: logstash, ait_role: logstash_install_config_start_verify }
+    - { role: filebeat, ait_role: filebeat_install_config_start_verify_import_dashboards }
+    - { role: metricbeat, ait_role: metricbeat_install_config_start_verify_import_dashboards }
+    - { role: packetbeat, ait_role: packetbeat_install_config_start_verify_import_dashboards }
+    - { role: apm_server, ait_role: apm_server_install_config_start_verify_import_dashboards }

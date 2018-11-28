@@ -1,0 +1,19 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Playbook: Install products with x-pack
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+- hosts: "{{ uut | default(lookup('env','AIT_UUT')) }}"
+
+  vars_files:
+    - "{{ es_var_file | default(lookup('env','ANSIBLE_GROUP_VARS')) }}"
+
+  roles:
+    - { role: xpack_elasticsearch, ait_role: xpack_elasticsearch_install_gencert_config_start_verify }
+    - { role: xpack_kibana, ait_role: xpack_kibana_install_config_start_verify }
+    - { role: xpack_logstash, ait_role: xpack_logstash_install_config_start_verify }
+    - { role: xpack_filebeat, ait_role: xpack_filebeat_install_config_start_verify_import_dashboards }
+    - { role: xpack_metricbeat, ait_role: xpack_metricbeat_install_config_start_verify_import_dashboards }
+    - { role: xpack_packetbeat, ait_role: xpack_packetbeat_install_config_start_verify_import_dashboards }
+    - { role: xpack_apm_server, ait_role: xpack_apm_server_install_config_start_verify_import_dashboards }

@@ -35,20 +35,6 @@ export_env_vars() {
     export ES_BUILD_URL="${ES_BUILD_SERVER}.elastic.co/$LATEST_BUILD_ID"
   fi
 
-  # Added to support CI multi phase job
-  # Note: Specific to elastic stack testing CI job
-  if [ $CI_BUILD == "true" ] && [ $RC == 1 ]; then
-    export ES_BUILD_OSS=$CI_OSS
-    if [ $ES_BUILD_OSS == "true" ]; then
-      export AIT_ANSIBLE_PLAYBOOK="${AIT_ROOTDIR}/playbooks/get_started/install_no_xpack.yml"
-    else
-      export AIT_ANSIBLE_PLAYBOOK="${AIT_ROOTDIR}/playbooks/get_started/install_xpack.yml"
-    fi
-    # This will eventually be added to the CI_ stuff
-    export ES_BUILD_PKG_EXT=tar
-    export AIT_VM=vagrant_vm
-  fi
-
   env | sort
 
 }
