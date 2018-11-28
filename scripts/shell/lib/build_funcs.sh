@@ -28,7 +28,29 @@ export_env_vars() {
   if [ $RC == 1 ]; then
     export AIT_RUN_HEADLESS_BROWSER=true
   fi
+
+  # Added to get latest build from server
+  if [ ! -z $ES_BUILD_SERVER ] && [ ! -z $ES_BUILD_BRANCH ]; then
+    LATEST_BUILD_ID=$(curl -s https://artifacts-api.elastic.co/v1/branches/${ES_BUILD_BRANCH##*/}/builds/latest | jq -r .build.build_id)
+    export ES_BUILD_URL="${ES_BUILD_SERVER}.elastic.co/$LATEST_BUILD_ID"
+  fi
+
+  # Added to support CI multi phase job
+  # Note: Specific to elastic stack testing CI job
+  if [ $CI_BUILD == "true" ] && [ $RC == 1 ]; then
+    export ES_BUILD_OSS=$CI_OSS
+    if [ $ES_BUILD_OSS == "true" ]; then
+      export AIT_ANSIBLE_PLAYBOOK="${AIT_ROOTDIR}/playbooks/get_started/install_no_xpack.yml"
+    else
+      export AIT_ANSIBLE_PLAYBOOK="${AIT_ROOTDIR}/playbooks/get_started/install_xpack.yml"
+    fi
+    # This will eventually be added to the CI_ stuff
+    export ES_BUILD_PKG_EXT=tar
+    export AIT_VM=vagrant_vm
+  fi
+
   env | sort
+
 }
 
 # ----------------------------------------------------------------------------
