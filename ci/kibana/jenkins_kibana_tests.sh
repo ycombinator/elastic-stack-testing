@@ -414,7 +414,7 @@ function check_git_changes() {
     # Temporary to get windows tests to run in CI until chromedriver is officially bumped
     # See: https://github.com/elastic/kibana/pull/24925
     # TODO: Remove later
-    if [ "$_git_changes" == "package.json" ] && [ "$_node_ver" == "8.14.0" ]; then
+    if [ "$_git_changes" == "package.json yarn.lock" ] && [ "$_node_ver" == "8.14.0" ]; then
       echo_warning "\nTemporary package.json modified for chromedriver."
       git diff package.json
       return
