@@ -399,7 +399,7 @@ function yarn_kbn_bootstrap() {
   # TODO: Remove later
   local _node_ver=$(cat .node-version)
   if [ "$_node_ver" == "8.14.0" ]; then
-    echo_warning "\nTemporary update package.json bump chromedriver."    
+    echo_warning "Temporary update package.json bump chromedriver."
     sed -ie 's/"chromedriver": "2.42.1"/"chromedriver": "2.44"/g' package.json
   fi
 
@@ -410,19 +410,18 @@ function yarn_kbn_bootstrap() {
 function check_git_changes() {
 
   local _git_changes="$(git ls-files --modified)"
+
+  # Temporary to get windows tests to run in CI until chromedriver is officially bumped
+  # See: https://github.com/elastic/kibana/pull/24925
+  # TODO: Remove later
+  local _node_ver=$(cat .node-version)
+  if [ "$_node_ver" == "8.14.0" ]; then
+    echo_warning "Temporary package.json modified for chromedriver."
+    _git_changes="$(git ls-files --modified | grep -Ev "package.json|yarn.lock")"
+  fi
+
   if [ "$_git_changes" ]; then
-
-    # Temporary to get windows tests to run in CI until chromedriver is officially bumped
-    # See: https://github.com/elastic/kibana/pull/24925
-    # TODO: Remove later
-    local _node_ver=$(cat .node-version)    
-    if [ "$_git_changes" == "package.json yarn.lock" ] && [ "$_node_ver" == "8.14.0" ]; then
-      echo_warning "\nTemporary package.json modified for chromedriver."
-      git diff package.json
-      return
-    fi
-
-    echo_error_exit "\n'yarn kbn bootstrap' caused changes to the following files:\n$_git_changes"
+    echo_error_exit "'yarn kbn bootstrap' caused changes to the following files:\n$_git_changes"
   fi
 }
 
