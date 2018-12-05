@@ -393,13 +393,33 @@ function install_yarn() {
 function yarn_kbn_bootstrap() {
   echo_info "Installing node.js dependencies"
   #yarn config set cache-folder "$Glb_Cache_Dir/yarn"
+
+  # Temporary to get windows tests to run in CI until chromedriver is officially bumped
+  # See: https://github.com/elastic/kibana/pull/24925
+  # TODO: Remove later
+  local _node_ver=$(cat .node-version)
+  if [ "$_node_ver" == "8.14.0" ]; then
+    sed -ie 's/"chromedriver": "2.42.1"/"chromedriver": "2.44"/g' package.json
+  fi
+
   yarn kbn bootstrap
 }
 
 # ----------------------------------------------------------------------------
 function check_git_changes() {
+
   local _git_changes="$(git ls-files --modified)"
   if [ "$_git_changes" ]; then
+
+    # Temporary to get windows tests to run in CI until chromedriver is officially bumped
+    # See: https://github.com/elastic/kibana/pull/24925
+    # TODO: Remove later
+    if [ "$_git_changes" == "package.json" ] && [ "$_node_ver" == "8.14.0" ]; then
+      echo_warning "\nTemporary package.json modified for chromedriver."
+      git diff package.json
+      return
+    fi
+
     echo_error_exit "\n'yarn kbn bootstrap' caused changes to the following files:\n$_git_changes"
   fi
 }
