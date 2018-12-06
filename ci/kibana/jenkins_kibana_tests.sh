@@ -417,7 +417,7 @@ function check_git_changes() {
   local _node_ver=$(cat .node-version)
   if [ "$_node_ver" == "8.14.0" ]; then
     echo_warning "Temporary package.json modified for chromedriver."
-    _git_changes="$(git ls-files --modified | grep -Ev "package.json|yarn.lock")"
+    local _git_changes="$(git ls-files --modified | grep -Ev "package.json|yarn.lock")"
   fi
 
   if [ "$_git_changes" ]; then
