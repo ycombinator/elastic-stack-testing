@@ -41,12 +41,16 @@
   block:
     - name: Set network host
       set_fact:
-        internal_elasticsearch_config_params: "network.host: {{ current_host_ip }}"
+        internal_elasticsearch_config_params: | 
+                        network.host: {{ current_host_ip }} |
+                        discovery.type: single-node
+
     - name: Set discovery zen parameters
       set_fact:
-        internal_elasticsearch_config_params: '{{ internal_elasticsearch_config_params }} |
-                                              combine("discovery.zen.ping.unicast.hosts: {{ host_ip_list }}") |
-                                              combine("discovery.zen.minimum_master_nodes: {{ nodes_in_cluster }}")'
+        internal_elasticsearch_config_params: |
+                         {{ internal_elasticsearch_config_params }} |
+                         combine("discovery.zen.ping.unicast.hosts: {{ host_ip_list }}") |
+                         combine("discovery.zen.minimum_master_nodes: {{ nodes_in_cluster }}")
       when: nodes_in_cluster|int > 1
     - name: Add elasticsearch configuration parameters
       blockinfile:

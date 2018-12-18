@@ -39,6 +39,7 @@
     insertafter: EOF
     content: |
       network.host: {{ current_host_ip }}
+      discovery.type: single-node
       xpack.security.enabled: true
       xpack.license.self_generated.type: trial
       xpack.security.http.ssl.enabled: true
