@@ -260,7 +260,7 @@ function download_and_extract_package() {
   if [[ "$Glb_OS" == "windows" ]]; then
     _dirName=$(zipinfo -1 "$_pkgName" | head -n 1)
   else
-    _dirName=$(tar tf "$_pkgName" | head -n 1)  
+    _dirName=$(tar tf "$_pkgName" | head -n 1)
   fi
   _dirName=${_dirName%%/*}
 
@@ -290,7 +290,7 @@ function download_and_extract_package() {
 
   if [[ "$Glb_OS" == "windows" ]]; then
     export JAVA_HOME="c:\Progra~1\Java\jre-10"
-  fi 
+  fi
 
   readonly Glb_Kibana_Dir
 }
@@ -369,7 +369,7 @@ function install_node() {
     echo_debug $(where node)
   else
     echo_debug $(which node)
-  fi 
+  fi
   echo_debug "$PATH"
 }
 
@@ -476,7 +476,6 @@ function run_xpack_tests() {
 
   echo_info "Running xpack functional and api tests"
   node scripts/functional_tests \
-    --bail \
     --kibana-install-dir=${Glb_Kibana_Dir} \
     --esFrom=snapshot \
     --debug
@@ -493,12 +492,65 @@ function run_unit_tests() {
   "$(FORCE_COLOR=0 yarn bin)/grunt" jenkins:unit --from=${TEST_ES_FROM};
 }
 
+# -----------------------------------------------------------------------------
+function run_cloud_selenium_tests() {
+  run_ci_setup
+
+  # Run Tests
+  export TEST_BROWSER_HEADLESS=1
+
+  echo_info "Running selenium tests"
+
+  node scripts/functional_test_runner \
+    --debug \
+    --exclude-tag skipCloud
+}
+
+# -----------------------------------------------------------------------------
+function run_cloud_xpack_tests() {
+  run_ci_setup
+
+  local _xpack_dir="$(cd x-pack; pwd)"
+  echo_info "-> XPACK_DIR ${_xpack_dir}"
+  cd "$_xpack_dir"
+
+  export TEST_BROWSER_HEADLESS=1
+
+  echo_info "Running xpack tests"
+  echo_warning "Not all tests are including"
+
+  echo_info "Run API Integration"
+  node scripts/functional_test_runner \
+    --config test/api_integration/config.js \
+    --debug
+
+  echo_info "Run Functional Tests"
+  node scripts/functional_test_runner \
+    --config test/functional/config.js \
+    --debug
+
+  echo_info "Run Reports API"
+  node scripts/functional_test_runner \
+    --config test/reporting/configs/chromium_api.js \
+    --debug
+
+  echo_info "Run Reports Functional"
+  node scripts/functional_test_runner \
+    --config test/reporting/configs/chromium_functional.js \
+    --debug
+
+}
+
 if [ "$1" == "selenium" ]; then
   run_selenium_tests
 elif [ "$1" == "xpack" ]; then
   run_xpack_tests
 elif [ "$1" == "unit" ]; then
   run_unit_tests
+elif [ "$1" == "cloud_selenium" ]; then
+  run_cloud_selenium_tests
+elif [ "$1" == "cloud_xpack" ]; then
+  run_cloud_xpack_tests
 else
   echo_error_exit "Invalid test option: $1"
 fi

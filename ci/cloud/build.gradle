@@ -47,6 +47,7 @@ def genCleanupTask(testname, cluster_id) {
  */
 task get_kibana_repo {
   doLast {
+    println "In get_kibana_repo"
     def grgit = Grgit.clone(dir: "$buildDir/kibana",
                             uri: 'git@github.com:elastic/kibana.git',
                             refToCheckout: System.env.ESTF_KIBANA_VERSION)
@@ -54,12 +55,19 @@ task get_kibana_repo {
   }
 }
 
-task kibana_tests {
+task get_jenkins_exe (dependsOn: get_kibana_repo, type: Copy) {
+    println "In get_jenkins_exec"
+    from "$buildDir/../../kibana"
+    into "$buildDir/kibana"
+    include "jenkins_kibana_tests.sh"
+}
+
+task kibana_selenium_tests {
     doFirst {
         // Setup cloud cluster
         def _setup_task = genSetupTask('kibana')
         _setup_task.execute()
-        
+
         def propFile = _setup_task.getPropertiesFile()
 
         // Load properties file
@@ -79,7 +87,7 @@ task kibana_tests {
         }
 
         println "**************"
-        println System.getenv() 
+        println System.getenv()
         println "**************"
 
         // Add specific Kibana environment variables
@@ -97,48 +105,85 @@ task kibana_tests {
 
         // Run Kibana tests
         println "Running Kibana Tests...."
-        println "WARNING!! Some flaky/failed tests are being skipped"
-        def kibana_tests_filtered = '''./test/scripts/jenkins_cloud.sh \
-                                            --exclude ./test/functional/apps/dashboard/_dashboard_save.js \
-                                            --exclude ./test/functional/apps/dashboard/_dashboard_clone.js \
-                                            --exclude ./test/functional/apps/dashboard/_dashboard_listing.js \
-                                            --exclude ./test/functional/apps/dashboard/_full_screen_mode.js \
-                                            --exclude ./test/functional/apps/dashboard/_dashboard_filter_bar.js \
-                                            --exclude ./test/functional/apps/dashboard/_panel_expand_toggle.js \
-                                            --exclude ./test/functional/apps/dashboard/_dashboard_grid.js \
-                                            --exclude ./test/functional/apps/dashboard/_dashboard_snapshots.js \
-                                            --exclude ./test/functional/apps/dashboard/_panel_controls.js \
-                                            --exclude ./test/functional/apps/dashboard/_dashboard_state.js \
-                                            --exclude ./test/functional/apps/discover/_discover.js \
-                                            --exclude ./test/functional/apps/discover/_field_data.js \
-                                            --exclude ./test/functional/apps/home/_sample_data.js \
-                                            --exclude ./test/functional/apps/management/_scripted_fields.js \
-                                            --exclude ./test/functional/apps/management/_scripted_fields_preview.js \
-                                            --exclude ./test/functional/apps/timelion/_expression_typeahead.js \
-                                            --exclude ./test/functional/apps/visualize/_area_chart.js \
-                                            --exclude ./test/functional/apps/visualize/_data_table.js \
-                                            --exclude ./test/functional/apps/visualize/_heatmap_chart.js \
-                                            --exclude ./test/functional/apps/visualize/_input_control_vis.js \
-                                            --exclude ./test/functional/apps/visualize/_tile_map.js \
-                                            --exclude ./test/functional/apps/visualize/_tsvb_chart.js
-                                    '''
-
-        ShellCommand shell = new ShellCommand("./test/scripts/jenkins_cloud.sh", "$buildDir/kibana", envList )
+        ShellCommand shell = new ShellCommand("./jenkins_kibana_tests.sh cloud_selenium", "$buildDir/kibana", envList)
         shell.waitFor()
 
         println "**************"
-        println System.getenv() 
+        println System.getenv()
         println "**************"
 
         def _cleanup_task = genCleanupTask('kibana', _setup_task.getClusterId())
 
         if (shell.getRc() != 0) {
-            _cleanup_task.execute()    
-             throw new GradleException("Kibana Tests Failed")
+            _cleanup_task.execute()
+             throw new GradleException("Kibana Selenium Tests Failed")
         }  else {
              _cleanup_task.execute()
         }
     }
 }
 
-kibana_tests.dependsOn get_kibana_repo
+task kibana_xpack_tests {
+    doFirst {
+
+        // Setup cloud cluster
+        def _setup_task = genSetupTask('kibana')
+        _setup_task.execute()
+
+        def propFile = _setup_task.getPropertiesFile()
+
+        // Load properties file
+        Properties properties = new Properties()
+        File propertiesFile = new File(propFile.trim())
+        propertiesFile.withInputStream {
+            properties.load(it)
+        }
+
+        URI kibanaUri = new URI(properties.kibana_url)
+        URI elasticUri = new URI(properties.elasticsearch_url)
+
+        // Add system environment variables
+        def envList = []
+        System.getenv().each { key, value ->
+            envList.add(key + "=" + value)
+        }
+
+        println "**************"
+        println System.getenv()
+        println "**************"
+
+        // Add specific Kibana environment variables
+        envList.add("TEST_KIBANA_HOSTNAME=" + kibanaUri?.getHost())
+        envList.add("TEST_KIBANA_PROTOCOL=" + 'https')
+        envList.add("TEST_KIBANA_PORT=" + kibanaUri?.getPort())
+        envList.add("TEST_KIBANA_USER=" + properties.es_username)
+        envList.add("TEST_KIBANA_PASS=" + properties.es_password)
+
+        envList.add("TEST_ES_HOSTNAME=" + elasticUri?.getHost())
+        envList.add("TEST_ES_PROTOCOL=" + 'https')
+        envList.add("TEST_ES_PORT=" + elasticUri?.getPort())
+        envList.add("TEST_ES_USER=" + properties.es_username)
+        envList.add("TEST_ES_PASS=" + properties.es_password)
+
+        // Run Kibana tests
+        println "Running Kibana Tests...."
+        ShellCommand shell = new ShellCommand("./jenkins_kibana_tests.sh cloud_xpack", "$buildDir/kibana", envList)
+        shell.waitFor()
+
+        println "**************"
+        println System.getenv()
+        println "**************"
+
+        def _cleanup_task = genCleanupTask('kibana', _setup_task.getClusterId())
+
+        if (shell.getRc() != 0) {
+            _cleanup_task.execute()
+             throw new GradleException("Kibana Xpack Tests Failed")
+        }  else {
+             _cleanup_task.execute()
+        }
+    }
+}
+
+kibana_selenium_tests.dependsOn get_jenkins_exe
+kibana_xpack_tests.dependsOn get_jenkins_exe
