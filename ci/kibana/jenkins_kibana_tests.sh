@@ -520,22 +520,22 @@ function run_cloud_xpack_tests() {
   echo_warning "Not all tests are including"
 
   echo_info "Run API Integration"
-  node scripts/functional_test_runner \
+  node ../scripts/functional_test_runner \
     --config test/api_integration/config.js \
     --debug
 
   echo_info "Run Functional Tests"
-  node scripts/functional_test_runner \
+  node ../scripts/functional_test_runner \
     --config test/functional/config.js \
     --debug
 
   echo_info "Run Reports API"
-  node scripts/functional_test_runner \
+  node ../scripts/functional_test_runner \
     --config test/reporting/configs/chromium_api.js \
     --debug
 
   echo_info "Run Reports Functional"
-  node scripts/functional_test_runner \
+  node ../scripts/functional_test_runner \
     --config test/reporting/configs/chromium_functional.js \
     --debug
 
