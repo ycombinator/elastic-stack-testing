@@ -44,7 +44,7 @@
       xpack.license.self_generated.type: trial
       xpack.security.http.ssl.enabled: true
       xpack.security.authc.token.enabled: false
-      xpack.ssl.key: {{ elasticsearch_xpack_config_dir }}/node/node.key
-      xpack.ssl.certificate: {{ elasticsearch_xpack_config_dir }}/node/node.crt
-      xpack.ssl.certificate_authorities: [ '{{ elasticsearch_xpack_config_dir }}/ca/ca.crt' ]
+      xpack.security.http.ssl.key: {{ elasticsearch_xpack_config_dir }}/node/node.key
+      xpack.security.http.ssl.certificate: {{ elasticsearch_xpack_config_dir }}/node/node.crt
+      xpack.security.http.ssl.certificate_authorities: [ '{{ elasticsearch_xpack_config_dir }}/ca/ca.crt' ]
   become: '{{ elasticsearch_run_as_root | default(omit) }}'
