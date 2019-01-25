@@ -31,8 +31,22 @@ export_env_vars() {
 
   # Added to get latest build from server
   if [ ! -z $ES_BUILD_SERVER ] && [ ! -z $ES_BUILD_BRANCH ]; then
-    LATEST_BUILD_ID=$(curl -s https://artifacts-api.elastic.co/v1/branches/${ES_BUILD_BRANCH##*/}/builds/latest | jq -r .build.build_id)
+    ARTIFACTS_BASE_URL="https://artifacts-api.elastic.co/v1/branches/${ES_BUILD_BRANCH##*/}"
+    ALL_BUILDS=$(curl -s ${ARTIFACTS_BASE_URL}/builds | jq -r .builds)
+    LATEST_BUILD_ID=$(echo $ALL_BUILDS | tr -d '\\[\\]\\"\ ' | cut -d',' -f1)
+    echo "First build in list: $LATEST_BUILD_ID"
+    BUILD_INFO=$(curl -s ${ARTIFACTS_BASE_URL}/builds/${LATEST_BUILD_ID})
+    if [[ ! "$BUILD_INFO" =~ "${ES_BUILD_SERVER}" ]]; then
+      LATEST_BUILD_ID=$(echo $ALL_BUILDS | tr -d '\\[\\]\\"\ ' | cut -d',' -f2)
+      echo "Second build in list: $LATEST_BUILD_ID"
+      BUILD_INFO=$(curl -s ${ARTIFACTS_BASE_URL}/builds/${LATEST_BUILD_ID})
+      if [[ ! "$BUILD_INFO" =~ "${ES_BUILD_SERVER}" ]]; then
+        echo_error "First two builds are not from ${ES_BUILD_SERVER}! Check builds and rerun."
+        exit 1
+      fi
+    fi
     export ES_BUILD_URL="${ES_BUILD_SERVER}.elastic.co/$LATEST_BUILD_ID"
+    echo $ES_BUILD_URL
   fi
 
   env | sort
