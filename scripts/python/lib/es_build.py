@@ -9,6 +9,8 @@ import os
 import requests
 import re
 import ast
+import sys
+import time
 from urllib.parse import urlparse
 
 
@@ -234,14 +236,25 @@ class ElasticStackBuild:
         return translate_arch.get(platform + ' ' + ext + ' ' + arch, '')
 
     def ping(self, url):
+        invalid_url = False
         try:
-            if url:
-                r = requests.head(url)
-                if r.status_code == 200:
-                    return True
-                print('Error! Invalid URL: ' + url)
+            r = requests.head(url)
+            if r.status_code == 200:
+                return True
+            if 'x-pack' not in url:
+                print('Status code: ' + str(r.status_code))
+                # Retry the invalid URL
+                for i in range(5):
+                    r = requests.head(url)
+                    print('RETRYING...Status code: ' + str(r.status_code))
+                    if r.status_code == 200:
+                        return True
+                    time.sleep(1)
+                invalid_url = True
         except:
-            print('Error! Unreachable URL: ' + url)
+            raise Exception('Error! Unreachable URL: ' + url)
+        if invalid_url:
+            raise Exception('Error! Invalid URL: ' + url)
         return False
 
     def _get_url(self, specific_url, name, parent_name='', ext=''):
