@@ -1,4 +1,4 @@
-#-----------------------------------------------------------------------------------------------------------------------
+ #-----------------------------------------------------------------------------------------------------------------------
 # Configure heartbeat on Linux
 #
 # Set certain parameters in heartbeat configuration
@@ -51,6 +51,8 @@
         internal_heartbeat_config_params: >
           output.elasticsearch:
              hosts: ["{{ current_host_ip }}:{{ elasticsearch_port }}"]
+          setup.kibana:
+             host: "{{ current_host_ip }}:{{ kibana_port }}"
     - name: Add heartbeat configuration parameters
       blockinfile:
         path: '{{ heartbeat_config_file }}'
