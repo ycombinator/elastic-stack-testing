@@ -50,4 +50,10 @@
         ssl.certificate_authorities: {{ heartbeat_rootdir | trim }}/ca/ca.crt
         ssl.certificate: {{ heartbeat_rootdir | trim }}/node/node.crt
         ssl.key: {{ heartbeat_rootdir | trim }}/node/node.key
+      setup.kibana:
+        host: "{{ current_host_ip }}:{{ kibana_port }}"
+        protocol: https
+        ssl.certificate_authorities: {{ heartbeat_rootdir | trim }}/ca/ca.crt
+        ssl.certificate: {{ heartbeat_rootdir | trim }}/node/node.crt
+        ssl.key: {{ heartbeat_rootdir | trim }}/node/node.key
   become: true

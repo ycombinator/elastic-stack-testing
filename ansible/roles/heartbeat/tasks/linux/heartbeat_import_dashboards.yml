@@ -5,8 +5,49 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: Import heartbeat dashboards
-  shell: "{{ heartbeat_scripts }}/import_dashboards -es http://{{ current_host_ip }}:{{ elasticsearch_port }}"
+- name: Grab protocol from heartbeat yaml file
+  shell: awk '/BEGIN ANSIBLE MANAGED BLOCK/,/END ANSIBLE MANAGED BLOCK/' {{ heartbeat_config_file }} | grep protocol | head -n 1 | awk '{print $2}'
+  args:
+    executable: /bin/bash
+  register: heartbeat_get_es_protocol
+  become: true
+
+- set_fact:
+    heartbeat_es_protocol: "{{ (heartbeat_get_es_protocol.stdout == '') | ternary('http', heartbeat_get_es_protocol.stdout) }}"
+
+- set_fact:
+    heartbeat_es_url: '{%- if heartbeat_es_protocol == "https" -%}
+                          https://{{ elasticsearch_username }}:{{ elasticsearch_password}}@{{ current_host_ip }}:{{ elasticsearch_port }}
+                        {%- else -%}
+                          http://{{ current_host_ip }}:{{ elasticsearch_port }}
+                        {%- endif -%}'
+
+- name: Check if setup dashboards is supported
+  shell: '{{ heartbeat_exe }} setup --help'
+  args:
+    executable: /bin/bash
+  register: heartbeat_setup_help_output
+  ignore_errors: yes
+  become: true
+
+- name: Check if import dashboards executable exists
+  stat:
+    path: '{{ heartbeat_scripts }}/import_dashboards'
+  become: true
+  register: file_import_dashboards
+
+- name: Import heartbeat dashboards through import_dashboards
+  shell: "{{ heartbeat_scripts }}/import_dashboards --insecure  -es {{ heartbeat_es_url }} -url {{ beats_dashboards_package_url }}"
   args:
     executable: /bin/bash
   become: true
+  when: file_import_dashboards.stat.exists is defined and file_import_dashboards.stat.exists
+
+- name: Import heartbeat dashboards through setup
+  shell: '{{ heartbeat_exe }} setup --dashboards -c {{ heartbeat_config_file }}'
+  args:
+    executable: /bin/bash
+  become: true
+  when: heartbeat_setup_help_output.failed is not defined and
+        heartbeat_setup_help_output.stdout is defined and (heartbeat_setup_help_output.stdout | search('--dashboards'))
+
