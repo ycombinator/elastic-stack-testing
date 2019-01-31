@@ -17,3 +17,5 @@
     - { role: metricbeat, ait_role: metricbeat_install_config_start_verify_import_dashboards }
     - { role: packetbeat, ait_role: packetbeat_install_config_start_verify_import_dashboards }
     - { role: apm_server, ait_role: apm_server_install_config_start_verify_import_dashboards }
+    - { role: heartbeat, ait_role: heartbeat_install_config_start_verify_import_dashboards }
+    - { role: auditbeat, ait_role: auditbeat_install_config_start_verify_import_dashboards }

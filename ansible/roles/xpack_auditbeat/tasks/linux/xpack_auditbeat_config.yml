@@ -39,7 +39,7 @@
 - name: Add auditbeat x-pack configuration parameters
   blockinfile:
     path: '{{ auditbeat_config_file }}'
-    marker: '# {mark} ANSIBLE MANAGED BLOCK AUDITBEAT X-PACK PARAMETERS'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK auditbeat X-PACK PARAMETERS'
     insertafter: EOF
     content: |
       output.elasticsearch:
@@ -47,6 +47,12 @@
         password: {{ elasticsearch_password }}
         protocol: https
         hosts: ["{{ current_host_ip }}:{{ elasticsearch_port }}"]
+        ssl.certificate_authorities: {{ auditbeat_rootdir | trim }}/ca/ca.crt
+        ssl.certificate: {{ auditbeat_rootdir | trim }}/node/node.crt
+        ssl.key: {{ auditbeat_rootdir | trim }}/node/node.key
+      setup.kibana:
+        host: "{{ current_host_ip }}:{{ kibana_port }}"
+        protocol: https
         ssl.certificate_authorities: {{ auditbeat_rootdir | trim }}/ca/ca.crt
         ssl.certificate: {{ auditbeat_rootdir | trim }}/node/node.crt
         ssl.key: {{ auditbeat_rootdir | trim }}/node/node.key

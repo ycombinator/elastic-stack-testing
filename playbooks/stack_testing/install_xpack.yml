@@ -17,3 +17,5 @@
     - { role: xpack_metricbeat, ait_role: xpack_metricbeat_install_config_start_verify_import_dashboards }
     - { role: xpack_packetbeat, ait_role: xpack_packetbeat_install_config_start_verify_import_dashboards }
     - { role: xpack_apm_server, ait_role: xpack_apm_server_install_config_start_verify_import_dashboards }
+    - { role: xpack_heartbeat, ait_role: xpack_heartbeat_install_config_start_verify_import_dashboards }
+    - { role: xpack_auditbeat, ait_role: xpack_auditbeat_install_config_start_verify_import_dashboards }
