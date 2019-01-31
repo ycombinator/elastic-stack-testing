@@ -5,8 +5,48 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: Import auditbeat dashboards
-  shell: "{{ auditbeat_scripts }}/import_dashboards -es http://{{ current_host_ip }}:{{ elasticsearch_port }}"
+- name: Grab protocol from auditbeat yaml file
+  shell: awk '/BEGIN ANSIBLE MANAGED BLOCK/,/END ANSIBLE MANAGED BLOCK/' {{ auditbeat_config_file }} | grep protocol | head -n 1 | awk '{print $2}'
+  args:
+    executable: /bin/bash
+  register: auditbeat_get_es_protocol
+  become: true
+
+- set_fact:
+    auditbeat_es_protocol: "{{ (auditbeat_get_es_protocol.stdout == '') | ternary('http', auditbeat_get_es_protocol.stdout) }}"
+
+- set_fact:
+    auditbeat_es_url: '{%- if auditbeat_es_protocol == "https" -%}
+                          https://{{ elasticsearch_username }}:{{ elasticsearch_password}}@{{ current_host_ip }}:{{ elasticsearch_port }}
+                        {%- else -%}
+                          http://{{ current_host_ip }}:{{ elasticsearch_port }}
+                        {%- endif -%}'
+
+- name: Check if setup dashboards is supported
+  shell: '{{ auditbeat_exe }} setup --help'
+  args:
+    executable: /bin/bash
+  register: auditbeat_setup_help_output
+  ignore_errors: yes
+  become: true
+
+- name: Check if import dashboards executable exists
+  stat:
+    path: '{{ auditbeat_scripts }}/import_dashboards'
+  register: file_import_dashboards
+  become: true
+
+- name: Import auditbeat dashboards through import_dashboards
+  shell: "{{ auditbeat_scripts }}/import_dashboards --insecure -es {{ auditbeat_es_url }} -url {{ beats_dashboards_package_url }}"
   args:
     executable: /bin/bash
   become: true
+  when: file_import_dashboards.stat.exists is defined and file_import_dashboards.stat.exists
+
+- name: Import auditbeat dashboards through setup
+  shell: '{{ auditbeat_exe }} setup --dashboards -c {{ auditbeat_config_file }}'
+  args:
+    executable: /bin/bash
+  become: true
+  when: auditbeat_setup_help_output.failed is not defined and
+        auditbeat_setup_help_output.stdout is defined and (auditbeat_setup_help_output.stdout | search('--dashboards'))

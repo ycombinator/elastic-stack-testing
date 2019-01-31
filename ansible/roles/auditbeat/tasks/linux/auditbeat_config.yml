@@ -10,7 +10,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- name: Save original filebeat configuration
+- name: Save original auditbeat configuration
   copy:
     src: '{{ auditbeat_config_file }}'
     dest: '{{ auditbeat_config_file }}.org'
@@ -23,10 +23,9 @@
     path: '{{ auditbeat_config_file }}'
     owner: root
     group: root
-    mode: 0644
   become: true
 
-- name: Auditbeat configuration - append
+- name: auditbeat configuration - append
   lineinfile:
     path: '{{ auditbeat_config_file }}'
     insertafter: EOF
@@ -38,25 +37,27 @@
   when: auditbeat_config_params_file is not defined and
         auditbeat_config_params is defined
 
-- name: Auditbeat configuration - new file
+- name: auditbeat configuration - new file
   copy:
     src: '{{ auditbeat_config_params_file }}'
     dest: '{{ auditbeat_config_file }}'
   become: true
   when: auditbeat_config_params_file is defined
 
-- name: Auditbeat configuration - append internal
+- name: auditbeat configuration - append internal
   block:
     - name: Set network host
       set_fact:
         internal_auditbeat_config_params: >
           output.elasticsearch:
              hosts: ["{{ current_host_ip }}:{{ elasticsearch_port }}"]
+          setup.kibana:
+             host: "{{ current_host_ip }}:{{ kibana_port }}"
     - name: Add auditbeat configuration parameters
       blockinfile:
         path: '{{ auditbeat_config_file }}'
-        marker: '# {mark} ANSIBLE MANAGED BLOCK AUDITBEAT PARAMETERS'
+        marker: '# {mark} ANSIBLE MANAGED BLOCK auditbeat PARAMETERS'
         insertafter: EOF
         content: '{{ internal_auditbeat_config_params }}'
       become: true
-  when: auditbeat_config_params_strict is not defined or not auditbeat_config_params_strict
+  when: auditbeat_config_params_strict is not defined or not auditbeat_config_params_stric
