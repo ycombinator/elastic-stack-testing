@@ -52,7 +52,7 @@
         internal_kibana_config_params: |
           server.host:  {{ current_host_ip }}
           logging.dest: {{ kibana_log_file | trim }}
-          elasticsearch.url: http://{{ current_host_ip }}:{{ elasticsearch_port }}
+          elasticsearch.hosts: http://{{ current_host_ip }}:{{ elasticsearch_port }}
     - name: Add kibana configuration parameters
       blockinfile:
         path: '{{ kibana_config_file }}'

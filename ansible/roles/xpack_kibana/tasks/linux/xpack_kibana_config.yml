@@ -31,7 +31,7 @@
     marker: '# {mark} ANSIBLE MANAGED BLOCK KIBANA XPACK PARAMETERS'
     insertafter: EOF
     content: |
-      elasticsearch.url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}"
+      elasticsearch.hosts: "https://{{ current_host_ip }}:{{ elasticsearch_port }}"
       elasticsearch.username: {{ kibana_username }}
       elasticsearch.password: {{ kibana_password }}
       server.ssl.enabled: true

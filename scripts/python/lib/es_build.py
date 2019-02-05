@@ -114,8 +114,14 @@ class ElasticStackBuild:
     @property
     def elasticsearch_package_url(self):
         if self._msi_ext:
-            return self._get_url(self._env_elasticsearch_url, 'elasticsearch', parent_name='windows-installers/elasticsearch', ext='msi')
-        return self._get_url(self._env_elasticsearch_url, 'elasticsearch')
+            url = self._get_url(self._env_elasticsearch_url, 'elasticsearch', parent_name='windows-installers/elasticsearch', ext='msi')
+            if url:
+                return url
+            return self._get_url_arch(self._env_elasticsearch_url, 'elasticsearch', parent_name='windows-installers/elasticsearch', ext='msi')
+        url = self._get_url(self._env_elasticsearch_url, 'elasticsearch')
+        if url:
+            return url
+        return self._get_url_arch(self._env_elasticsearch_url, 'elasticsearch')
 
     @property
     def kibana_package_url(self):
@@ -236,25 +242,15 @@ class ElasticStackBuild:
         return translate_arch.get(platform + ' ' + ext + ' ' + arch, '')
 
     def ping(self, url):
-        invalid_url = False
         try:
             r = requests.head(url)
             if r.status_code == 200:
                 return True
             if 'x-pack' not in url:
+                print('Invalid URL: ' + url)
                 print('Status code: ' + str(r.status_code))
-                # Retry the invalid URL
-                for i in range(5):
-                    r = requests.head(url)
-                    print('RETRYING...Status code: ' + str(r.status_code))
-                    if r.status_code == 200:
-                        return True
-                    time.sleep(1)
-                invalid_url = True
         except:
             raise Exception('Error! Unreachable URL: ' + url)
-        if invalid_url:
-            raise Exception('Error! Invalid URL: ' + url)
         return False
 
     def _get_url(self, specific_url, name, parent_name='', ext=''):
