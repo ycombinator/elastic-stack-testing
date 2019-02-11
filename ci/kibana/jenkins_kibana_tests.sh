@@ -522,22 +522,26 @@ function run_cloud_xpack_tests() {
   echo_info "Run API Integration"
   node ../scripts/functional_test_runner \
     --config test/api_integration/config.js \
-    --debug
+    --debug \
+    --exclude-tag skipCloud
 
   echo_info "Run Functional Tests"
   node ../scripts/functional_test_runner \
     --config test/functional/config.js \
-    --debug
+    --debug \
+    --exclude-tag skipCloud
 
   echo_info "Run Reports API"
   node ../scripts/functional_test_runner \
     --config test/reporting/configs/chromium_api.js \
-    --debug
+    --debug \
+    --exclude-tag skipCloud
 
   echo_info "Run Reports Functional"
   node ../scripts/functional_test_runner \
     --config test/reporting/configs/chromium_functional.js \
-    --debug
+    --debug \
+    --exclude-tag skipCloud
 
 }
 
