@@ -6,12 +6,14 @@ Created on Sep 12, 2017
 
 
 import os
-import requests
 import re
 import ast
 import sys
 import time
 from urllib.parse import urlparse
+import requests
+from requests.packages.urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
 
 
 class ElasticStackBuild:
@@ -238,7 +240,11 @@ class ElasticStackBuild:
     def ping(self, url):
         invalid_url = False
         try:
-            r = requests.head(url)
+            s = requests.Session()
+            retries = Retry(total=5, backoff_factor=0.1, status_forcelist=[ 500, 502, 503, 504 ])
+            s.mount('http://', HTTPAdapter(max_retries=retries))
+            s.mount('https://', HTTPAdapter(max_retries=retries))
+            r = s.head(url)
             if r.status_code == 200:
                 return True
             if 'x-pack' not in url:
