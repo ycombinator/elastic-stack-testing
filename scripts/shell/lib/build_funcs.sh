@@ -31,14 +31,20 @@ export_env_vars() {
 
   # Added to get latest build from server
   if [ ! -z $ES_BUILD_SERVER ] && [ ! -z $ES_BUILD_BRANCH ]; then
-    ARTIFACTS_BASE_URL="https://artifacts-api.elastic.co/v1/versions/${ES_BUILD_BRANCH##*/}/builds/latest"
-    if [[ "$ES_BUILD_SERVER" =~ "snapshots" ]]; then
-      ARTIFACTS_BASE_URL="https://artifacts-api.elastic.co/v1/versions/${ES_BUILD_BRANCH##*/}-SNAPSHOT/builds/latest"
+    # Translate branch to a version
+    ES_BUILD_VERSION=$(curl -s "https://artifacts-api.elastic.co/v1/branches/${ES_BUILD_BRANCH##*/}" | jq -r .branch.builds[0].version)
+    # Find latest build based on the version
+    ARTIFACTS_BASE_URL="https://artifacts-api.elastic.co/v1/versions/${ES_BUILD_VERSION}/builds/latest"
+    if [[ "$ES_BUILD_SERVER" =~ "snapshots" ]] && [[ "$ES_BUILD_VERSION" != *"SNAPSHOT"* ]]; then
+      ARTIFACTS_BASE_URL="https://artifacts-api.elastic.co/v1/versions/${ES_BUILD_VERSION}-SNAPSHOT/builds/latest"
+    elif [[ "$ES_BUILD_SERVER" =~ "staging" ]] && [[ "$ES_BUILD_VERSION" =~ "SNAPSHOT" ]]; then
+      ARTIFACTS_BASE_URL="https://artifacts-api.elastic.co/v1/versions/${ES_BUILD_VERSION//[!0-9.]/}/builds/latest"
     fi
     export LATEST_BUILD_ID=$(curl -s ${ARTIFACTS_BASE_URL} | jq -r .build.build_id)
     export ES_BUILD_URL="${ES_BUILD_SERVER}.elastic.co/$LATEST_BUILD_ID"
     echo $ES_BUILD_URL
   fi
+
 
   env | sort
 
