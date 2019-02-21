@@ -8,13 +8,13 @@
 - name: Copy certificates ca from localhost
   copy:
     src: "{{ local_certs_dir }}/ca"
-    dest: "{{ kibana_rootdir }}"
+    dest: "{{ kibana_config_dir }}"
   become: '{{ kibana_run_as_root | default(omit) }}'
 
 - name: Copy certificates cert and key from localhost
   copy:
     src: "{{ local_certs_dir }}/node"
-    dest: "{{ kibana_rootdir }}"
+    dest: "{{ kibana_config_dir }}"
   become: '{{ kibana_run_as_root | default(omit) }}'
 
 - name: Save original kibana configuration file
@@ -35,8 +35,8 @@
       elasticsearch.username: {{ kibana_username }}
       elasticsearch.password: {{ kibana_password }}
       server.ssl.enabled: true
-      server.ssl.certificate: {{ kibana_rootdir | trim }}/node/node.crt
-      server.ssl.key: {{ kibana_rootdir | trim }}/node/node.key
-      elasticsearch.ssl.certificateAuthorities: [ '{{ kibana_rootdir | trim }}/ca/ca.crt' ]
+      server.ssl.certificate: {{ kibana_config_dir | trim }}/node/node.crt
+      server.ssl.key: {{ kibana_config_dir | trim }}/node/node.key
+      elasticsearch.ssl.certificateAuthorities: [ '{{ kibana_config_dir | trim }}/ca/ca.crt' ]
       elasticsearch.ssl.verificationMode: none
   become: '{{ kibana_run_as_root | default(omit) }}'
