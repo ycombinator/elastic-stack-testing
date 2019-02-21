@@ -6,7 +6,7 @@
 ---
 
 - name: Stop apm_server process
-  shell: "ps -efw | grep apm_server | grep -v grep | awk '{print $2}' | xargs kill -SIGTERM"
+  shell: "ps -efw | grep apm-server | grep -v grep | awk '{print $2}' | xargs kill -SIGTERM"
   args:
     executable: /bin/bash
   become: true
