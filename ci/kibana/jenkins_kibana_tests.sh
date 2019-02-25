@@ -471,8 +471,8 @@ function run_xpack_tests() {
   #echo_info "Running xpack mocha tests"
   #yarn test
 
-  echo_info "Running xpack jest tests"
-  node scripts/jest --ci --no-cache --verbose
+  #echo_info "Running xpack jest tests"
+  #node scripts/jest --ci --no-cache --verbose
 
   echo_info "Running xpack functional and api tests"
   node scripts/functional_tests \
