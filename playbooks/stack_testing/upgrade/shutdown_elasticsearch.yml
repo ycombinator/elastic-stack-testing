@@ -1,0 +1,23 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Task List: Shutdown older version of elasticsearch
+#
+#
+# Author: Liza Dayoub
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Shutdown old elasticsearch
+  include_role:
+    name: elasticsearch
+  vars:
+    ait_action: elasticsearch_shutdown
+
+- pause:
+    seconds: 2
+
+- name: Verify elasticsearch is not running
+  include_role:
+    name: elasticsearch
+  vars:
+    ait_action: elasticsearch_is_not_running

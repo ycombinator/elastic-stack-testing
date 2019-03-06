@@ -1,0 +1,66 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Task List: Download and install heartbeat newer version
+#
+# Author: Liza Dayoub
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Install newer heartbeat
+  include_role:
+    name: heartbeat
+  vars:
+    ait_action: heartbeat_install
+    heartbeat_package_url: '{{ upgrade_heartbeat_package_url }}'
+
+- name: Copy older config directory to new heartbeat installation
+  shell: 'cp {{ heartbeat_rootdir }}/heartbeat.yml {{ upgrade_heartbeat_rootdir }}'
+  become: true
+
+- name: Copy older config directory to new heartbeat installation
+  shell: 'cp -r {{ heartbeat_rootdir }}/ca {{ upgrade_heartbeat_rootdir }}'
+  become: true
+
+- name: Copy older config directory to new heartbeat installation
+  shell: 'cp -r {{ heartbeat_rootdir }}/node {{ upgrade_heartbeat_rootdir }}'
+  become: true
+
+- name: Replace directory names in config
+  replace:
+    path: '{{ upgrade_heartbeat_rootdir }}/heartbeat.yml'
+    regexp: '{{ heartbeat_rootdir }}'
+    replace: '{{ upgrade_heartbeat_rootdir }}'
+  become: true
+
+#
+- name: Shutdown old heartbeat
+  include_role:
+    name: heartbeat
+  vars:
+    ait_action: heartbeat_shutdown
+
+- pause:
+    seconds: 2
+
+- name: Verify heartbeat is not running
+  include_role:
+    name: heartbeat
+  vars:
+    ait_action: heartbeat_is_not_running
+
+#
+- name: Start heartbeat
+  include_role:
+    name: heartbeat
+  vars:
+    ait_action: heartbeat_startup
+    heartbeat_package_url: '{{ upgrade_heartbeat_package_url }}'
+
+- pause:
+    seconds: 2
+
+- name: Verify heartbeat is running
+  include_role:
+    name: heartbeat
+  vars:
+    ait_action: heartbeat_is_running

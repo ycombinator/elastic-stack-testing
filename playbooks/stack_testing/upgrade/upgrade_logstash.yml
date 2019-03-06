@@ -1,0 +1,73 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Task List: Download and install logstash newer version, copy data and config
+#
+#
+# Author: Liza Dayoub
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Install newer logstash
+  include_role:
+    name: logstash
+  vars:
+    ait_action: logstash_install
+    logstash_package_url: '{{ upgrade_logstash_package_url }}'
+
+- name: Copy older data directory to new logstash installation
+  shell: 'cp -r {{ logstash_rootdir }}/data {{ upgrade_logstash_rootdir }}'
+
+- name: Copy older config directory to new logstash installation
+  shell: 'cp -r {{ logstash_rootdir }}/config {{ upgrade_logstash_rootdir }}'
+
+- name: Copy older config directory to new logstash installation
+  shell: 'cp -r {{ logstash_rootdir }}/ca {{ upgrade_logstash_rootdir }}'
+  become: true
+
+- name: Copy older config directory to new logstash installation
+  shell: 'cp -r {{ logstash_rootdir }}/node {{ upgrade_logstash_rootdir }}'
+  become: true
+
+- name: Replace directory names in config
+  replace:
+    path: '{{ upgrade_logstash_rootdir }}/config/logstash.yml'
+    regexp: '{{ logstash_rootdir }}'
+    replace: '{{ upgrade_logstash_rootdir }}'
+
+#
+- name: Shutdown old logstash
+  include_role:
+    name: logstash
+  vars:
+    ait_action: logstash_shutdown
+
+- pause:
+    seconds: 2
+
+- name: Verify logstash is not running
+  include_role:
+    name: logstash
+  vars:
+    ait_action: logstash_is_not_running
+
+#
+- name: Start logstash
+  include_role:
+    name: logstash
+  vars:
+    ait_action: logstash_startup
+    logstash_package_url: '{{ upgrade_logstash_package_url }}'
+
+- name: Wait for logstash to start
+  include_role:
+    name: logstash
+  vars:
+    logstash_package_url: '{{ upgrade_logstash_package_url }}'
+    ait_action: logstash_log_tail
+    ait_log_searchstr: started
+
+- name: Verify logstash is running
+  include_role:
+    name: logstash
+  vars:
+    ait_action: logstash_is_running

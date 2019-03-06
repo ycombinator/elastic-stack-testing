@@ -1,0 +1,52 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Task List: Upload accounts sample data to Kibana
+#
+#
+# Author: Liza Dayoub
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+
+- name: Download, unzip and post accounts data
+  block:
+    - get_url:
+        url: '{{ accounts_url }}'
+        dest: '{{ kibana_install_dir }}/{{ accounts_url | basename }}'
+        timeout: '{{ url_timeout }}'
+    - unarchive:
+        src: '{{ kibana_install_dir }}/{{  accounts_url | basename }}'
+        dest: '{{ kibana_install_dir }}'
+        remote_src: True
+    - command: >
+        curl --insecure -H 'Content-Type: application/x-ndjson' -XPOST 'https://{{ elasticsearch_username}}:{{ elasticsearch_password }}@{{ current_host_ip }}:{{ elasticsearch_port }}/bank/account/_bulk?pretty' --data-binary @accounts.json
+      args:
+        chdir: '{{ kibana_install_dir }}'
+
+- name: Create bank index pattern and make default index
+  block:
+    - uri:
+        url: "https://{{ current_host_ip }}:{{ kibana_port }}/api/saved_objects/index-pattern"
+        method: POST
+        user: "{{ elasticsearch_username }}"
+        password: "{{ elasticsearch_password }}"
+        validate_certs: no
+        return_content: yes
+        force_basic_auth: yes
+        status_code: 200
+        headers: '{"kbn-xsrf": "ansible"}'
+        body_format: json
+        body: '{"attributes":{"title":"bank*"}}'
+      register: post_account_data
+    - uri:
+        url: "https://{{ current_host_ip }}:{{ kibana_port }}/api/kibana/settings"
+        method: POST
+        user: "{{ elasticsearch_username }}"
+        password: "{{ elasticsearch_password }}"
+        validate_certs: no
+        return_content: no
+        force_basic_auth: yes
+        status_code: 200
+        headers: '{"kbn-xsrf": "ansible"}'
+        body_format: json
+        body: '{"changes":{"defaultIndex":"{{ post_account_data.json.id }}" }}'

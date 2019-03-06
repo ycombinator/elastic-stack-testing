@@ -1,0 +1,66 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Task List: Download and install filebeat newer version
+#
+# Author: Liza Dayoub
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Install newer filebeat
+  include_role:
+    name: filebeat
+  vars:
+    ait_action: filebeat_install
+    filebeat_package_url: '{{ upgrade_filebeat_package_url }}'
+
+- name: Copy older config directory to new filebeat installation
+  shell: 'cp {{ filebeat_rootdir }}/filebeat.yml {{ upgrade_filebeat_rootdir }}'
+  become: true
+
+- name: Copy older config directory to new filebeat installation
+  shell: 'cp -r {{ filebeat_rootdir }}/ca {{ upgrade_filebeat_rootdir }}'
+  become: true
+
+- name: Copy older config directory to new filebeat installation
+  shell: 'cp -r {{ filebeat_rootdir }}/node {{ upgrade_filebeat_rootdir }}'
+  become: true
+
+- name: Replace directory names in config
+  replace:
+    path: '{{ upgrade_filebeat_rootdir }}/filebeat.yml'
+    regexp: '{{ filebeat_rootdir }}'
+    replace: '{{ upgrade_filebeat_rootdir }}'
+  become: true
+
+#
+- name: Shutdown old filebeat
+  include_role:
+    name: filebeat
+  vars:
+    ait_action: filebeat_shutdown
+
+- pause:
+    seconds: 2
+
+- name: Verify filebeat is not running
+  include_role:
+    name: filebeat
+  vars:
+    ait_action: filebeat_is_not_running
+
+#
+- name: Start filebeat
+  include_role:
+    name: filebeat
+  vars:
+    ait_action: filebeat_startup
+    filebeat_package_url: '{{ upgrade_filebeat_package_url }}'
+
+- pause:
+    seconds: 2
+
+- name: Verify filebeat is running
+  include_role:
+    name: filebeat
+  vars:
+    ait_action: filebeat_is_running

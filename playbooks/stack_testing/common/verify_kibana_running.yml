@@ -1,0 +1,30 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Task List: Verify Kibana process is running and is active
+#
+#
+# Author: Liza Dayoub
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Verify Kibana is running
+  include_role:
+    name: kibana
+  vars:
+    ait_action: kibana_is_running
+
+- name: Verify Kibana is active
+  uri:
+    url: "https://{{ current_host_ip }}:{{ kibana_port }}/api/status"
+    method: GET
+    user: "{{ elasticsearch_username }}"
+    password: "{{ elasticsearch_password }}"
+    validate_certs: no
+    return_content: yes
+    force_basic_auth: yes
+    status_code: 200
+  register: kibana_api_status_output
+  failed_when: "'{{  kibana_api_status_output.json.status.overall.state }}' != 'green'"
+  when: '{{ check_kibana_active|default(True) }}'
+
+#TODO : Add check for inactive: Kibana server not ready.

@@ -1,0 +1,68 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Task List: Verify APM, Beats and Logstash are running
+#
+#
+# Author: Liza Dayoub
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: 'Verify apm_server running'
+  include_role:
+    name: apm_server
+  vars:
+    ait_action: apm_server_is_running
+
+- name: Verify filebeat is running
+  include_role:
+    name: filebeat
+  vars:
+    ait_action: filebeat_is_running
+
+- name: Verify heartbeat is running
+  include_role:
+    name: heartbeat
+  vars:
+    ait_action: heartbeat_is_running
+
+- name: Verify metricbeat is running
+  include_role:
+    name: metricbeat
+  vars:
+    ait_action: metricbeat_is_running
+
+- name: Verify packetbeat is running
+  include_role:
+    name: packetbeat
+  vars:
+    ait_action: packetbeat_is_running
+
+- name: Verify logstash is running
+  include_role:
+    name: logstash
+  vars:
+    ait_action: logstash_is_running
+
+# Verify stats are in elasticsearch and are greater than zero
+- name: Verify statistics are in elasticsearch
+  uri:
+    url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/{{ item }}-*/_search?pretty"
+    method: GET
+    user: "{{ elasticsearch_username }}"
+    password: "{{ elasticsearch_password }}"
+    validate_certs: no
+    return_content: yes
+    force_basic_auth: yes
+    status_code: 200
+  register: hits_output_start
+  with_items:
+    - "apm"
+    - "filebeat"
+    - "heartbeat"
+    - "metricbeat"
+    - "packetbeat"
+    - "logstash"
+  failed_when: "hits_output_start.json.hits.total | int == 0"
+  when: '{{ check_services_active|default(True) }}'
+
+# TODO: Add check that stats are incrementing

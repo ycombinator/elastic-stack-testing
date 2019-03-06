@@ -1,0 +1,66 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Task List: Download and install packetbeat newer version
+#
+# Author: Liza Dayoub
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Install newer packetbeat
+  include_role:
+    name: packetbeat
+  vars:
+    ait_action: packetbeat_install
+    packetbeat_package_url: '{{ upgrade_packetbeat_package_url }}'
+
+- name: Copy older config directory to new packetbeat installation
+  shell: 'cp {{ packetbeat_rootdir }}/packetbeat.yml {{ upgrade_packetbeat_rootdir }}'
+  become: true
+
+- name: Copy older config directory to new packetbeat installation
+  shell: 'cp -r {{ packetbeat_rootdir }}/ca {{ upgrade_packetbeat_rootdir }}'
+  become: true
+
+- name: Copy older config directory to new packetbeat installation
+  shell: 'cp -r {{ packetbeat_rootdir }}/node {{ upgrade_packetbeat_rootdir }}'
+  become: true
+
+- name: Replace directory names in config
+  replace:
+    path: '{{ upgrade_packetbeat_rootdir }}/packetbeat.yml'
+    regexp: '{{ packetbeat_rootdir }}'
+    replace: '{{ upgrade_packetbeat_rootdir }}'
+  become: true
+
+#
+- name: Shutdown old packetbeat
+  include_role:
+    name: packetbeat
+  vars:
+    ait_action: packetbeat_shutdown
+
+- pause:
+    seconds: 2
+
+- name: Verify packetbeat is not running
+  include_role:
+    name: packetbeat
+  vars:
+    ait_action: packetbeat_is_not_running
+
+#
+- name: Start packetbeat
+  include_role:
+    name: packetbeat
+  vars:
+    ait_action: packetbeat_startup
+    packetbeat_package_url: '{{ upgrade_packetbeat_package_url }}'
+
+- pause:
+    seconds: 2
+
+- name: Verify packetbeat is running
+  include_role:
+    name: packetbeat
+  vars:
+    ait_action: packetbeat_is_running

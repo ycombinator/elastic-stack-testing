@@ -1,0 +1,66 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Task List: Upload sample data to Kibana default and non-default space
+#
+#
+# Author: Liza Dayoub
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Create a non-default space
+  uri:
+    url: "https://{{ current_host_ip }}:{{ kibana_port }}/api/spaces/space"
+    method: POST
+    user: "{{ elasticsearch_username }}"
+    password: "{{ elasticsearch_password }}"
+    validate_certs: no
+    return_content: no
+    force_basic_auth: yes
+    status_code: 200
+    headers: '{"kbn-xsrf": "ansible"}'
+    body_format: json
+    body: '{"name":"Automation","id":"automation"}'
+
+- name: Load all sample data into default and non-default space
+  uri:
+    url: "https://{{ current_host_ip }}:{{ kibana_port }}/{{ item }}"
+    method: POST
+    user: "{{ elasticsearch_username }}"
+    password: "{{ elasticsearch_password }}"
+    validate_certs: no
+    return_content: no
+    force_basic_auth: yes
+    status_code: 200
+    headers: '{"kbn-xsrf": "ansible"}'
+  with_items:
+    - "api/sample_data/ecommerce"
+    - "api/sample_data/logs"
+    - "api/sample_data/flights"
+    - "s/automation/api/sample_data/ecommerce"
+    - "s/automation/api/sample_data/logs"
+    - "s/automation/api/sample_data/flights"
+
+- name: Make sample data in non-default space a default index pattern
+  block:
+    - uri:
+        url: "https://{{ current_host_ip }}:{{ kibana_port }}/s/automation/api/saved_objects/_find?type=index-pattern&search_fields=title&search=kibana_sample_data_flights"
+        method: GET
+        user: "{{ elasticsearch_username }}"
+        password: "{{ elasticsearch_password }}"
+        validate_certs: no
+        return_content: yes
+        force_basic_auth: yes
+        status_code: 200
+      register: kibana_api_index_id
+    - uri:
+        url: "https://{{ current_host_ip }}:{{ kibana_port }}/s/automation/api/kibana/settings"
+        method: POST
+        user: "{{ elasticsearch_username }}"
+        password: "{{ elasticsearch_password }}"
+        validate_certs: no
+        return_content: no
+        force_basic_auth: yes
+        status_code: 200
+        headers: '{"kbn-xsrf": "ansible"}'
+        body_format: json
+        body: '{"changes":{"defaultIndex":"{{ kibana_api_index_id.json.saved_objects[0].id }}" }}'
