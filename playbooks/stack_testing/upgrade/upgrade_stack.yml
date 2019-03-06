@@ -1,0 +1,91 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Playbook: Upgrade Automation
+#
+# Test Plan:
+#   Setup:
+#     - Installation setup script
+#
+#   Steps:
+#     - Install newer Elasticsearch (minor)
+#     - Copy config and data directories
+#     - Update elasticsearch.yml
+#     - Stop running previous version of Elasticsearch
+#     - Verify Elasticsearch is not running
+#     - Verify Kibana is still running
+#     - Start newer version of Elasticsearch
+#     - Verify Elasticsearch is running
+#     - Verify Kibana is running and active
+#
+# Author: liza.dayoub@elastic.co
+#
+#----------------------------------------------------------------------------------------------------------------------
+
+- hosts: "{{ uut | default(lookup('env','AIT_UUT')) }}"
+
+  vars_files:
+    - "{{ es_var_file | default(lookup('env','ANSIBLE_GROUP_VARS')) }}"
+
+  roles:
+    - { role: elasticsearch }
+    - { role: kibana }
+    - { role: apm_server }
+    - { role: filebeat }
+    - { role: heartbeat }
+    - { role: metricbeat }
+    - { role: packetbeat }
+    - { role: logstash }
+
+  vars:
+    upgrade_elasticsearch_package: '{{ elasticsearch_install_dir }}/{{ upgrade_elasticsearch_package_url | basename }}'
+    upgrade_elasticsearch_rootdir: '{{ upgrade_elasticsearch_package.split(elasticsearch_package_ext)[0] | replace("oss-", "") | trim }}'
+
+    upgrade_kibana_package: '{{ kibana_install_dir }}/{{ upgrade_kibana_package_url | basename }}'
+    upgrade_kibana_rootdir: '{{ upgrade_kibana_package.split(kibana_package_ext)[0] | replace("oss-", "") | trim }}'
+
+    upgrade_apm_server_package: '{{ apm_server_install_dir }}/{{ upgrade_apm_server_package_url | basename }}'
+    upgrade_apm_server_rootdir: '{{ upgrade_apm_server_package.split(apm_server_package_ext)[0] | replace("oss-", "") | trim }}'
+
+    upgrade_filebeat_package: '{{ filebeat_install_dir }}/{{ upgrade_filebeat_package_url | basename }}'
+    upgrade_filebeat_rootdir: '{{ upgrade_filebeat_package.split(filebeat_package_ext)[0] | replace("oss-", "") | trim }}'
+
+    upgrade_heartbeat_package: '{{ heartbeat_install_dir }}/{{ upgrade_heartbeat_package_url | basename }}'
+    upgrade_heartbeat_rootdir: '{{ upgrade_heartbeat_package.split(heartbeat_package_ext)[0] | replace("oss-", "") | trim }}'
+
+    upgrade_metricbeat_package: '{{ metricbeat_install_dir }}/{{ upgrade_metricbeat_package_url | basename }}'
+    upgrade_metricbeat_rootdir: '{{ upgrade_metricbeat_package.split(metricbeat_package_ext)[0] | replace("oss-", "") | trim }}'
+
+    upgrade_packetbeat_package: '{{ packetbeat_install_dir }}/{{ upgrade_packetbeat_package_url | basename }}'
+    upgrade_packetbeat_rootdir: '{{ upgrade_packetbeat_package.split(packetbeat_package_ext)[0] | replace("oss-", "") | trim }}'
+
+    upgrade_logstash_package: '{{ logstash_install_dir }}/{{ upgrade_logstash_package_url | basename }}'
+    upgrade_logstash_rootdir: '{{ upgrade_logstash_package.split(logstash_package_ext)[0] | replace("oss-", "") | trim }}'
+
+  tasks:
+
+    - include: install_newer_elasticsearch.yml
+    - include: shutdown_elasticsearch.yml
+    - pause:
+        seconds: 25
+    - include: ../common/verify_kibana_running.yml
+      vars:
+        check_kibana_active: False
+    - include: ../common/verify_apm_beats_logstash_running.yml
+      vars:
+        check_services_active: False
+    - include: start_newer_elasticsearch.yml
+    - pause:
+        seconds: 35
+    - include: ../common/verify_kibana_running.yml
+    - include: ../common/verify_apm_beats_logstash_running.yml
+    - include: upgrade_kibana.yml
+    - include: ../common/verify_kibana_running.yml
+    - include: ../common/verify_apm_beats_logstash_running.yml
+    - include: upgrade_apm_server.yml
+    - include: upgrade_filebeat.yml
+    - include: upgrade_heartbeat.yml
+    - include: upgrade_metricbeat.yml
+    - include: upgrade_packetbeat.yml
+    - include: upgrade_logstash.yml
+    - pause:
+        seconds: 35
+    - include: ../common/verify_apm_beats_logstash_running.yml

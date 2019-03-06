@@ -1,0 +1,66 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Task List: Download and install apm_server newer version
+#
+# Author: Liza Dayoub
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Install newer apm_server
+  include_role:
+    name: apm_server
+  vars:
+    ait_action: apm_server_install
+    apm_server_package_url: '{{ upgrade_apm_server_package_url }}'
+
+- name: Copy older config directory to new apm_server installation
+  shell: 'cp {{ apm_server_rootdir }}/apm-server.yml {{ upgrade_apm_server_rootdir }}'
+  become: true
+
+- name: Copy older config directory to new apm_server installation
+  shell: 'cp -r {{ apm_server_rootdir }}/ca {{ upgrade_apm_server_rootdir }}'
+  become: true
+
+- name: Copy older config directory to new apm_server installation
+  shell: 'cp -r {{ apm_server_rootdir }}/node {{ upgrade_apm_server_rootdir }}'
+  become: true
+
+- name: Replace directory names in config
+  replace:
+    path: '{{ upgrade_apm_server_rootdir }}/apm-server.yml'
+    regexp: '{{ apm_server_rootdir }}'
+    replace: '{{ upgrade_apm_server_rootdir }}'
+  become: true
+
+#
+- name: Shutdown old apm_server
+  include_role:
+    name: apm_server
+  vars:
+    ait_action: apm_server_shutdown
+
+- pause:
+    seconds: 2
+
+- name: Verify apm_server is not running
+  include_role:
+    name: apm_server
+  vars:
+    ait_action: apm_server_is_not_running
+
+#
+- name: Start apm_server
+  include_role:
+    name: apm_server
+  vars:
+    ait_action: apm_server_startup
+    apm_server_package_url: '{{ upgrade_apm_server_package_url }}'
+
+- pause:
+    seconds: 2
+
+- name: Verify apm_server is running
+  include_role:
+    name: apm_server
+  vars:
+    ait_action: apm_server_is_running

@@ -1,0 +1,66 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Task List: Download and install metricbeat newer version
+#
+# Author: Liza Dayoub
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Install newer metricbeat
+  include_role:
+    name: metricbeat
+  vars:
+    ait_action: metricbeat_install
+    metricbeat_package_url: '{{ upgrade_metricbeat_package_url }}'
+
+- name: Copy older config directory to new metricbeat installation
+  shell: 'cp {{ metricbeat_rootdir }}/metricbeat.yml {{ upgrade_metricbeat_rootdir }}'
+  become: true
+
+- name: Copy older config directory to new metricbeat installation
+  shell: 'cp -r {{ metricbeat_rootdir }}/ca {{ upgrade_metricbeat_rootdir }}'
+  become: true
+
+- name: Copy older config directory to new metricbeat installation
+  shell: 'cp -r {{ metricbeat_rootdir }}/node {{ upgrade_metricbeat_rootdir }}'
+  become: true
+
+- name: Replace directory names in config
+  replace:
+    path: '{{ upgrade_metricbeat_rootdir }}/metricbeat.yml'
+    regexp: '{{ metricbeat_rootdir }}'
+    replace: '{{ upgrade_metricbeat_rootdir }}'
+  become: true
+
+#
+- name: Shutdown old metricbeat
+  include_role:
+    name: metricbeat
+  vars:
+    ait_action: metricbeat_shutdown
+
+- pause:
+    seconds: 2
+
+- name: Verify metricbeat is not running
+  include_role:
+    name: metricbeat
+  vars:
+    ait_action: metricbeat_is_not_running
+
+#
+- name: Start metricbeat
+  include_role:
+    name: metricbeat
+  vars:
+    ait_action: metricbeat_startup
+    metricbeat_package_url: '{{ upgrade_metricbeat_package_url }}'
+
+- pause:
+    seconds: 2
+
+- name: Verify metricbeat is running
+  include_role:
+    name: metricbeat
+  vars:
+    ait_action: metricbeat_is_running

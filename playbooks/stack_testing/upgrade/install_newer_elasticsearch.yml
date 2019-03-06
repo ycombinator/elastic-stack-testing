@@ -1,0 +1,27 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Task List: Download and install elasticsearch newer version, copy data and config
+#
+#
+# Author: Liza Dayoub
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Install newer Elasticsearch
+  include_role:
+    name: elasticsearch
+  vars:
+    ait_action: elasticsearch_install
+    elasticsearch_package_url: '{{ upgrade_elasticsearch_package_url }}'
+
+- name: Copy older data directory to new elasticsearch installation
+  shell: 'cp -r {{ elasticsearch_rootdir }}/data {{ upgrade_elasticsearch_rootdir }}'
+
+- name: Copy older config directory to new elasticsearch installation
+  shell: 'cp -r {{ elasticsearch_rootdir }}/config {{ upgrade_elasticsearch_rootdir }}'
+
+- name: Replace directory names in config
+  replace:
+    path: '{{ upgrade_elasticsearch_rootdir }}/config/elasticsearch.yml'
+    regexp: '{{ elasticsearch_rootdir }}'
+    replace: '{{ upgrade_elasticsearch_rootdir }}'

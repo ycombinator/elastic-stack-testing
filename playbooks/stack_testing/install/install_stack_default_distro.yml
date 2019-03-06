@@ -1,0 +1,46 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Playbook: Upgrade Automation Setup: Install Default Distribution
+#
+# Test Plan:
+#   Steps:
+#     - Install Elasticsearch default distribution trial license
+#     - Verify Elasticsearch is running and active
+#     - Install Kibana
+#     - Verify Kibana is running and active
+#     - Load sample data: accounts.json
+#     - Create another space
+#     - Load sample data: ecommerce, flights and logs into default and non-default space
+#
+# Author: Liza Dayoub
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- hosts: "{{ uut | default(lookup('env','AIT_UUT')) }}"
+
+  vars_files:
+    - "{{ es_var_file | default(lookup('env','ANSIBLE_GROUP_VARS')) }}"
+
+  vars:
+    accounts_url: "https://download.elastic.co/demos/kibana/gettingstarted/accounts.zip"
+
+  roles:
+    - { role: xpack_elasticsearch, ait_role: xpack_elasticsearch_install_gencert_config_start_verify }
+    - { role: xpack_kibana, ait_role: xpack_kibana_install_config_start_verify }
+    - { role: xpack_logstash, ait_role: xpack_logstash_install_config_start_verify }
+    - { role: xpack_filebeat, ait_role: xpack_filebeat_install_config_start_verify_import_dashboards }
+    - { role: xpack_metricbeat, ait_role: xpack_metricbeat_install_config_start_verify_import_dashboards }
+    - { role: xpack_packetbeat, ait_role: xpack_packetbeat_install_config_start_verify_import_dashboards }
+    - { role: xpack_apm_server, ait_role: xpack_apm_server_install_config_start_verify }
+    - { role: xpack_heartbeat, ait_role: xpack_heartbeat_install_config_start_verify }
+
+  tasks:
+    - pause:
+        seconds: 35
+    - include: ../common/verify_kibana_running.yml
+    - include: ../common/create_index_patterns.yml
+    - include: ../common/upload_accounts_kibana.yml
+    - include: ../common/upload_sample_data_spaces.yml
+    - include: ../common/verify_apm_beats_logstash_running.yml
+      vars:
+       check_services_active: False

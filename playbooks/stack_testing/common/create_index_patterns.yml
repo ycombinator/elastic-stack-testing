@@ -1,0 +1,26 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Task List: Create index patterns
+#
+#
+# Author: Liza Dayoub
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Create index patterns
+  uri:
+    url: "https://{{ current_host_ip }}:{{ kibana_port }}/api/saved_objects/index-pattern"
+    method: POST
+    user: "{{ elasticsearch_username }}"
+    password: "{{ elasticsearch_password }}"
+    validate_certs: no
+    return_content: yes
+    force_basic_auth: yes
+    status_code: 200
+    headers: '{"kbn-xsrf": "ansible"}'
+    body_format: json
+    body: '{{ item }}'
+  with_items:
+    - '{"attributes":{"title":"apm-*"}}'
+    - '{"attributes":{"title":"heartbeat-*"}}'
+    - '{"attributes":{"title":"logstash-*"}}'

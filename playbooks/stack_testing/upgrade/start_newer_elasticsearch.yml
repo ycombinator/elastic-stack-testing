@@ -1,0 +1,29 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Task List: Start newer version of elasticsearch
+#
+#
+# Author: Liza Dayoub
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Start elasticsearch
+  include_role:
+    name: elasticsearch
+  vars:
+    ait_action: elasticsearch_startup
+    elasticsearch_package_url: '{{ upgrade_elasticsearch_package_url }}'
+
+- name: Wait for elasticsearch to start
+  include_role:
+    name: elasticsearch
+  vars:
+    elasticsearch_package_url: '{{ upgrade_elasticsearch_package_url }}'
+    ait_action: elasticsearch_log_tail
+    ait_log_searchstr: started
+
+- name: Verify elasticsearch is running
+  include_role:
+    name: elasticsearch
+  vars:
+    ait_action: elasticsearch_is_running

@@ -1,0 +1,72 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Task List: Download and install kibana newer version, copy data and config
+#
+#
+# Author: Liza Dayoub
+#
+#----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Install newer Kibana
+  include_role:
+    name: kibana
+  vars:
+    ait_action: kibana_install
+    kibana_package_url: '{{ upgrade_kibana_package_url }}'
+
+- name: Copy older data directory to new kibana installation
+  shell: 'cp -r {{ kibana_rootdir }}/data {{ upgrade_kibana_rootdir }}'
+
+- name: Copy older config directory to new kibana installation
+  shell: 'cp -r {{ kibana_rootdir }}/config {{ upgrade_kibana_rootdir }}'
+
+- name: Replace directory names in config
+  replace:
+    path: '{{ upgrade_kibana_rootdir }}/config/kibana.yml'
+    regexp: '{{ kibana_rootdir }}'
+    replace: '{{ upgrade_kibana_rootdir }}'
+
+- name: Create kibana log directory
+  file:
+    path: '{{ upgrade_kibana_rootdir }}/logs'
+    state: directory
+    mode: 0777
+  become: true
+
+#
+- name: Shutdown old kibana
+  include_role:
+    name: kibana
+  vars:
+    ait_action: kibana_shutdown
+
+- pause:
+    seconds: 2
+
+- name: Verify kibana is not running
+  include_role:
+    name: kibana
+  vars:
+    ait_action: kibana_is_not_running
+
+#
+- name: Start kibana
+  include_role:
+    name: kibana
+  vars:
+    ait_action: kibana_startup
+    kibana_package_url: '{{ upgrade_kibana_package_url }}'
+
+- name: Wait for kibana to start
+  include_role:
+    name: kibana
+  vars:
+    kibana_package_url: '{{ upgrade_kibana_package_url }}'
+    ait_action: kibana_log_tail
+    ait_log_searchstr: started
+
+- name: Verify kibana is running
+  include_role:
+    name: kibana
+  vars:
+    ait_action: kibana_is_running
