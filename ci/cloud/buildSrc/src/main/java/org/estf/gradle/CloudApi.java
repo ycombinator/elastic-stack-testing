@@ -1,8 +1,9 @@
-/*
-    Elastic Cloud Client
-
-    Author: Liza Dayoub
-
+/**
+ * Elastic cloud client
+ *
+ *
+ * @author  Liza Dayoub
+ *
  */
 
 package org.estf.gradle;
@@ -12,20 +13,23 @@ import co.elastic.cloud.api.builder.ApiClientBuilder;
 import co.elastic.cloud.api.builder.SaaSAuthenticationRequestBuilder;
 import co.elastic.cloud.api.client.SaaSAuthenticationApi;
 import co.elastic.cloud.api.client.ClusterClient;
+import co.elastic.cloud.api.model.generated.ElasticsearchClusterInfo;
+import co.elastic.cloud.api.model.generated.KibanaClusterInfo;
 import java.net.*;
 import java.io.*;
 
 
 public class CloudApi {
-  
+
     private ClusterClient clusterClient;
     private String host;
     private String apiVer = "/api/v0.1";
     private String region = "/v1-regions/us-east-1";
+    private ApiClient authenticatedApiClient;
 
     public ClusterClient createClient() {
-        
-        // Get cloud credentials 
+
+        // Get cloud credentials
         CloudCredentials creds = new CloudCredentials();
         creds.vaultAuth();
 
@@ -34,7 +38,7 @@ public class CloudApi {
         if (host == null) {
             throw new Error("Environment variable: ESTF_CLOUD_HOST is required");
         }
-        String url = getUrl();     
+        String url = getUrl();
 
         System.out.println(" .. Setting up API client");
         // Setup cloud API client
@@ -47,13 +51,13 @@ public class CloudApi {
                 .setPassword(creds.getPassword())
                 .build()).getToken();
         token = "Bearer " + token;
-        ApiClient authenticatedApiClient = new ApiClientBuilder()
+        authenticatedApiClient = new ApiClientBuilder()
                 .setBasePath(url + region)
                 .setApiKey(token).build();
         authenticatedApiClient.setDebugging(true);
         System.out.println(" .. Successfully setup API client");
 
-        // Setup cloud cluster client 
+        // Setup cloud cluster client
         System.out.println(" .. Setting up Cluster client");
         clusterClient = new ClusterClient(authenticatedApiClient);
         System.out.println(" .. Successfully setup cluster client");
@@ -65,12 +69,24 @@ public class CloudApi {
         return clusterClient;
     }
 
+    public ApiClient getApiClient() {
+        return authenticatedApiClient;
+    }
+
+    public boolean isClusterRunning(ElasticsearchClusterInfo elasticsearchClusterInfo) {
+        return ElasticsearchClusterInfo.StatusEnum.STARTED.equals(elasticsearchClusterInfo.getStatus());
+    }
+
+    public boolean isKibanaRunning(KibanaClusterInfo kibanaClusterInfo) {
+        return KibanaClusterInfo.StatusEnum.STARTED.equals(kibanaClusterInfo.getStatus());
+    }
+
     private String getHost() {
         try {
             if (host.contains("http")) {
                 URL url = new URL(host);
                 return url.getHost();
-            }   
+            }
         } catch (MalformedURLException e) {
             throw new Error(e.toString());
         }

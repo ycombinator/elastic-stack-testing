@@ -32,10 +32,17 @@ dependencies {
 /*
  General Methods
  */
+
+// Generate setup cloud cluster task
 def genSetupTask(testname) {
-    return tasks.create("setup_" + testname, CreateCloudCluster)
+    return tasks.create("setup_" + testname, CreateCloudCluster) {
+        stackVersion = System.env.ESTF_CLOUD_VERSION
+        esUserSettings = System.env.ESTF_ES_USER_SETTINGS
+        kibanaUserSettings = System.env.ESTF_KIBANA_USER_SETTINGS
+    }
 }
 
+// Generate cleanup cloud cluster task
 def genCleanupTask(testname, cluster_id) {
     return tasks.create("cleanup_" + testname, DeleteCloudCluster) {
         clusterId = cluster_id

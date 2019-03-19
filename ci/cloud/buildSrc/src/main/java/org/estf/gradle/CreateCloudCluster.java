@@ -1,21 +1,27 @@
-/*
-    Default task for creating a cloud cluster
-
-    Author: Liza Dayoub
-
+/**
+ * Default task for creating a cloud cluster
+ *
+ *
+ * @author  Liza Dayoub
+ *
  */
+
 
 package org.estf.gradle;
 
 import co.elastic.cloud.api.client.ClusterClient;
 import co.elastic.cloud.api.model.generated.CreateElasticsearchClusterRequest;
 import co.elastic.cloud.api.model.generated.ElasticsearchClusterInfo;
+import co.elastic.cloud.api.model.generated.KibanaClusterInfo;
 import co.elastic.cloud.api.model.generated.ClusterCrudResponse;
 import co.elastic.cloud.api.model.generated.ClusterCredentials;
+import co.elastic.cloud.api.client.generated.ClustersKibanaApi;
+import co.elastic.cloud.api.util.Waiter;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.Input;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.UUID;
@@ -28,7 +34,15 @@ import java.util.Properties;
 
 public class CreateCloudCluster extends DefaultTask {
 
+    @Input
+    String kibanaUserSettings;
+
+    @Input
+    String esUserSettings;
+
+    @Input
     String stackVersion;
+
     String clusterId;
     String propertiesFile;
 
@@ -36,8 +50,7 @@ public class CreateCloudCluster extends DefaultTask {
 
     @TaskAction
     public void run() {
-           
-        stackVersion = System.getenv("ESTF_CLOUD_VERSION");
+
         if (stackVersion == null) {
             throw new Error("Environment variable: ESTF_CLOUD_VERSION is required");
         }
@@ -45,11 +58,15 @@ public class CreateCloudCluster extends DefaultTask {
         // Setup cluster client
         CloudApi cloudApi = new CloudApi();
         ClusterClient clusterClient = cloudApi.createClient();
-     
-        // Create cluser
-        ClusterCrudResponse response = clusterClient.createEsCluster(getFromJson());
 
-        // Get cluster info  
+        // Create cluster
+        ClusterCrudResponse response = clusterClient.createEsCluster(getFromJson());
+        ClustersKibanaApi kbnApi = new ClustersKibanaApi(cloudApi.getApiClient());
+        Waiter.waitFor(() -> cloudApi.isKibanaRunning(
+            kbnApi.getKibanaCluster(response.getKibanaClusterId(), false, true, false, false)
+        ));
+
+        // Get cluster info
         clusterId = response.getElasticsearchClusterId();
         String kibanaClusterId = response.getKibanaClusterId();
         ClusterCredentials clusterCreds = response.getCredentials();
@@ -84,7 +101,7 @@ public class CreateCloudCluster extends DefaultTask {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}    
+		}
     }
 
     public String getClusterId() {
@@ -102,8 +119,16 @@ public class CreateCloudCluster extends DefaultTask {
                 new Gson().fromJson(jsonReader, CreateElasticsearchClusterRequest.class);
 
         jsonRequest.getPlan().getElasticsearch().setVersion(stackVersion);
-        jsonRequest.setClusterName("ESTF_Cluster__" + UUID.randomUUID().toString()); 
+
+        if (esUserSettings != null) {
+            jsonRequest.getPlan().getElasticsearch().setUserSettingsYaml(esUserSettings);
+        }
+        if (kibanaUserSettings != null) {
+            jsonRequest.getKibana().getPlan().getKibana().setUserSettingsYaml(kibanaUserSettings);
+        }
+
+        jsonRequest.setClusterName("ESTF_Cluster__" + UUID.randomUUID().toString());
         return jsonRequest;
     }
 
-} 
+}
