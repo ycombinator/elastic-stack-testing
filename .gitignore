@@ -1,7 +1,31 @@
-__pycache__/
-.cache/
-.mypy_cache/
-/ait_workspace/
-*.jar
+# Ansible
 *.retry
+
+# Python
+.mypy_cache/
 *.pyc
+__pycache__/
+
+# Java
+*.class
+
+# Packages
+*.jar
+
+# Gradle
+.gradle
+/build/
+build/
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Cache of project
+.gradletasknamecache
+
+# Other
+.cache/
+/ait_workspace/
