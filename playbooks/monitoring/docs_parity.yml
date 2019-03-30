@@ -17,6 +17,6 @@
     - "{{ es_var_file | default(lookup('env','ANSIBLE_GROUP_VARS')) }}"
 
   tasks:
-#  - include: kibana/docs_parity.yml
+  - include: kibana/docs_parity.yml
   - include: elasticsearch/docs_parity.yml
   
