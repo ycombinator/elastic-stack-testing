@@ -44,6 +44,7 @@ public class CreateCloudCluster extends DefaultTask {
     String stackVersion;
 
     String clusterId;
+    String kibanaClusterId;
     String propertiesFile;
 
     private String jsonPlan = "legacyPlan.json";
@@ -68,7 +69,7 @@ public class CreateCloudCluster extends DefaultTask {
 
         // Get cluster info
         clusterId = response.getElasticsearchClusterId();
-        String kibanaClusterId = response.getKibanaClusterId();
+        kibanaClusterId = response.getKibanaClusterId();
         ClusterCredentials clusterCreds = response.getCredentials();
         String esUser = clusterCreds.getUsername();
         String esPassword = clusterCreds.getPassword();
@@ -106,6 +107,10 @@ public class CreateCloudCluster extends DefaultTask {
 
     public String getClusterId() {
         return clusterId;
+    }
+
+    public String getKibanaClusterId() {
+        return kibanaClusterId;
     }
 
     public String getPropertiesFile() {

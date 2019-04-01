@@ -7,4 +7,7 @@ repositories {
 dependencies {
     compile group: 'co.elastic.cloud', name: 'sdk-java', version: "1.2.0-SNAPSHOT"
     compile group: 'com.bettercloud', name: 'vault-java-driver', version: '3.1.0'
+    compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.11'
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.7'
+    compile group: 'org.json', name: 'json', version: '20180813'
 }

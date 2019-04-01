@@ -8,8 +8,13 @@
 import com.sun.org.apache.xalan.internal.xslt.Process
 import org.estf.gradle.CreateCloudCluster
 import org.estf.gradle.DeleteCloudCluster
+import org.estf.gradle.EditCloudCluster
+import org.estf.gradle.UpgradeCloudCluster
+import org.estf.gradle.UploadData
 import org.estf.gradle.ShellCommand
 import org.ajoberstar.grgit.Grgit
+import groovy.json.JsonSlurper
+
 
 plugins {
   id 'org.ajoberstar.grgit' version '1.7.2' apply false
@@ -46,6 +51,27 @@ def genSetupTask(testname) {
 def genCleanupTask(testname, cluster_id) {
     return tasks.create("cleanup_" + testname, DeleteCloudCluster) {
         clusterId = cluster_id
+    }
+}
+
+// Generate edit cloud cluster task
+def genEditTask(testname, cluster_id, kibana_cluster_id, disable_scripts) {
+    return tasks.create("edit_" + testname, EditCloudCluster) {
+        clusterId = cluster_id
+        kibanaClusterId = kibana_cluster_id
+        esScriptSettings = disable_scripts
+        upgradeStackVersion = System.env.ESTF_UPGRADE_CLOUD_VERSION
+        esUserSettings = System.env.ESTF_ES_USER_SETTINGS
+        kibanaUserSettings = System.env.ESTF_KIBANA_USER_SETTINGS
+    }
+}
+
+// Generate upgrade cloud task
+def genUpgradeTask(testname, cluster_id, kibana_cluster_id, major_upgrade) {
+    return tasks.create("upgrade_" + testname, UpgradeCloudCluster) {
+        clusterId = cluster_id
+        kibanaClusterId = kibana_cluster_id
+        upgradeStackVersion = System.env.ESTF_UPGRADE_CLOUD_VERSION
     }
 }
 
@@ -189,6 +215,55 @@ task kibana_xpack_tests {
         }  else {
              _cleanup_task.execute()
         }
+    }
+}
+
+task upgrade {
+    doFirst {
+        // Setup cloud cluster
+        def _setup_task = genSetupTask('kibana')
+        _setup_task.execute()
+
+        def propFile = _setup_task.getPropertiesFile()
+
+        // Load properties file
+        Properties properties = new Properties()
+        File propertiesFile = new File(propFile.trim())
+        propertiesFile.withInputStream {
+            properties.load(it)
+        }
+
+        upgrade.ext.kibana_url = properties.kibana_url
+        upgrade.ext.es_url = properties.elasticsearch_url
+        upgrade.ext.username = properties.es_username
+        upgrade.ext.password = properties.es_password
+
+        // Upload data
+        upload_bank_data.execute()
+
+        // Upgrade cloud cluster
+        def cluster_id = _setup_task.getClusterId()
+        def kibana_cluster_id = _setup_task.getKibanaClusterId()
+
+        def _upgrade_task = genUpgradeTask('kibana', cluster_id, kibana_cluster_id, true)
+        _upgrade_task.execute()
+
+        // TODO: Tests
+
+        // Cleanup cloud cluster
+        def _cleanup_task = genCleanupTask('kibana', _setup_task.getClusterId())
+        _cleanup_task.execute()
+
+    }
+}
+
+task upload_bank_data(type: UploadData) {
+    doFirst {
+        esBaseUrl = upgrade.ext.es_url
+        kbnBaseUrl = upgrade.ext.kibana_url
+        username = upgrade.ext.username
+        password = upgrade.ext.password
+
     }
 }
 
