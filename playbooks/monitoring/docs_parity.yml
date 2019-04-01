@@ -18,3 +18,5 @@
 
   tasks:
   - include: kibana/docs_parity.yml
+  - include: elasticsearch/docs_parity.yml
+  
