@@ -117,7 +117,7 @@ for doc_type in internal_doc_types:
         log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has no insertions. Expected 'beat', '@timestamp', 'host', and 'metricset' to be inserted.")
 
     if len(insertions) > 4:
-        log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has too many insertions: " + json.dumps(deletions))
+        log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has too many insertions: " + json.dumps(insertions))
 
     insertion_keys = insertions.keys()
     for expected_insertion in expected_insertions:
