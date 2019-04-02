@@ -83,6 +83,16 @@ def log_parity_error(message):
     log_error(message)
     sys.exit(11)
 
+def handle_special_case_index_recovery(internal_doc, metricbeat_doc):
+    # Normalize `index_recovery.shards` array field to have only one object in it.
+    internal_doc["index_recovery"]["shards"] = [ internal_doc["index_recovery"]["shards"][0] ]
+    metricbeat_doc["index_recovery"]["shards"] = [ metricbeat_doc["index_recovery"]["shards"][0] ]
+
+def handle_special_cases(doc_type, internal_doc, metricbeat_doc):
+    if doc_type == "index_recovery":
+        handle_special_case_index_recovery(internal_doc, metricbeat_doc)
+
+
 if (len(sys.argv) < 3):
     sys.stderr.write("Usage: docs_compare /path/to/internal/docs /path/to/metricbeat/docs\n")
     sys.exit(1)
@@ -107,6 +117,8 @@ if len(internal_doc_types) > len(metricbeat_doc_types):
 for doc_type in internal_doc_types:
     internal_doc = get_doc(internal_docs_path, doc_type)
     metricbeat_doc = get_doc(metricbeat_docs_path, doc_type)
+
+    handle_special_cases(doc_type, internal_doc, metricbeat_doc)
 
     difference = diff(internal_doc, metricbeat_doc, syntax='explicit', marshal=True)
 
