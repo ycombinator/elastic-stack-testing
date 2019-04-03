@@ -83,6 +83,16 @@ def log_parity_error(message):
     log_error(message)
     sys.exit(11)
 
+def handle_special_case_index_recovery(internal_doc, metricbeat_doc):
+    # Normalize `index_recovery.shards` array field to have only one object in it.
+    internal_doc["index_recovery"]["shards"] = [ internal_doc["index_recovery"]["shards"][0] ]
+    metricbeat_doc["index_recovery"]["shards"] = [ metricbeat_doc["index_recovery"]["shards"][0] ]
+
+def handle_special_cases(doc_type, internal_doc, metricbeat_doc):
+    if doc_type == "index_recovery":
+        handle_special_case_index_recovery(internal_doc, metricbeat_doc)
+
+
 if (len(sys.argv) < 3):
     sys.stderr.write("Usage: docs_compare /path/to/internal/docs /path/to/metricbeat/docs\n")
     sys.exit(1)
@@ -108,21 +118,18 @@ for doc_type in internal_doc_types:
     internal_doc = get_doc(internal_docs_path, doc_type)
     metricbeat_doc = get_doc(metricbeat_docs_path, doc_type)
 
+    handle_special_cases(doc_type, internal_doc, metricbeat_doc)
+
     difference = diff(internal_doc, metricbeat_doc, syntax='explicit', marshal=True)
 
-    # Expect there to be exactly four top-level insertions to the metricbeat-indexed doc: beat, @timestamp, host, and metricset
-    expected_insertions = [ "beat", "@timestamp", "host", "metricset" ]
+    # Expect there to be exactly seven top-level insertions to the metricbeat-indexed doc: service, ecs, agent, @timestamp, host, event, and metricset
+    allowed_insertions = [ "service", "ecs", "agent", "@timestamp", "host", "event", "metricset" ]
     insertions = difference.get('$insert')
     if insertions == None or len(insertions) < 1:
         log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has no insertions. Expected 'beat', '@timestamp', 'host', and 'metricset' to be inserted.")
 
-    if len(insertions) > 4:
+    if len(insertions) > len(allowed_insertions):
         log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has too many insertions: " + json.dumps(insertions))
-
-    insertion_keys = insertions.keys()
-    for expected_insertion in expected_insertions:
-        if expected_insertion not in insertion_keys:
-            log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' does not have '" + expected_insertion + "' inserted.")
 
     difference.pop('$insert') 
 
