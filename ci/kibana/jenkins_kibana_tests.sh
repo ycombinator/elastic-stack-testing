@@ -289,7 +289,9 @@ function download_and_extract_package() {
   echo_info  "Using Kibana install: $Glb_Kibana_Dir"
 
   if [[ "$Glb_OS" == "windows" ]]; then
-    export JAVA_HOME="c:\Progra~1\Java\jre-10"
+    export JAVA_HOME="c:\Users\jenkins\.java\java11"
+  else
+    export JAVA_HOME="/var/lib/jenkins/.java/java11"
   fi
 
   readonly Glb_Kibana_Dir
