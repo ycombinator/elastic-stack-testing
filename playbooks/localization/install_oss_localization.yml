@@ -1,0 +1,17 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Playbook: Install products without x-pack
+#
+# Author: liza.dayoub@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+- hosts: "{{ uut | default(lookup('env','AIT_UUT')) }}"
+
+  vars_files:
+    - "{{ es_var_file | default(lookup('env','ANSIBLE_GROUP_VARS')) }}"
+
+  vars:
+    kibana_config_params: "i18n.locale: zh-CN"
+
+  roles:
+    - { role: elasticsearch, ait_role: elasticsearch_install_config_start_verify }
+    - { role: kibana, ait_role: kibana_install_config_start_verify }
