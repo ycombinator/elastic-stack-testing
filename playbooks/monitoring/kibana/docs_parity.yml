@@ -64,10 +64,10 @@
 
 - name: Stop kibana internal monitoring
   include_role:
-    name: kibana
+    name: xpack_kibana
   vars:
     kibana_config_params: {"xpack.monitoring.kibana.collection.enabled: false"}
-    ait_action: kibana_config
+    ait_action: xpack_kibana_config
 
 - name: Clean out kibana monitoring index
   uri:
