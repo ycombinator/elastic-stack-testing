@@ -33,6 +33,25 @@
   become: true
   tags: kibana_log_check
 
+- name: Kibana configuration - append
+  lineinfile:
+    path: '{{ kibana_config_file }}'
+    insertafter: EOF
+    line: '{{ config_item }}'
+  with_items: '{{ kibana_config_params  }}'
+  loop_control:
+    loop_var: config_item
+  become: '{{ kibana_run_as_root | default(omit) }}'
+  when: kibana_config_params_file is not defined and
+        kibana_config_params is defined
+
+- name: Kibana configuration - new file
+  copy:
+    src: '{{ kibana_config_params_file }}'
+    dest: '{{ kibana_config_file }}'
+  become: '{{ kibana_run_as_root | default(omit) }}'
+  when: kibana_config_params_file is defined
+
 - name: Add kibana x-pack configuration parameters
   blockinfile:
     path: '{{ kibana_config_file }}'
@@ -50,3 +69,4 @@
       elasticsearch.ssl.certificateAuthorities: [ '{{ kibana_config_dir | trim }}/ca/ca.crt' ]
       elasticsearch.ssl.verificationMode: none
   become: '{{ kibana_run_as_root | default(omit) }}'
+  when: kibana_config_params_strict is not defined or not kibana_config_params_strict
