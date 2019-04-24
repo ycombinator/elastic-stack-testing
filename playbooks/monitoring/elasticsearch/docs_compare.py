@@ -108,23 +108,21 @@ for doc_type in internal_doc_types:
     internal_doc = get_doc(internal_docs_path, doc_type)
     metricbeat_doc = get_doc(metricbeat_docs_path, doc_type)
 
-    # Certain fields are expected to be optional, as they depend on the time of collection. We omit those from the comparison.
-    optional_fields = [
-        "kibana_stats.response_times.average"
-    ]
-    remove_optional_fields(internal_doc, optional_fields)
-    remove_optional_fields(metricbeat_doc, optional_fields)
-
     difference = diff(internal_doc, metricbeat_doc, syntax='explicit', marshal=True)
 
-    # Expect there to be exactly seven top-level insertions to the metricbeat-indexed doc: service, beat, agent, @timestamp, host, event, and metricset
-    allowed_insertions = [ "service", "beat", "agent", "@timestamp", "host", "event", "metricset" ]
+    # Expect there to be exactly four top-level insertions to the metricbeat-indexed doc: beat, @timestamp, host, and metricset
+    expected_insertions = [ "beat", "@timestamp", "host", "metricset" ]
     insertions = difference.get('$insert')
     if insertions == None or len(insertions) < 1:
-        log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has no insertions. Expected up to " + len(allowed_insertions) + " to be inserted.")
+        log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has no insertions. Expected 'beat', '@timestamp', 'host', and 'metricset' to be inserted.")
 
-    if len(insertions) > len(allowed_insertions):
-        log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has too many insertions: " + json.dumps(insertions))
+    if len(insertions) > 4:
+        log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has too many insertions: " + json.dumps(deletions))
+
+    insertion_keys = insertions.keys()
+    for expected_insertion in expected_insertions:
+        if expected_insertion not in insertion_keys:
+            log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' does not have '" + expected_insertion + "' inserted.")
 
     difference.pop('$insert') 
 
