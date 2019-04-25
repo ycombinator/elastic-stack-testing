@@ -407,7 +407,7 @@ function yarn_kbn_bootstrap() {
   fi
   if $Glb_ChromeDriverHack; then 
     echo_warning "Temporary update package.json bump chromedriver."
-    sed -ie "s/"chromedriver": $_chromedriver_ver/"chromedriver": "2.44"/g" package.json
+    sed -ie 's/"chromedriver": "^74.0.0"/"chromedriver": "2.44"/g' package.json
   fi
 
   yarn kbn bootstrap
