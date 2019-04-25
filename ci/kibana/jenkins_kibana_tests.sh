@@ -405,6 +405,10 @@ function yarn_kbn_bootstrap() {
     echo_warning "Temporary update package.json bump chromedriver."
     sed -ie 's/"chromedriver": "2.42.1"/"chromedriver": "2.44"/g' package.json
   fi
+  if $Glb_ChromeDriverHack; then 
+    echo_warning "Temporary update package.json bump chromedriver."
+    sed -ie "s/"chromedriver": $_chromedriver_ver/"chromedriver": "2.44"/g" package.json
+  fi
 
   yarn kbn bootstrap
 }
@@ -419,11 +423,10 @@ function check_git_changes() {
   # TODO: Remove later
   local _node_ver=$(cat .node-version)
   local _chromedriver_ver=$(grep chromedriver package.json | sed -ne 's/[^0-9]*\(\([0-9]\.\)\{0,4\}[0-9][^.]\).*/\1/p')
-  if [ "$_chromedriver_ver" == "2.42.1" ] && [[ "$Glb_OS" = "windows" ]]; then
+  if ([ "$_chromedriver_ver" == "2.42.1" ] && [[ "$Glb_OS" = "windows" ]]) || $Glb_ChromeDriverHack; then
     echo_warning "Temporary package.json modified for chromedriver."
     local _git_changes="$(git ls-files --modified | grep -Ev "package.json|yarn.lock")"
   fi
-
   if [ "$_git_changes" ]; then
     echo_error_exit "'yarn kbn bootstrap' caused changes to the following files:\n$_git_changes"
   fi
@@ -549,6 +552,7 @@ function run_cloud_xpack_tests() {
 
 }
 
+Glb_ChromeDriverHack=false
 if [ "$1" == "selenium" ]; then
   run_selenium_tests
 elif [ "$1" == "xpack" ]; then
@@ -556,6 +560,7 @@ elif [ "$1" == "xpack" ]; then
 elif [ "$1" == "unit" ]; then
   run_unit_tests
 elif [ "$1" == "cloud_selenium" ]; then
+  Glb_ChromeDriverHack=true
   run_cloud_selenium_tests
 elif [ "$1" == "cloud_xpack" ]; then
   run_cloud_xpack_tests
