@@ -33,4 +33,4 @@ wget "http://central.maven.org/maven2/org/apache/httpcomponents/httpcore/4.4.11/
 
 echo "Download json"
 cd ${libsDir}
-http://central.maven.org/maven2/org/json/json/20180813/json-20180813.jar
+wget http://central.maven.org/maven2/org/json/json/20180813/json-20180813.jar
