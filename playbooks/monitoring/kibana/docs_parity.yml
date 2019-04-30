@@ -50,7 +50,7 @@
     return_content: yes
     user: "{{ elasticsearch_username }}"
     password: "{{ elasticsearch_password }}"
-    body: '{ "collapse": { "field": "type" }, "sort": { "timestamp": "desc" } }'
+    body: '{ "collapse": { "field": "type" }, "sort": { "timestamp": "asc" } }'
     body_format: json
     status_code: 200
   register: xpack_elasticsearch_monitoring_sample_docs
@@ -141,7 +141,7 @@
     user: "{{ elasticsearch_username }}"
     password: "{{ elasticsearch_password }}"
     method: POST
-    body: '{ "collapse": { "field": "type" }, "sort": { "timestamp": "desc" } }'
+    body: '{ "collapse": { "field": "type" }, "sort": { "timestamp": "asc" } }'
     body_format: json
     status_code: 200
   register: xpack_elasticsearch_monitoring_sample_docs
