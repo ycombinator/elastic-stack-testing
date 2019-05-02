@@ -560,7 +560,6 @@ elif [ "$1" == "xpack" ]; then
 elif [ "$1" == "unit" ]; then
   run_unit_tests
 elif [ "$1" == "cloud_selenium" ]; then
-  Glb_ChromeDriverHack=true
   run_cloud_selenium_tests
 elif [ "$1" == "cloud_xpack" ]; then
   run_cloud_xpack_tests
