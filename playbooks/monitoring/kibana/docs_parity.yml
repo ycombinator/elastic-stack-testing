@@ -34,7 +34,7 @@
 
 - name: Wait for kibana to index a few monitoring documents
   wait_for:
-    timeout: 15
+    timeout: 30
 
 - name: Stop kibana
   include_role:
@@ -119,7 +119,7 @@
 
 - name: Wait for metricbeat to index a few monitoring documents
   wait_for:
-    timeout: 15
+    timeout: 30
 
 - name: Stop metricbeat
   include_role:
