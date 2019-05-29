@@ -605,13 +605,13 @@ function run_visual_tests_oss() {
   export TEST_BROWSER_HEADLESS=1
 
   echo_info "Running oss visual tests"
+  yarn run percy exec -t 500 \
   node scripts/functional_tests \
     --kibana-install-dir=${Glb_Kibana_Dir} \
     --esFrom snapshot \
     --config test/functional/config.js \
     --include-tag "visualTestGrp" \
-    --debug \
-    -- --server.maxPayloadBytes=1648576
+    --debug
 }
 
 # -----------------------------------------------------------------------------
