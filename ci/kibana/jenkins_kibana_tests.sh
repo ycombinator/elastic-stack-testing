@@ -405,7 +405,7 @@ function yarn_kbn_bootstrap() {
     echo_warning "Temporary update package.json bump chromedriver."
     sed -ie 's/"chromedriver": "2.42.1"/"chromedriver": "2.44"/g' package.json
   fi
-  if $Glb_ChromeDriverHack; then 
+  if $Glb_ChromeDriverHack; then
     echo_warning "Temporary update package.json bump chromedriver."
     sed -ie 's/"chromedriver": "^74.0.0"/"chromedriver": "2.44"/g' package.json
   fi
@@ -443,6 +443,35 @@ function run_ci_setup() {
   install_yarn
   yarn_kbn_bootstrap
   check_git_changes
+}
+
+# -----------------------------------------------------------------------------
+function add_percy_pkg() {
+  yarn add -D @percy/agent
+  export PERCY_TARGET_BRANCH=$(git branch | grep \* | cut -d ' ' -f2)
+}
+
+# -----------------------------------------------------------------------------
+function percy_mods() {
+  # Update setup_mocha
+  sed -ire "s/mocha.suite.beforeEach[(]'global before each', async [(][)] => [{]/mocha.suite.beforeEach('global before each', async function () {/" src/functional_test_runner/lib/mocha/setup_mocha.js
+  sed -ire "s/await lifecycle.trigger[(]'beforeEachTest'[)];/await lifecycle.trigger('beforeEachTest', this.currentTest);/" src/functional_test_runner/lib/mocha/setup_mocha.js
+
+  # Update services index file
+  sed -i "/import [{] InspectorProvider [}].*/a import { VisualTestingProvider } from './visual_testing';" test/functional/services/index.ts
+  sed -i "/export const services = [{]/a visualTesting: VisualTestingProvider," test/functional/services/index.ts
+
+  # Get files
+  git submodule add https://github.com/elastic/kibana-visual-tests
+  mv kibana-visual-tests/src/dev/ci_setup/get_percy_env.js src/dev/ci_setup/get_percy_env.js
+  mv kibana-visual-tests/test/functional/services/visual_testing test/functional/services/visual_testing
+  mv kibana-visual-tests/test/functional/visual_tests test/functional/visual_tests
+  git rm -f kibana-visual-tests
+  git rm -f .gitmodules
+  rm -rf .git/modules/kibana-visual-tests/
+
+  sed -i "/testFiles: [[]/a require.resolve('./visual_tests/visualize')," test/functional/config.js
+
 }
 
 # -----------------------------------------------------------------------------
@@ -552,6 +581,45 @@ function run_cloud_xpack_tests() {
 
 }
 
+# -----------------------------------------------------------------------------
+function run_cloud_visual_tests_oss() {
+  echo "These are not yet available"
+  exit 1
+}
+
+# -----------------------------------------------------------------------------
+function run_cloud_visual_tests_default() {
+ echo "These are not yet available"
+ exit 1
+}
+
+# -----------------------------------------------------------------------------
+function run_visual_tests_oss() {
+  run_ci_setup
+  TEST_KIBANA_BUILD=oss
+  install_kibana
+  add_percy_pkg
+  percy_mods
+
+  # Run Tests
+  export TEST_BROWSER_HEADLESS=1
+
+  echo_info "Running oss visual tests"
+  node scripts/functional_tests \
+    --kibana-install-dir=${Glb_Kibana_Dir} \
+    --esFrom snapshot \
+    --config test/functional/config.js \
+    --include-tag "visualTestGrp" \
+    --debug \
+    -- --server.maxPayloadBytes=1648576
+}
+
+# -----------------------------------------------------------------------------
+function run_visual_tests_default() {
+  echo "These are not yet available"
+  exit 1
+}
+
 Glb_ChromeDriverHack=false
 if [ "$1" == "selenium" ]; then
   run_selenium_tests
@@ -563,6 +631,14 @@ elif [ "$1" == "cloud_selenium" ]; then
   run_cloud_selenium_tests
 elif [ "$1" == "cloud_xpack" ]; then
   run_cloud_xpack_tests
+elif [ "$1" == "cloud_visual_tests_oss" ]; then
+  run_cloud_visual_tests_oss
+elif [ "$1" == "cloud_visual_tests_default" ]; then
+  run_cloud_visual_tests_default
+elif [ "$1" == "visual_tests_oss" ]; then
+  run_visual_tests_oss
+elif [ "$1" == "visual_tests_default" ]; then
+  run_visual_tests_default
 else
   echo_error_exit "Invalid test option: $1"
 fi
