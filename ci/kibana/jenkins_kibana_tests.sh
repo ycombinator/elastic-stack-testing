@@ -489,7 +489,7 @@ function run_selenium_tests() {
     --esFrom snapshot \
     --config test/functional/config.js \
     --debug \
-    -- --server.maxPayloadBytes=1648576
+    -- --server.maxPayloadBytes=1679958
 }
 
 # -----------------------------------------------------------------------------
