@@ -4,159 +4,171 @@
 # Author: shaunak@elastic.co
 #----------------------------------------------------------------------------------------------------------------------
 
-- name: Clean out old directories to hold monitoring sample docs files
-  file:
-    state: absent
-    path: "{{ monitoring_docs_dir }}/elasticsearch"
-  delegate_to: localhost
+- hosts: "{{ uut | default(lookup('env','AIT_UUT')) }}"
+  roles:
+    - role: elasticsearch
+    - role: metricbeat
 
-- name: Make directories to hold monitoring sample docs files
-  file:
-    state: directory
-    path: "{{ monitoring_docs_dir }}/elasticsearch/{{ item }}/"
-  with_items:
-    - internal
-    - metricbeat
-  delegate_to: localhost
-
-- name: Start elasticsearch
-  include_role:
-    name: xpack_elasticsearch
   vars:
-    ait_role: xpack_elasticsearch_install_gencert_config_start_verify
+    monitoring_docs_dir: "{{ lookup('env', 'WORKSPACE') }}/monitoring/"
 
-- name: Enable internal monitoring collection
-  uri:
-    method: PUT
-    url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/_cluster/settings"
-    body: '{ "transient": { "xpack.monitoring.collection.enabled": true } }'
-    body_format: json
-    validate_certs: no
-    user: "{{ elasticsearch_username }}"
-    password: "{{ elasticsearch_password }}"
-    status_code: 200
+  vars_files:
+    - "{{ es_var_file | default(lookup('env','ANSIBLE_GROUP_VARS')) }}"
 
-- name: Wait for elasticsearch to index a few monitoring documents
-  wait_for:
-    timeout: 15
+  tasks:
+    - name: Clean out old directories to hold monitoring sample docs files
+      file:
+        state: absent
+        path: "{{ monitoring_docs_dir }}/elasticsearch"
+      delegate_to: localhost
 
-- name: Get sample elasticsearch-indexed docs from monitoring index
-  uri:
-    method: POST
-    url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/.monitoring-es-*/_search"
-    validate_certs: no
-    return_content: yes
-    user: "{{ elasticsearch_username }}"
-    password: "{{ elasticsearch_password }}"
-    body: '{ "collapse": { "field": "type" }, "sort": { "timestamp": "desc" } }'
-    body_format: json
-    status_code: 200
-  register: xpack_elasticsearch_monitoring_sample_docs
+    - name: Make directories to hold monitoring sample docs files
+      file:
+        state: directory
+        path: "{{ monitoring_docs_dir }}/elasticsearch/{{ item }}/"
+      with_items:
+        - internal
+        - metricbeat
+      delegate_to: localhost
 
-- name: Write sample docs to temp files
-  copy:
-    content: "{{ item._source }}"
-    dest: "{{ monitoring_docs_dir }}/elasticsearch/internal/{{ item._source.type }}.json"
-  with_items: "{{ xpack_elasticsearch_monitoring_sample_docs.json.hits.hits }}"
-  delegate_to: localhost
+    - name: Start elasticsearch
+      include_role:
+        name: xpack_elasticsearch
+      vars:
+        ait_role: xpack_elasticsearch_install_gencert_config_start_verify
 
-- name: Disable internal monitoring collection
-  uri:
-    method: PUT
-    url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/_cluster/settings"
-    body: '{ "transient": { "xpack.monitoring.collection.enabled": false } }'
-    body_format: json
-    validate_certs: no
-    user: "{{ elasticsearch_username }}"
-    password: "{{ elasticsearch_password }}"
-    status_code: 200
-
-
-- name: Clean out elasticsearch monitoring index
-  uri:
-    method: DELETE
-    url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/.monitoring-es-*"
-    validate_certs: no
-    user: "{{ elasticsearch_username }}"
-    password: "{{ elasticsearch_password }}"
-    status_code: 200
-
-- name: Install metricbeat
-  include_role:
-    name: metricbeat
-  vars:
-    ait_action: metricbeat_install
-
-- name: Enable metricbeat's elasticsearch module
-  file:
-    path: '{{ metricbeat_rootdir }}/modules.d/elasticsearch.yml.disabled'
-    state: absent
-  become: true
-
-- name: Configure metricbeat's elasticsearch module to collect monitoring documents
-  copy:
-    dest: '{{ metricbeat_rootdir }}/modules.d/kibana.yml'
-    content: |
-      - module: elasticsearch
-        metricsets:
-        - ccr
-        - cluster_stats
-        - index
-        - index_recovery
-        - index_summary
-        - ml_job
-        - node_stats
-        - shard
-        period: 10s
-        hosts: ["https://{{ current_host_ip }}:{{ elasticsearch_port }}"]
-        ssl.verification_mode: none
-        username: "{{ elasticsearch_username }}"
+    - name: Enable internal monitoring collection
+      uri:
+        method: PUT
+        url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/_cluster/settings"
+        body: '{ "transient": { "xpack.monitoring.collection.enabled": true } }'
+        body_format: json
+        validate_certs: no
+        user: "{{ elasticsearch_username }}"
         password: "{{ elasticsearch_password }}"
-        xpack.enabled: true
-  become: true
+        status_code: 200
 
-- name: Start metricbeat
-  include_role:
-    name: xpack_metricbeat
-  vars:
-    ait_role: xpack_metricbeat_config_start_verify
+    - name: Wait for elasticsearch to index a few monitoring documents
+      wait_for:
+        timeout: 15
 
-- name: Wait for metricbeat to index a few monitoring documents
-  wait_for:
-    timeout: 15
+    - name: Get sample elasticsearch-indexed docs from monitoring index
+      uri:
+        method: POST
+        url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/.monitoring-es-*/_search"
+        validate_certs: no
+        return_content: yes
+        user: "{{ elasticsearch_username }}"
+        password: "{{ elasticsearch_password }}"
+        body: '{ "collapse": { "field": "type" }, "sort": { "timestamp": "desc" } }'
+        body_format: json
+        status_code: 200
+      register: xpack_elasticsearch_monitoring_sample_docs
 
-- name: Stop metricbeat
-  include_role:
-    name: metricbeat
-  vars:
-    ait_action: metricbeat_shutdown
+    - name: Write sample docs to temp files
+      copy:
+        content: "{{ item._source }}"
+        dest: "{{ monitoring_docs_dir }}/elasticsearch/internal/{{ item._source.type }}.json"
+      with_items: "{{ xpack_elasticsearch_monitoring_sample_docs.json.hits.hits }}"
+      delegate_to: localhost
 
-- name: Get sample metricbeat-indexed docs from monitoring index
-  uri:
-    url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/.monitoring-es-*/_search"
-    validate_certs: no
-    return_content: yes
-    user: "{{ elasticsearch_username }}"
-    password: "{{ elasticsearch_password }}"
-    method: POST
-    body: '{ "collapse": { "field": "type" }, "sort": { "timestamp": "desc" } }'
-    body_format: json
-    status_code: 200
-  register: xpack_elasticsearch_monitoring_sample_docs
+    - name: Disable internal monitoring collection
+      uri:
+        method: PUT
+        url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/_cluster/settings"
+        body: '{ "transient": { "xpack.monitoring.collection.enabled": false } }'
+        body_format: json
+        validate_certs: no
+        user: "{{ elasticsearch_username }}"
+        password: "{{ elasticsearch_password }}"
+        status_code: 200
 
-- name: Write sample docs to temp files
-  copy:
-    content: "{{ item._source }}"
-    dest: "{{ monitoring_docs_dir }}/elasticsearch/metricbeat/{{ item._source.type }}.json"
-  with_items: "{{ xpack_elasticsearch_monitoring_sample_docs.json.hits.hits }}"
-  delegate_to: localhost
 
-- name: Stop elasticsearch
-  include_role:
-    name: elasticsearch
-  vars:
-    ait_action: elasticsearch_shutdown
+    - name: Clean out elasticsearch monitoring index
+      uri:
+        method: DELETE
+        url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/.monitoring-es-*"
+        validate_certs: no
+        user: "{{ elasticsearch_username }}"
+        password: "{{ elasticsearch_password }}"
+        status_code: 200
 
-- name: Compare internally-indexed and metricbeat-indexed documents for parity
-  shell: 'python {{ playbook_dir }}/elasticsearch/docs_compare.py {{ monitoring_docs_dir }}/elasticsearch/internal {{ monitoring_docs_dir }}/elasticsearch/metricbeat'
-  delegate_to: localhost
+    - name: Install metricbeat
+      include_role:
+        name: metricbeat
+      vars:
+        ait_action: metricbeat_install
+
+    - name: Enable metricbeat's elasticsearch module
+      file:
+        path: '{{ metricbeat_rootdir }}/modules.d/elasticsearch.yml.disabled'
+        state: absent
+      become: true
+
+    - name: Configure metricbeat's elasticsearch module to collect monitoring documents
+      copy:
+        dest: '{{ metricbeat_rootdir }}/modules.d/kibana.yml'
+        content: |
+          - module: elasticsearch
+            metricsets:
+            - ccr
+            - cluster_stats
+            - index
+            - index_recovery
+            - index_summary
+            - ml_job
+            - node_stats
+            - shard
+            period: 10s
+            hosts: ["https://{{ current_host_ip }}:{{ elasticsearch_port }}"]
+            ssl.verification_mode: none
+            username: "{{ elasticsearch_username }}"
+            password: "{{ elasticsearch_password }}"
+            xpack.enabled: true
+      become: true
+
+    - name: Start metricbeat
+      include_role:
+        name: xpack_metricbeat
+      vars:
+        ait_role: xpack_metricbeat_config_start_verify
+
+    - name: Wait for metricbeat to index a few monitoring documents
+      wait_for:
+        timeout: 15
+
+    - name: Stop metricbeat
+      include_role:
+        name: metricbeat
+      vars:
+        ait_action: metricbeat_shutdown
+
+    - name: Get sample metricbeat-indexed docs from monitoring index
+      uri:
+        url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/.monitoring-es-*/_search"
+        validate_certs: no
+        return_content: yes
+        user: "{{ elasticsearch_username }}"
+        password: "{{ elasticsearch_password }}"
+        method: POST
+        body: '{ "collapse": { "field": "type" }, "sort": { "timestamp": "desc" } }'
+        body_format: json
+        status_code: 200
+      register: xpack_elasticsearch_monitoring_sample_docs
+
+    - name: Write sample docs to temp files
+      copy:
+        content: "{{ item._source }}"
+        dest: "{{ monitoring_docs_dir }}/elasticsearch/metricbeat/{{ item._source.type }}.json"
+      with_items: "{{ xpack_elasticsearch_monitoring_sample_docs.json.hits.hits }}"
+      delegate_to: localhost
+
+    - name: Stop elasticsearch
+      include_role:
+        name: elasticsearch
+      vars:
+        ait_action: elasticsearch_shutdown
+
+    - name: Compare internally-indexed and metricbeat-indexed documents for parity
+      shell: 'python {{ playbook_dir }}/docs_compare.py {{ monitoring_docs_dir }}/elasticsearch/internal {{ monitoring_docs_dir }}/elasticsearch/metricbeat'
+      delegate_to: localhost
