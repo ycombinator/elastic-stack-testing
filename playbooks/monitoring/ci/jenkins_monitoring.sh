@@ -9,7 +9,7 @@ export ES_BUILD_OSS=false
 export ES_BUILD_PKG_EXT=tar
 
 # Install package 
-export AIT_ANSIBLE_PLAYBOOK="$(pwd)/playbooks/monitoring/docs_parity.yml"
+export AIT_ANSIBLE_PLAYBOOK="$(pwd)/playbooks/monitoring/${AIT_STACK_PRODUCT}/docs_parity.yml"
 
 # Setup VM
 export AIT_VM=vagrant_vm
