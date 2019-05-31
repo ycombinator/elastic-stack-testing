@@ -32,7 +32,7 @@
         - metricbeat
       delegate_to: localhost
 
-    - name: Start elasticsearch with monitoring collection enabled
+    - name: Install and start elasticsearch with monitoring collection enabled
       include_role:
         name: xpack_elasticsearch
       vars:
@@ -82,14 +82,17 @@
         kibana_config_params: {"xpack.monitoring.kibana.collection.enabled: false"}
         ait_action: xpack_kibana_config
 
-    - name: Clean out kibana monitoring index
-      uri:
-        method: DELETE
-        url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/.monitoring-kibana-*"
-        validate_certs: no
-        user: "{{ elasticsearch_username }}"
-        password: "{{ elasticsearch_password }}"
-        status_code: 200
+    - name: Uninstall elasticsearch
+      include_role:
+        name: elasticsearch
+      vars:
+        ait_role: elasticsearch_shutdown_uninstall_verify
+
+    - name: Install and start elasticsearch
+      include_role:
+        name: xpack_elasticsearch
+      vars:
+        ait_role: xpack_elasticsearch_install_gencert_config_start_verify
 
     - name: Start kibana
       include_role:
