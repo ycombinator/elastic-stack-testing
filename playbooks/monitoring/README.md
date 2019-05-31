@@ -88,8 +88,10 @@ See the sections below on how to run the tests locally and some useful diagnosis
 4. Run the tests.
 
    ```
-   ./playbookx/monitoring/buildenv.sh
+   AIT_STACK_PRODUCT=$product ./playbooks/monitoring/buildenv.sh
    ```
+
+   Where, `$product` must be either `elasticsearch` or `kibana`, depending on which product's tests you want to run.
 
    The tests will take a few minutes to run, spinning up a VM in VirtualBox, installing the various products in that 
    VM and performing the test steps outlined earlier.
