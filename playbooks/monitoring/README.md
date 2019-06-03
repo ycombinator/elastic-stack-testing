@@ -2,18 +2,22 @@
 
 ### Motivation
 
-Traditionally, Elasticsearch, Kibana, and Logstash have internally collected their own monitoring data and shipped it 
-to Elasticsearch. We refer to this traditional method as **internal collection** or **native collection**.
+Traditionally, Elasticsearch, Kibana, Logstash, and Beats have internally collected their own monitoring data and
+shipped it to Elasticsearch. We refer to this traditional method as **internal collection** or **native collection**.
 
 For several reasons that are outside the scope of this document, we want to moving data collection and shipping to an 
-external agent, something that runs separately but along side each Elasticsearch node, Kibana instance, and Logstash
-node. This agent will be Metricbeat. It will periodically call HTTP APIs exposed by Elasticsearch, Kibana, and 
-Logstash to collect monitoring data and ship it to Elasticsearch. We refer to this new method as **Metricbeat 
-collection**.
+external agent, something that runs separately but along side each Elasticsearch node, Kibana instance, Logstash
+node, and Beat instance. This agent will be Metricbeat. It will periodically call HTTP APIs exposed by Elasticsearch, 
+Kibana, Logstash, and Beats to collect monitoring data and ship it to Elasticsearch. We refer to this new method as
+**Metricbeat collection**.
 
 Our goal is for the Stack Monitoring UI in Kibana to work regardless of which collection method is used. This goal
 can be accomplished by ensuring that the documents indexed by the internal collection method are identical in 
 structure to those indexed by Metricbeat collection. The tests in this folder assert that this parity is maintained.
+
+**NOTE**: At this time Metricbeat collection only works for Elasticsearch and Kibana. As such, this folder only
+contains parity tests for Elasticsearch and Kibana. When we implement Metricbeat collection for Logstash and Beats,
+corresponding parity tests will be added to this folder.
 
 ### How do the tests work?
 
@@ -108,7 +112,7 @@ As mentioned in the test steps earlier, the test downloads sample documents from
 for structural parity.
 
 The downloaded documents are stored under the `ait_workspace/monitoring/$PRODUCT` folder, where `$PRODUCT` is the 
-product being monitored, e.g. `elasticsearch`, `kibana`, or `logstash`. Under this folder are two sub-folders, 
+product being monitored, e.g. `elasticsearch`. Under this folder are two sub-folders, 
 `internal` and `metricbeat`, corresponding to the two collection approaches. Under each of these folders are the 
 various types of documents collected by each collection approach. There is a JSON file for each type of document, and 
 "type" here corresponds to the value of the `type` field in the indexed documents. The contents of each JSON file are 
