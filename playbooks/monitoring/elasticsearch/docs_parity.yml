@@ -107,7 +107,7 @@
 
     - name: Configure metricbeat's elasticsearch module to collect monitoring documents
       copy:
-        dest: '{{ metricbeat_rootdir }}/modules.d/kibana.yml'
+        dest: '{{ metricbeat_rootdir }}/modules.d/elasticsearch.yml'
         content: |
           - module: elasticsearch
             metricsets:
