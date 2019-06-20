@@ -141,7 +141,8 @@ for doc_type in internal_doc_types:
     if len(deletions) > 1:
         log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has too many deletions: " + json.dumps(deletions))
 
-    if deletions[0] != 'source_node':
+    if deletions[0] != 'source_node' and doc_type != 'node_stats' and doc_type != 'shards':
+        # type:node_stats and type:shards docs still need the source_node field since the UI depends on it
         log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' does not have 'source_node' deleted.")
 
     difference.pop('$delete') 
