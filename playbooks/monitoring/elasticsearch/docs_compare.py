@@ -141,10 +141,16 @@ for doc_type in internal_doc_types:
     if len(deletions) > 1:
         log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has too many deletions: " + json.dumps(deletions))
 
-    if deletions[0] != 'source_node':
+    if deletions[0] != 'source_node' and doc_type != 'node_stats' and doc_type != 'shards':
+        # type:node_stats and type:shards docs still need the source_node field since the UI depends on it
         log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' does not have 'source_node' deleted.")
 
     difference.pop('$delete') 
+
+    if doc_type == 'node_stats' or doc_type == 'shards':
+      if deletions[0] == 'source_node':
+        # type:node_stats and type:shards docs still need the source_node field since the UI depends on it
+        log_parity_error("Metricbeat-index doc for type='" + doc_type +"' must contain source_node field.")
 
     # Updates are okay in metricbeat-indexed docs, but insertions and deletions are not
     if has_insertions_recursive(difference):
