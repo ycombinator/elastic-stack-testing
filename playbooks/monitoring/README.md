@@ -15,14 +15,14 @@ Our goal is for the Stack Monitoring UI in Kibana to work regardless of which co
 can be accomplished by ensuring that the documents indexed by the internal collection method are identical in 
 structure to those indexed by Metricbeat collection. The tests in this folder assert that this parity is maintained.
 
-**NOTE**: At this time Metricbeat collection only works for Elasticsearch and Kibana. As such, this folder only
-contains parity tests for Elasticsearch and Kibana. When we implement Metricbeat collection for Logstash and Beats,
+**NOTE**: At this time Metricbeat collection only works for Elasticsearch, Kibana, and Beats. As such, this folder only
+contains parity tests for Elasticsearch, Kibana, and Beats. When we implement Metricbeat collection for Logstash,
 corresponding parity tests will be added to this folder.
 
 ### How do the tests work?
 
 At the topmost level, the parity tests are separated by the product being monitored — Elasticsearch, Kibana, and 
-Logstash. Each product's parity tests are run via an Ansible playbook.
+Beats. Each product's parity tests are run via an Ansible playbook.
 
 Each product's tests follow this general high-level approach:
 
@@ -95,7 +95,8 @@ See the sections below on how to run the tests locally and some useful diagnosis
    AIT_STACK_PRODUCT=$product ./playbooks/monitoring/buildenv.sh
    ```
 
-   Where, `$product` must be either `elasticsearch` or `kibana`, depending on which product's tests you want to run.
+   Where, `$product` must be either `elasticsearch`, `kibana`, or `beat`, depending on which product's tests you
+   want to run.
 
    The tests will take a few minutes to run, spinning up a VM in VirtualBox, installing the various products in that 
    VM and performing the test steps outlined earlier.
