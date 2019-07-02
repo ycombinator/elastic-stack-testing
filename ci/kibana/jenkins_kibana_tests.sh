@@ -455,6 +455,7 @@ function add_percy_pkg() {
 function cp_visual_tests() {
   # Get files
   git submodule add https://github.com/elastic/kibana-visual-tests
+  mv kibana-visual-tests/src/dev/ci_setup/get_percy_env.js src/dev/ci_setup/get_percy_env.js
   cp -r kibana-visual-tests/test/visual_regression test
   git rm -f kibana-visual-tests
   git rm -f .gitmodules
