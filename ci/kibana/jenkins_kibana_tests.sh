@@ -448,14 +448,17 @@ function run_ci_setup() {
 # -----------------------------------------------------------------------------
 function add_percy_pkg() {
   yarn add -D @percy/agent
-  export PERCY_TARGET_BRANCH=$(git branch | grep \* | cut -d ' ' -f2)
+}
+
+# -----------------------------------------------------------------------------
+function set_percy_branch() {
+  export PERCY_TARGET_BRANCH=$(git branch | grep \* | cut -d ' ' -f2) 
 }
 
 # -----------------------------------------------------------------------------
 function cp_visual_tests() {
   # Get files
   git submodule add https://github.com/elastic/kibana-visual-tests
-  mv kibana-visual-tests/src/dev/ci_setup/get_percy_env.js src/dev/ci_setup/get_percy_env.js
   cp -r kibana-visual-tests/test/visual_regression test
   git rm -f kibana-visual-tests
   git rm -f .gitmodules
@@ -609,7 +612,7 @@ function run_visual_tests_oss() {
   run_ci_setup
   TEST_KIBANA_BUILD=oss
   install_kibana
-  add_percy_pkg
+  set_percy_branch
   cp_visual_tests
 
   # Run Tests
