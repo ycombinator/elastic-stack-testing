@@ -36,6 +36,18 @@
     group: root
   become: true
 
+- name: Filebeat configuration - append
+  lineinfile:
+    path: '{{ filebeat_config_file }}'
+    insertafter: EOF
+    line: '{{ config_item }}'
+  with_items: '{{ filebeat_config_params  }}'
+  loop_control:
+    loop_var: config_item
+  become: true
+  when: filebeat_config_params_file is not defined and
+        filebeat_config_params is defined
+
 - name: Add filebeat x-pack configuration parameters
   blockinfile:
     path: '{{ filebeat_config_file }}'
