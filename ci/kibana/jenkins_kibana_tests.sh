@@ -452,6 +452,16 @@ function add_percy_pkg() {
 }
 
 # -----------------------------------------------------------------------------
+function cp_visual_tests() {
+  # Get files
+  git submodule add https://github.com/elastic/kibana-visual-tests
+  cp -r kibana-visual-tests/test/visual_regression test
+  git rm -f kibana-visual-tests
+  git rm -f .gitmodules
+  rm -rf .git/modules/kibana-visual-tests/
+}
+
+# -----------------------------------------------------------------------------
 function percy_mods() {
   # Update setup_mocha
   sed -ire "s/mocha.suite.beforeEach[(]'global before each', async [(][)] => [{]/mocha.suite.beforeEach('global before each', async function () {/" src/functional_test_runner/lib/mocha/setup_mocha.js
@@ -599,7 +609,7 @@ function run_visual_tests_oss() {
   TEST_KIBANA_BUILD=oss
   install_kibana
   add_percy_pkg
-  percy_mods
+  cp_visual_tests
 
   # Run Tests
   export TEST_BROWSER_HEADLESS=1
@@ -609,8 +619,7 @@ function run_visual_tests_oss() {
   node scripts/functional_tests \
     --kibana-install-dir=${Glb_Kibana_Dir} \
     --esFrom snapshot \
-    --config test/functional/config.js \
-    --include-tag "visualTestGrp" \
+    --test/visual_regression/config.ts \
     --debug
 }
 
