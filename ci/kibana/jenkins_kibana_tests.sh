@@ -619,7 +619,7 @@ function run_visual_tests_oss() {
   node scripts/functional_tests \
     --kibana-install-dir=${Glb_Kibana_Dir} \
     --esFrom snapshot \
-    --test/visual_regression/config.ts \
+    --config test/visual_regression/config.ts \
     --debug
 }
 
