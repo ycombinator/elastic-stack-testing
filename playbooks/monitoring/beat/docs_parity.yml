@@ -46,7 +46,7 @@
       vars:
         ait_role: xpack_filebeat_install_config_start_verify
         filebeat_config_params: |
-          monitoring.enabled: true
+          xpack.monitoring.enabled: true
 
     - name: Wait for filebeat to index a few monitoring documents
       wait_for:
