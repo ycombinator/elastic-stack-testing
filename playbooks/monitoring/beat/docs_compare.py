@@ -7,6 +7,7 @@ import os
 import sys
 from jsondiff import diff
 import json
+import pprint
 
 def get_doc_types(docs_path):
     files = os.listdir(docs_path)
@@ -102,8 +103,9 @@ internal_doc_types = get_doc_types(internal_docs_path)
 metricbeat_doc_types = get_doc_types(metricbeat_docs_path)
 
 if len(internal_doc_types) > len(metricbeat_doc_types):
-    log_parity_error("Found more internally-indexed document types than metricbeat-indexed document types")
-
+    diff_elements = set(internal_doc_types) - set(metricbeat_doc_types)
+    log_parity_error("Found more internally-indexed document types than metricbeat-indexed document types.\n \
+            Document types indexed by internal collection but not by Metricbeat collection: {}".format(pprint.pformat(diff_elements)))
 for doc_type in internal_doc_types:
     internal_doc = get_doc(internal_docs_path, doc_type)
     metricbeat_doc = get_doc(metricbeat_docs_path, doc_type)
