@@ -416,7 +416,7 @@ function yarn_kbn_bootstrap() {
 # ----------------------------------------------------------------------------
 function check_git_changes() {
 
-  local _git_changes="$(git ls-files --modified)"
+  local _git_changes="$(git ls-files --modified | grep -Ev "yarn.lock")"
 
   # Temporary to get windows tests to run in CI until chromedriver is officially bumped
   # See: https://github.com/elastic/kibana/pull/24925
