@@ -111,6 +111,14 @@ def handle_special_case_shards(internal_doc, metricbeat_doc):
       'name': source_node['name']
     }
 
+    # Internally-indexed docs of `type:shard` will set `shard.relocating_node` to `null`, if
+    # the shard is not relocating. However, Metricbeat-indexed docs of `type:shard` will simply
+    # not send the `shard.relocating_node` field if the shard is not relocating. So we normalize
+    # by deleting the `shard.relocating_node` field from the internally-indexed doc if the shard
+    # is not relocating.
+    if 'relocating_node' in internal_doc['shard'] and internal_doc['shard']['relocating_node'] == None:
+        internal_doc['shard'].pop('relocating_node')
+
 def handle_special_cases(doc_type, internal_doc, metricbeat_doc):
     if doc_type == "index_recovery":
         handle_special_case_index_recovery(internal_doc, metricbeat_doc)
