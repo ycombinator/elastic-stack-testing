@@ -72,26 +72,17 @@
       with_items: "{{ xpack_elasticsearch_monitoring_sample_docs.json.hits.hits }}"
       delegate_to: localhost
 
-    - name: Disable internal monitoring collection
-      uri:
-        method: PUT
-        url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/_cluster/settings"
-        body: '{ "transient": { "xpack.monitoring.collection.enabled": false } }'
-        body_format: json
-        validate_certs: no
-        user: "{{ elasticsearch_username }}"
-        password: "{{ elasticsearch_password }}"
-        status_code: 200
+    - name: Uninstall elasticsearch
+      include_role:
+        name: elasticsearch
+      vars:
+        ait_role: elasticsearch_shutdown_uninstall_verify
 
-
-    - name: Clean out elasticsearch monitoring index
-      uri:
-        method: DELETE
-        url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/.monitoring-es-*"
-        validate_certs: no
-        user: "{{ elasticsearch_username }}"
-        password: "{{ elasticsearch_password }}"
-        status_code: 200
+    - name: Reinstall and restart elasticsearch
+      include_role:
+        name: xpack_elasticsearch
+      vars:
+        ait_role: xpack_elasticsearch_install_gencert_config_start_verify
 
     - name: Install metricbeat
       include_role:
