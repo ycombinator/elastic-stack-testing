@@ -149,24 +149,18 @@ for doc_type in internal_doc_types:
 
     difference.pop('$insert') 
 
-    # Expect there to be exactly one top-level deletion from metricbeat-indexed doc: source_node
-    deletions = difference.get('$delete')
-    if deletions == None or len(deletions) < 1:
-        log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has no deletions. Expected 'source_node' to be deleted.")
+    # Expect there to be exactly one top-level deletion from metricbeat-indexed doc - the `source_node` field - except
+    # if the doc type is `node_stats` or `shards`. Those doc types are expected to contain the `source_node` field
+    if doc_type != 'node_stats' and doc_type != 'shards':
+        deletions = difference.get('$delete')
+        if deletions == None or len(deletions) < 1:
+          # All other types should have source_node deleted from Metricbeat-indexed docs.
+          log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has no deletions. Expected 'source_node' to be deleted.")
 
-    if len(deletions) > 1:
-        log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has too many deletions: " + json.dumps(deletions))
+        if len(deletions) > 1:
+            log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has too many deletions: " + json.dumps(deletions))
 
-    if deletions[0] != 'source_node' and doc_type != 'node_stats' and doc_type != 'shards':
-        # type:node_stats and type:shards docs still need the source_node field since the UI depends on it
-        log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' does not have 'source_node' deleted.")
-
-    difference.pop('$delete') 
-
-    if doc_type == 'node_stats' or doc_type == 'shards':
-      if deletions[0] == 'source_node':
-        # type:node_stats and type:shards docs still need the source_node field since the UI depends on it
-        log_parity_error("Metricbeat-index doc for type='" + doc_type +"' must contain source_node field.")
+        difference.pop('$delete') 
 
     # Updates are okay in metricbeat-indexed docs, but insertions and deletions are not
     if has_insertions_recursive(difference):
