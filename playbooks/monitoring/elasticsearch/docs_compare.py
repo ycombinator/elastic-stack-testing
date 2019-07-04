@@ -88,9 +88,43 @@ def handle_special_case_index_recovery(internal_doc, metricbeat_doc):
     internal_doc["index_recovery"]["shards"] = [ internal_doc["index_recovery"]["shards"][0] ]
     metricbeat_doc["index_recovery"]["shards"] = [ metricbeat_doc["index_recovery"]["shards"][0] ]
 
+def handle_special_case_cluster_stats(internal_doc, metricbeat_doc):
+    # When Metricbeat-based monitoring is used, Metricbeat will setup an ILM policy for
+    # metricbeat-* indices. Obviously this policy is not present when internal monitoring is
+    # used, since Metricbeat is not running in that case. So we normalize by removing the
+    # usage stats associated with the Metricbeat-created ILM policy.
+    ilm = metricbeat_doc["stack_stats"]["xpack"]["ilm"]
+
+    ilm["policy_stats"].pop()
+    metricbeat_doc["stack_stats"]["xpack"]["ilm"]["policy_stats"] = ilm["policy_stats"]
+    metricbeat_doc["stack_stats"]["xpack"]["ilm"]["policy_count"] = ilm["policy_count"] - 1
+
+def handle_special_case_shards(internal_doc, metricbeat_doc):
+    # Metricbeat-indexed docs of `type:shard` fake the `source_node` field since its required
+    # by the UI. However, it only fakes the `source_node.uuid` and `source_node.name` fields
+    # since those are the only ones actually used by the UI. So we normalize by removing all
+    # but those two fields from the internally-indexed doc.
+    source_node = internal_doc['source_node']
+    internal_doc['source_node'] = {
+      'uuid': source_node['uuid'],
+      'name': source_node['name']
+    }
+
+    # Internally-indexed docs of `type:shard` will set `shard.relocating_node` to `null`, if
+    # the shard is not relocating. However, Metricbeat-indexed docs of `type:shard` will simply
+    # not send the `shard.relocating_node` field if the shard is not relocating. So we normalize
+    # by deleting the `shard.relocating_node` field from the internally-indexed doc if the shard
+    # is not relocating.
+    if 'relocating_node' in internal_doc['shard'] and internal_doc['shard']['relocating_node'] == None:
+        internal_doc['shard'].pop('relocating_node')
+
 def handle_special_cases(doc_type, internal_doc, metricbeat_doc):
     if doc_type == "index_recovery":
         handle_special_case_index_recovery(internal_doc, metricbeat_doc)
+    if doc_type == "cluster_stats":
+        handle_special_case_cluster_stats(internal_doc, metricbeat_doc)
+    if doc_type == 'shards':
+        handle_special_case_shards(internal_doc, metricbeat_doc)
 
 
 if (len(sys.argv) < 3):
@@ -133,24 +167,18 @@ for doc_type in internal_doc_types:
 
     difference.pop('$insert') 
 
-    # Expect there to be exactly one top-level deletion from metricbeat-indexed doc: source_node
-    deletions = difference.get('$delete')
-    if deletions == None or len(deletions) < 1:
-        log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has no deletions. Expected 'source_node' to be deleted.")
+    # Expect there to be exactly one top-level deletion from metricbeat-indexed doc - the `source_node` field - except
+    # if the doc type is `node_stats` or `shards`. Those doc types are expected to contain the `source_node` field
+    if doc_type != 'node_stats' and doc_type != 'shards':
+        deletions = difference.get('$delete')
+        if deletions == None or len(deletions) < 1:
+          # All other types should have source_node deleted from Metricbeat-indexed docs.
+          log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has no deletions. Expected 'source_node' to be deleted.")
 
-    if len(deletions) > 1:
-        log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has too many deletions: " + json.dumps(deletions))
+        if len(deletions) > 1:
+            log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has too many deletions: " + json.dumps(deletions))
 
-    if deletions[0] != 'source_node' and doc_type != 'node_stats' and doc_type != 'shards':
-        # type:node_stats and type:shards docs still need the source_node field since the UI depends on it
-        log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' does not have 'source_node' deleted.")
-
-    difference.pop('$delete') 
-
-    if doc_type == 'node_stats' or doc_type == 'shards':
-      if deletions[0] == 'source_node':
-        # type:node_stats and type:shards docs still need the source_node field since the UI depends on it
-        log_parity_error("Metricbeat-index doc for type='" + doc_type +"' must contain source_node field.")
+        difference.pop('$delete') 
 
     # Updates are okay in metricbeat-indexed docs, but insertions and deletions are not
     if has_insertions_recursive(difference):
