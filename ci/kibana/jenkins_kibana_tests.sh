@@ -644,11 +644,7 @@ function run_visual_tests_default() {
   install_kibana
   set_percy_branch
   cp_xpack_visual_tests
-
-  local _xpack_dir="$(cd x-pack; pwd)"
-  echo_info "-> XPACK_DIR ${_xpack_dir}"
-  cd "$_xpack_dir"
-
+  
   export TEST_BROWSER_HEADLESS=1
 
   echo_info "Running default visual tests"
