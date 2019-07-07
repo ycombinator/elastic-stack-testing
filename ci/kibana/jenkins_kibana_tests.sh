@@ -452,7 +452,7 @@ function add_percy_pkg() {
 
 # -----------------------------------------------------------------------------
 function set_percy_branch() {
-  export PERCY_TARGET_BRANCH=$(git branch | grep \* | cut -d ' ' -f2) 
+  export PERCY_TARGET_BRANCH=$(git branch | grep \* | cut -d ' ' -f2)
 }
 
 # -----------------------------------------------------------------------------
@@ -460,6 +460,16 @@ function cp_visual_tests() {
   # Get files
   git submodule add https://github.com/elastic/kibana-visual-tests
   cp -r kibana-visual-tests/test/visual_regression test
+  git rm -f kibana-visual-tests
+  git rm -f .gitmodules
+  rm -rf .git/modules/kibana-visual-tests/
+}
+
+# -----------------------------------------------------------------------------
+function cp_xpack_visual_tests() {
+  # Get files
+  git submodule add https://github.com/elastic/kibana-visual-tests
+  cp -r kibana-visual-tests/x-pack/test/visual_regression x-pack/test
   git rm -f kibana-visual-tests
   git rm -f .gitmodules
   rm -rf .git/modules/kibana-visual-tests/
@@ -629,8 +639,25 @@ function run_visual_tests_oss() {
 
 # -----------------------------------------------------------------------------
 function run_visual_tests_default() {
-  echo "These are not yet available"
-  exit 1
+  run_ci_setup
+  TEST_KIBANA_BUILD=default
+  install_kibana
+  set_percy_branch
+  cp_xpack_visual_tests
+
+  local _xpack_dir="$(cd x-pack; pwd)"
+  echo_info "-> XPACK_DIR ${_xpack_dir}"
+  cd "$_xpack_dir"
+
+  export TEST_BROWSER_HEADLESS=1
+
+  echo_info "Running default visual tests"
+  yarn run percy exec \
+  node scripts/functional_tests \
+    --kibana-install-dir=${Glb_Kibana_Dir} \
+    --esFrom=snapshot \
+    --debug \
+    --config x-pack/test/visual_regression/config.js
 }
 
 Glb_ChromeDriverHack=false
