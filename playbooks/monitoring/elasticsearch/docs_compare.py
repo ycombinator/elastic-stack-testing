@@ -99,6 +99,19 @@ def handle_special_case_cluster_stats(internal_doc, metricbeat_doc):
     metricbeat_doc["stack_stats"]["xpack"]["ilm"]["policy_stats"] = ilm["policy_stats"]
     metricbeat_doc["stack_stats"]["xpack"]["ilm"]["policy_count"] = ilm["policy_count"] - 1
 
+def handle_special_case_node_stats(internal_doc, metricbeat_doc):
+    # Metricbeat-indexed docs of `type:node_stats` fake the `source_node` field since its required
+    # by the UI. However, it only fakes the `source_node.uuid`, `source_node.name`, and
+    # `source_node.transport_address` fields since those are the only ones actually used by
+    # the UI. So we normalize by removing all but those three fields from the internally-indexed
+    # doc.
+    source_node = internal_doc['source_node']
+    internal_doc['source_node'] = {
+      'uuid': source_node['uuid'],
+      'name': source_node['name'],
+      'transport_address': source_node['transport_address']
+    }
+
 def handle_special_case_shards(internal_doc, metricbeat_doc):
     # Metricbeat-indexed docs of `type:shard` fake the `source_node` field since its required
     # by the UI. However, it only fakes the `source_node.uuid` and `source_node.name` fields
@@ -123,6 +136,8 @@ def handle_special_cases(doc_type, internal_doc, metricbeat_doc):
         handle_special_case_index_recovery(internal_doc, metricbeat_doc)
     if doc_type == "cluster_stats":
         handle_special_case_cluster_stats(internal_doc, metricbeat_doc)
+    if doc_type == 'node_stats':
+        handle_special_case_node_stats(internal_doc, metricbeat_doc)
     if doc_type == 'shards':
         handle_special_case_shards(internal_doc, metricbeat_doc)
 
