@@ -9,8 +9,6 @@
 # - Logging functions
 # ----------------------------------------------------------------------------
 
-set -e
-
 ###
 ### Since the Jenkins logging output collector doesn't look like a TTY
 ### Node/Chalk and other color libs disable their color output. But Jenkins
@@ -584,24 +582,35 @@ function run_cloud_xpack_tests() {
     --config test/api_integration/config.js \
     --debug \
     --exclude-tag skipCloud
+  api_rc=$?
 
   echo_info "Run Functional Tests"
   node ../scripts/functional_test_runner \
     --config test/functional/config.js \
     --debug \
     --exclude-tag skipCloud
+  func_rc=$?
 
   echo_info "Run Reports API"
   node ../scripts/functional_test_runner \
     --config test/reporting/configs/chromium_api.js \
     --debug \
     --exclude-tag skipCloud
+  rep_api_rc=$?
 
   echo_info "Run Reports Functional"
   node ../scripts/functional_test_runner \
     --config test/reporting/configs/chromium_functional.js \
     --debug \
     --exclude-tag skipCloud
+  rep_func_rc=$?
+
+  if [ $api_rc -ne 0 ] ||
+     [ $func_rc -ne 0 ] ||
+     [ $rep_api_rc -ne 0 ] ||
+     [ $rep_func_rc -ne 0 ]; then
+    echo_error_exit "Tests failed!"
+  fi
 
 }
 
@@ -619,6 +628,10 @@ function run_cloud_visual_tests_default() {
 
 # -----------------------------------------------------------------------------
 function run_visual_tests_oss() {
+  # Use run_visual_tests for now
+  echo "These are not yet available"
+  exit 1
+
   run_ci_setup
   TEST_KIBANA_BUILD=oss
   install_kibana
@@ -639,12 +652,16 @@ function run_visual_tests_oss() {
 
 # -----------------------------------------------------------------------------
 function run_visual_tests_default() {
+  # Use run_visual_tests for now
+  echo "These are not yet available"
+  exit 1
+
   run_ci_setup
   TEST_KIBANA_BUILD=default
   install_kibana
   set_percy_branch
   cp_xpack_visual_tests
-  
+
   export TEST_BROWSER_HEADLESS=1
 
   echo_info "Running default visual tests"
@@ -654,6 +671,47 @@ function run_visual_tests_default() {
     --esFrom=snapshot \
     --debug \
     --config x-pack/test/visual_regression/config.js
+}
+
+# -----------------------------------------------------------------------------
+function run_visual_tests() {
+  run_ci_setup
+  set_percy_branch
+  cp_visual_tests
+  cp_xpack_visual_tests
+
+  TEST_KIBANA_BUILD=oss
+  install_kibana
+
+  # Run Tests
+  export TEST_BROWSER_HEADLESS=1
+
+  echo_info "Running oss visual tests"
+  yarn run percy exec -t 500 \
+  node scripts/functional_tests \
+    --kibana-install-dir=${Glb_Kibana_Dir} \
+    --esFrom snapshot \
+    --config test/visual_regression/config.ts \
+    --debug
+  oss_rc=$?
+
+  TEST_KIBANA_BUILD=default
+  install_kibana
+
+  echo_info "Running default visual tests"
+  yarn run percy exec -t 500 \
+  node scripts/functional_tests \
+    --kibana-install-dir=${Glb_Kibana_Dir} \
+    --esFrom=snapshot \
+    --config x-pack/test/visual_regression/config.js \
+    --debug
+  xpack_rc=$?
+
+  if [ $oss_rc -ne 0 ] ||
+     [ $xpack_rc -ne 0 ]; then
+    echo_error_exit "Tests failed!"
+  fi
+
 }
 
 Glb_ChromeDriverHack=false
@@ -672,7 +730,7 @@ elif [ "$1" == "cloud_visual_tests_oss" ]; then
 elif [ "$1" == "cloud_visual_tests_default" ]; then
   run_cloud_visual_tests_default
 elif [ "$1" == "visual_tests_oss" ]; then
-  run_visual_tests_oss
+  run_visual_tests
 elif [ "$1" == "visual_tests_default" ]; then
   run_visual_tests_default
 else
