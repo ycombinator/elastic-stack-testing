@@ -628,15 +628,12 @@ function run_cloud_visual_tests_default() {
 
 # -----------------------------------------------------------------------------
 function run_visual_tests_oss() {
-  # Use run_visual_tests for now
-  echo "These are not yet available"
-  exit 1
-
   run_ci_setup
-  TEST_KIBANA_BUILD=oss
-  install_kibana
   set_percy_branch
   cp_visual_tests
+
+  TEST_KIBANA_BUILD=oss
+  install_kibana
 
   # Run Tests
   export TEST_BROWSER_HEADLESS=1
@@ -652,51 +649,15 @@ function run_visual_tests_oss() {
 
 # -----------------------------------------------------------------------------
 function run_visual_tests_default() {
-  # Use run_visual_tests for now
-  echo "These are not yet available"
-  exit 1
-
   run_ci_setup
+  set_percy_branch
+  cp_xpack_visual_tests
+
   TEST_KIBANA_BUILD=default
-  install_kibana
-  set_percy_branch
-  cp_xpack_visual_tests
-
-  export TEST_BROWSER_HEADLESS=1
-
-  echo_info "Running default visual tests"
-  yarn run percy exec \
-  node scripts/functional_tests \
-    --kibana-install-dir=${Glb_Kibana_Dir} \
-    --esFrom=snapshot \
-    --debug \
-    --config x-pack/test/visual_regression/config.js
-}
-
-# -----------------------------------------------------------------------------
-function run_visual_tests() {
-  run_ci_setup
-  set_percy_branch
-  cp_visual_tests
-  cp_xpack_visual_tests
-
-  TEST_KIBANA_BUILD=oss
   install_kibana
 
   # Run Tests
   export TEST_BROWSER_HEADLESS=1
-
-  echo_info "Running oss visual tests"
-  yarn run percy exec -t 500 \
-  node scripts/functional_tests \
-    --kibana-install-dir=${Glb_Kibana_Dir} \
-    --esFrom snapshot \
-    --config test/visual_regression/config.ts \
-    --debug
-  oss_rc=$?
-
-  TEST_KIBANA_BUILD=default
-  install_kibana
 
   echo_info "Running default visual tests"
   yarn run percy exec -t 500 \
@@ -705,13 +666,6 @@ function run_visual_tests() {
     --esFrom=snapshot \
     --config x-pack/test/visual_regression/config.js \
     --debug
-  xpack_rc=$?
-
-  if [ $oss_rc -ne 0 ] ||
-     [ $xpack_rc -ne 0 ]; then
-    echo_error_exit "Tests failed!"
-  fi
-
 }
 
 Glb_ChromeDriverHack=false
@@ -730,7 +684,7 @@ elif [ "$1" == "cloud_visual_tests_oss" ]; then
 elif [ "$1" == "cloud_visual_tests_default" ]; then
   run_cloud_visual_tests_default
 elif [ "$1" == "visual_tests_oss" ]; then
-  run_visual_tests
+  run_visual_tests_oss
 elif [ "$1" == "visual_tests_default" ]; then
   run_visual_tests_default
 else
