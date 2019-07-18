@@ -496,6 +496,26 @@ function percy_mods() {
 
 }
 
+# ----------------------------------------------------------------------------
+# Get Percy version from package.json file
+# ----------------------------------------------------------------------------
+function check_percy_pkg() {
+
+  local _percyVersion=$(cat package.json | \
+                        grep "percy" | \
+                        cut -d ':' -f 2 | \
+                        tr -d "^,\"\ +" | \
+                        xargs)
+
+  if [[ -z "$_percyVersion" ]]; then
+    #add_percy_pkg
+    #percy_mods
+    echo "No percy package available"
+    exit 1
+  fi
+
+}
+
 # -----------------------------------------------------------------------------
 function run_selenium_tests() {
   run_ci_setup
@@ -628,6 +648,7 @@ function run_cloud_visual_tests_default() {
 
 # -----------------------------------------------------------------------------
 function run_visual_tests_oss() {
+  check_percy_pkg
   run_ci_setup
   set_percy_branch
   cp_visual_tests
@@ -649,6 +670,7 @@ function run_visual_tests_oss() {
 
 # -----------------------------------------------------------------------------
 function run_visual_tests_default() {
+  check_percy_pkg
   run_ci_setup
   set_percy_branch
   cp_xpack_visual_tests
