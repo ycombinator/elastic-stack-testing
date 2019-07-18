@@ -28,7 +28,7 @@
     executable: /bin/bash
   register: metricbeat_setup_help_output
   ignore_errors: yes
-  become: true 
+  become: true
 
 - name: Check if import dashboards executable exists
   stat:
@@ -44,9 +44,9 @@
   when: file_import_dashboards.stat.exists is defined and file_import_dashboards.stat.exists
 
 - name: Import metricbeat dashboards through setup
-  shell: '{{ metricbeat_exe }} setup --dashboards -c {{ metricbeat_config_file }}'
+  shell: '{{ metricbeat_exe }} setup -c {{ metricbeat_config_file }}'
   args:
     executable: /bin/bash
   become: true
-  when: metricbeat_setup_help_output.failed is not defined and
-        metricbeat_setup_help_output.stdout is defined and (metricbeat_setup_help_output.stdout | search('--dashboards'))
+  when: not metricbeat_setup_help_output.failed and
+        metricbeat_setup_help_output.stdout is defined and (metricbeat_setup_help_output.stdout is search('--dashboards'))
