@@ -28,13 +28,13 @@
     executable: /bin/bash
   register: packetbeat_setup_help_output
   ignore_errors: yes
-  become: true 
+  become: true
 
 - name: Check if import dashboards executable exists
   stat:
     path: '{{ packetbeat_scripts }}/import_dashboards'
   register: file_import_dashboards
-  become: true 
+  become: true
 
 - name: Import packetbeat dashboards through import_dashboards
   shell: "{{ packetbeat_scripts }}/import_dashboards --insecure -es {{ packetbeat_es_url }} -url {{ beats_dashboards_package_url }}"
@@ -44,9 +44,9 @@
   when: file_import_dashboards.stat.exists is defined and file_import_dashboards.stat.exists
 
 - name: Import packetbeat dashboards through setup
-  shell: '{{ packetbeat_exe }} setup --dashboards -c {{ packetbeat_config_file }}'
+  shell: '{{ packetbeat_exe }} setup -c {{ packetbeat_config_file }}'
   args:
     executable: /bin/bash
   become: true
-  when: packetbeat_setup_help_output.failed is not defined and
-        packetbeat_setup_help_output.stdout is defined and (packetbeat_setup_help_output.stdout | search('--dashboards'))
+  when: not packetbeat_setup_help_output.failed and
+        packetbeat_setup_help_output.stdout is defined and (packetbeat_setup_help_output.stdout is search('--dashboards'))

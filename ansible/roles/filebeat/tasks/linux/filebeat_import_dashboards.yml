@@ -45,9 +45,9 @@
   when: file_import_dashboards.stat.exists is defined and file_import_dashboards.stat.exists
 
 - name: Import filebeat dashboards through setup
-  shell: '{{ filebeat_exe }} setup --dashboards -c {{ filebeat_config_file }}'
+  shell: '{{ filebeat_exe }} setup -c {{ filebeat_config_file }}'
   args:
     executable: /bin/bash
   become: true
-  when: filebeat_setup_help_output.failed is not defined and
-        filebeat_setup_help_output.stdout is defined and (filebeat_setup_help_output.stdout | search('--dashboards'))
+  when: not filebeat_setup_help_output.failed and
+        filebeat_setup_help_output.stdout is defined and (filebeat_setup_help_output.stdout is search('--dashboards'))
