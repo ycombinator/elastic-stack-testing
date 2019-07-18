@@ -44,10 +44,10 @@
   when: file_import_dashboards.stat.exists is defined and file_import_dashboards.stat.exists
 
 - name: Import heartbeat dashboards through setup
-  shell: '{{ heartbeat_exe }} setup --dashboards -c {{ heartbeat_config_file }}'
+  shell: '{{ heartbeat_exe }} setup -c {{ heartbeat_config_file }}'
   args:
     executable: /bin/bash
   become: true
-  when: heartbeat_setup_help_output.failed is not defined and
-        heartbeat_setup_help_output.stdout is defined and (heartbeat_setup_help_output.stdout | search('--dashboards'))
+  when: not heartbeat_setup_help_output.failed and
+        heartbeat_setup_help_output.stdout is defined and (heartbeat_setup_help_output.stdout is search('--dashboards'))
 
