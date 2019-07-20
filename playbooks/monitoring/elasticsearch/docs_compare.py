@@ -88,17 +88,6 @@ def handle_special_case_index_recovery(internal_doc, metricbeat_doc):
     internal_doc["index_recovery"]["shards"] = [ internal_doc["index_recovery"]["shards"][0] ]
     metricbeat_doc["index_recovery"]["shards"] = [ metricbeat_doc["index_recovery"]["shards"][0] ]
 
-def handle_special_case_cluster_stats(internal_doc, metricbeat_doc):
-    # When Metricbeat-based monitoring is used, Metricbeat will setup an ILM policy for
-    # metricbeat-* indices. Obviously this policy is not present when internal monitoring is
-    # used, since Metricbeat is not running in that case. So we normalize by removing the
-    # usage stats associated with the Metricbeat-created ILM policy.
-    ilm = metricbeat_doc["stack_stats"]["xpack"]["ilm"]
-
-    ilm["policy_stats"].pop()
-    metricbeat_doc["stack_stats"]["xpack"]["ilm"]["policy_stats"] = ilm["policy_stats"]
-    metricbeat_doc["stack_stats"]["xpack"]["ilm"]["policy_count"] = ilm["policy_count"] - 1
-
 def handle_special_case_node_stats(internal_doc, metricbeat_doc):
     # Metricbeat-indexed docs of `type:node_stats` fake the `source_node` field since its required
     # by the UI. However, it only fakes the `source_node.uuid`, `source_node.name`, and
@@ -134,8 +123,6 @@ def handle_special_case_shards(internal_doc, metricbeat_doc):
 def handle_special_cases(doc_type, internal_doc, metricbeat_doc):
     if doc_type == "index_recovery":
         handle_special_case_index_recovery(internal_doc, metricbeat_doc)
-    if doc_type == "cluster_stats":
-        handle_special_case_cluster_stats(internal_doc, metricbeat_doc)
     if doc_type == 'node_stats':
         handle_special_case_node_stats(internal_doc, metricbeat_doc)
     if doc_type == 'shards':
