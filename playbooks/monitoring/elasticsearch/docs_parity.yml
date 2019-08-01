@@ -11,6 +11,32 @@
 
   vars:
     monitoring_docs_dir: "{{ lookup('env', 'WORKSPACE') }}/monitoring/"
+    es_docs_query: |
+      {
+        "query": {
+          "bool": {
+            "should": [ 
+              {
+                "bool": {
+                  "must_not": [
+                    { "term": { "type": "shards" } }
+                  ]
+                }
+              },
+              {
+                "bool": {
+                  "must": [
+                    { "term": { "type": "shards" } },
+                    { "term": { "shard.state": "STARTED" } }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "collapse": { "field": "type" },
+        "sort": { "timestamp": "desc" }
+      }
 
   vars_files:
     - "{{ es_var_file | default(lookup('env','ANSIBLE_GROUP_VARS')) }}"
@@ -60,7 +86,7 @@
         return_content: yes
         user: "{{ elasticsearch_username }}"
         password: "{{ elasticsearch_password }}"
-        body: '{ "collapse": { "field": "type" }, "sort": { "timestamp": "desc" } }'
+        body: "{{ es_docs_query }}"
         body_format: json
         status_code: 200
       register: xpack_elasticsearch_monitoring_sample_docs
@@ -142,7 +168,7 @@
         user: "{{ elasticsearch_username }}"
         password: "{{ elasticsearch_password }}"
         method: POST
-        body: '{ "collapse": { "field": "type" }, "sort": { "timestamp": "desc" } }'
+        body: "{{ es_docs_query }}"
         body_format: json
         status_code: 200
       register: xpack_elasticsearch_monitoring_sample_docs
