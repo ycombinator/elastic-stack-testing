@@ -483,6 +483,46 @@ function run_xpack_tests() {
 }
 
 # -----------------------------------------------------------------------------
+function run_code_tests() {
+  run_ci_setup
+  TEST_KIBANA_BUILD=default
+  install_kibana
+
+  local _xpack_dir="$(cd x-pack; pwd)"
+  echo_info "-> XPACK_DIR ${_xpack_dir}"
+  cd "$_xpack_dir"
+
+  export TEST_BROWSER_HEADLESS=1
+
+  #echo_info "Running xpack mocha tests"
+  #yarn test
+
+  #echo_info "Running xpack jest tests"
+  #node scripts/jest --ci --no-cache --verbose
+
+  echo_info "Run API Integration"
+  node scripts/functional_tests \
+    --kibana-install-dir=${Glb_Kibana_Dir} \
+    --config=test/api_integration/config.js \
+    --esFrom=snapshot \
+    --grep="^apis Code .*"
+  api_rc=$?
+
+  echo_info "Run Functional Tests"
+  node scripts/functional_tests \
+    --kibana-install-dir=${Glb_Kibana_Dir} \
+    --config=test/functional/config.js \
+    --esFrom=snapshot \
+    --grep="^Code .*"
+  func_rc=$?
+
+  if [ $api_rc -ne 0 ] ||
+     [ $func_rc -ne 0 ]; then
+    echo_error_exit "Tests failed!"
+  fi
+}
+
+# -----------------------------------------------------------------------------
 function run_unit_tests() {
   run_ci_setup
   export TEST_ES_FROM=snapshot
@@ -549,6 +589,8 @@ if [ "$1" == "selenium" ]; then
   run_selenium_tests
 elif [ "$1" == "xpack" ]; then
   run_xpack_tests
+elif [ "$1" == "code" ]; then
+  run_code_tests
 elif [ "$1" == "unit" ]; then
   run_unit_tests
 elif [ "$1" == "cloud_selenium" ]; then
