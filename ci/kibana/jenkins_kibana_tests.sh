@@ -405,7 +405,7 @@ function yarn_kbn_bootstrap() {
   fi
   if $Glb_ChromeDriverHack; then
     echo_warning "Temporary update package.json bump chromedriver."
-    sed -ie 's/"chromedriver": "^74.0.0"/"chromedriver": "2.44"/g' package.json
+    sed -ie 's/"chromedriver": "^76.0.0"/"chromedriver": "^75.1.0"/g' package.json
   fi
 
   yarn kbn bootstrap
@@ -730,7 +730,7 @@ function run_visual_tests_default() {
     --debug
 }
 
-Glb_ChromeDriverHack=false
+Glb_ChromeDriverHack=true
 if [ "$1" == "selenium" ]; then
   run_selenium_tests
 elif [ "$1" == "xpack" ]; then
