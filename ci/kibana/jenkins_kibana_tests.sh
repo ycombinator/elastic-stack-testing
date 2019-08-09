@@ -536,6 +536,7 @@ function run_selenium_tests() {
 
 # -----------------------------------------------------------------------------
 function run_xpack_tests() {
+
   run_ci_setup
   TEST_KIBANA_BUILD=default
   install_kibana
@@ -546,17 +547,47 @@ function run_xpack_tests() {
 
   export TEST_BROWSER_HEADLESS=1
 
-  #echo_info "Running xpack mocha tests"
-  #yarn test
+  echo_info "Running xpack tests"
+  echo_warning "Not all tests are included"
 
-  #echo_info "Running xpack jest tests"
-  #node scripts/jest --ci --no-cache --verbose
-
-  echo_info "Running xpack functional and api tests"
+  echo_info "Run Reports API"
   node scripts/functional_tests \
+    --config test/reporting/configs/chromium_api.js \
     --kibana-install-dir=${Glb_Kibana_Dir} \
     --esFrom=snapshot \
     --debug
+  rep_api_rc=$?
+
+  echo_info "Run Reports Functional"
+  node scripts/functional_tests \
+    --config test/reporting/configs/chromium_functional.js \
+    --kibana-install-dir=${Glb_Kibana_Dir} \
+    --esFrom=snapshot \
+    --debug
+  rep_func_rc=$?
+
+  echo_info "Run Functional Tests"
+  node scripts/functional_tests \
+    --config test/functional/config.js \
+    --kibana-install-dir=${Glb_Kibana_Dir} \
+    --esFrom=snapshot \
+    --debug
+  func_rc=$?
+
+  echo_info "Run API Integration"
+  node ../scripts/functional_test_runner \
+    --config test/api_integration/config.js \
+    --kibana-install-dir=${Glb_Kibana_Dir} \
+    --esFrom=snapshot \
+    --debug
+  api_rc=$?
+
+  if [ $api_rc -ne 0 ] ||
+     [ $func_rc -ne 0 ] ||
+     [ $rep_api_rc -ne 0 ] ||
+     [ $rep_func_rc -ne 0 ]; then
+    echo_error_exit "Tests failed!"
+  fi
 
 }
 
@@ -635,7 +666,7 @@ function run_cloud_xpack_tests() {
   export TEST_BROWSER_HEADLESS=1
 
   echo_info "Running xpack tests"
-  echo_warning "Not all tests are including"
+  echo_warning "Not all tests are included"
 
   echo_info "Run API Integration"
   node ../scripts/functional_test_runner \
