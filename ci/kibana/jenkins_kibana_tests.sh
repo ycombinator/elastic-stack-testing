@@ -456,7 +456,10 @@ function set_percy_branch() {
 # -----------------------------------------------------------------------------
 function cp_visual_tests() {
   # Get files
-  git submodule -b $PERCY_TARGET_BRANCH add https://github.com/elastic/kibana-visual-tests
+  git submodule -b $(basename $branch_specifier) add https://github.com/elastic/kibana-visual-tests
+  if [ $? -ne 0 ]; then 
+    echo_error_exit "Submodule checkout failed!"
+  fi
   cp -r kibana-visual-tests/test/visual_regression test
   git rm -f kibana-visual-tests
   git rm -f .gitmodules
@@ -466,7 +469,10 @@ function cp_visual_tests() {
 # -----------------------------------------------------------------------------
 function cp_xpack_visual_tests() {
   # Get files
-  git submodule -b $PERCY_TARGET_BRANCH add https://github.com/elastic/kibana-visual-tests
+  git submodule -b $(basename $branch_specifier) add https://github.com/elastic/kibana-visual-tests
+  if [ $? -ne 0 ]; then 
+    echo_error_exit "Submodule checkout failed!"
+  fi
   cp -r kibana-visual-tests/x-pack/test/visual_regression x-pack/test
   git rm -f kibana-visual-tests
   git rm -f .gitmodules
