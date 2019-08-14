@@ -20,7 +20,6 @@ def get_doc_types(docs_path):
 def get_doc(docs_path, doc_type):
     with open(os.path.join(docs_path, doc_type + ".json")) as f:
         data = f.read()
-    f.closed
     return json.loads(data)
 
 def remove_field(doc, field):
