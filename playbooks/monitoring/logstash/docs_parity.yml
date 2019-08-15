@@ -1,0 +1,12 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Playbook: Test for parity between metricbeat-indexed and internally-indexed Monitoring docs
+#
+# Author: shaunak@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+- hosts: "{{ uut | default(lookup('env','AIT_UUT')) }}"
+
+  tasks:
+    - name: NOOP
+      debug:
+        msg: Nothing to do for logstash parity tests as the logstash Metricbeat module is only available starting 7.3.0
