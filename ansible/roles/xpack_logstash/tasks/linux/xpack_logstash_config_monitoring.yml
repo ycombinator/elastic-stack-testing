@@ -1,0 +1,21 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Logstash x-pack configuration
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Add logstash x-pack configuration parameters
+  blockinfile:
+    path: '{{ logstash_config_file }}'
+    marker: '# {mark} ANSIBLE MANAGED BLOCK LOGSTASH XPACK PARAMETERS'
+    insertafter: EOF
+    content: |
+      xpack.monitoring.enabled: true
+      xpack.monitoring.elasticsearch.hosts: https://{{ current_host_ip }}:{{ elasticsearch_port }}
+      xpack.monitoring.elasticsearch.username: logstash_system
+      xpack.monitoring.elasticsearch.password: {{ elasticsearch_password }}
+      xpack.monitoring.elasticsearch.ssl.certificate_authority: {{ logstash_rootdir | trim }}/ca/ca.crt
+      path.config:  {{ logstash_conf_path }}
+      path.logs: {{ logstash_log_dir }}
+  become: '{{ logstash_run_as_root | default(omit) }}'

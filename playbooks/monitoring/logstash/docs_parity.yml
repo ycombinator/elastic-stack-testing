@@ -1,0 +1,171 @@
+#----------------------------------------------------------------------------------------------------------------------
+# Playbook: Test for parity between metricbeat-indexes and internally-indexed Monitoring docs
+#
+# Author: shaunak@elastic.co
+#----------------------------------------------------------------------------------------------------------------------
+
+- hosts: "{{ uut | default(lookup('env','AIT_UUT')) }}"
+  roles:
+    - role: elasticsearch
+    - role: logstash
+    - role: metricbeat
+
+  vars:
+    monitoring_docs_dir: "{{ lookup('env', 'WORKSPACE') }}/monitoring/"
+    logstash_port: 9600
+
+  vars_files:
+    - "{{ es_var_file | default(lookup('env','ANSIBLE_GROUP_VARS')) }}"
+
+  tasks:
+    - name: Clean out old directories to hold monitoring sample docs files
+      file:
+        state: absent
+        path: "{{ monitoring_docs_dir }}/logstash"
+      delegate_to: localhost
+
+    - name: Make directories to hold monitoring sample docs files
+      file:
+        state: directory
+        path: "{{ monitoring_docs_dir }}/logstash/{{ item }}/"
+      with_items:
+        - internal
+        - metricbeat
+      delegate_to: localhost
+
+    - name: Start elasticsearch with monitoring collection enabled
+      include_role:
+        name: xpack_elasticsearch
+      vars:
+        elasticsearch_config_params: {"xpack.monitoring.collection.enabled: true"}
+        ait_role: xpack_elasticsearch_install_gencert_config_start_verify
+
+    - name: Start logstash
+      include_role:
+        name: xpack_logstash
+      vars:
+        ait_role: xpack_logstash_install_config_start_verify
+
+    - name: Wait for logstash to index a few monitoring documents
+      wait_for:
+        timeout: 15
+
+    - name: Stop and uninstall logstash
+      include_role:
+        name: logstash
+      vars:
+        ait_role: logstash_shutdown_uninstall_verify
+
+    - name: Get sample logstash-indexed docs from monitoring index
+      uri:
+        method: POST
+        url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/.monitoring-logstash-*/_search"
+        validate_certs: no
+        return_content: yes
+        user: "{{ elasticsearch_username }}"
+        password: "{{ elasticsearch_password }}"
+        body: '{ "collapse": { "field": "type" }, "sort": { "timestamp": "asc" } }'
+        body_format: json
+        status_code: 200
+      register: xpack_elasticsearch_monitoring_sample_docs
+
+    - name: Write sample docs to temp files
+      copy:
+        content: "{{ item._source }}"
+        dest: "{{ monitoring_docs_dir }}/logstash/internal/{{ item._source.type }}.json"
+      with_items: "{{ xpack_elasticsearch_monitoring_sample_docs.json.hits.hits }}"
+      delegate_to: localhost
+
+    - name: Clean out logstash monitoring index
+      uri:
+        method: DELETE
+        url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/.monitoring-logstash-*"
+        validate_certs: no
+        user: "{{ elasticsearch_username }}"
+        password: "{{ elasticsearch_password }}"
+        status_code: 200
+
+    - name: Start logstash
+      include_role:
+        name: xpack_logstash
+      vars:
+        ait_role: xpack_logstash_install_config_nomon_start_verify
+        logstash_config_params: |
+          http.host: {{ current_host_ip }}
+
+    - name: Install metricbeat
+      include_role:
+        name: metricbeat
+      vars:
+        ait_action: metricbeat_install
+
+    - name: Enable metricbeat's logstash module
+      file:
+        path: '{{ metricbeat_rootdir }}/modules.d/logstash.yml.disabled'
+        state: absent
+      become: true
+
+    - name: Configure metricbeat's logstash module to collect monitoring documents
+      copy:
+        dest: '{{ metricbeat_rootdir }}/modules.d/logstash.yml'
+        content: |
+          - module: logstash
+            metricsets:
+            - node
+            - node_stats
+            period: 10s
+            hosts: ["http://{{ current_host_ip }}:{{ logstash_port }}"]
+            xpack.enabled: true
+      become: true
+
+    - name: Start metricbeat
+      include_role:
+        name: xpack_metricbeat
+      vars:
+        ait_role: xpack_metricbeat_config_start_verify
+
+    - name: Wait for metricbeat to index a few monitoring documents
+      wait_for:
+        timeout: 15
+
+    - name: Stop metricbeat
+      include_role:
+        name: metricbeat
+      vars:
+        ait_action: metricbeat_shutdown
+
+    - name: Stop logstash
+      include_role:
+        name: logstash
+      vars:
+        ait_role: logstash_shutdown_verify
+
+    - name: Get sample metricbeat-indexed docs from monitoring index
+      uri:
+        url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/.monitoring-logstash-*/_search"
+        validate_certs: no
+        return_content: yes
+        user: "{{ elasticsearch_username }}"
+        password: "{{ elasticsearch_password }}"
+        method: POST
+        body: '{ "collapse": { "field": "type" }, "sort": { "timestamp": "asc" } }'
+        body_format: json
+        status_code: 200
+      register: xpack_elasticsearch_monitoring_sample_docs
+
+    - name: Write sample docs to temp files
+      copy:
+        content: "{{ item._source }}"
+        dest: "{{ monitoring_docs_dir }}/logstash/metricbeat/{{ item._source.type }}.json"
+      with_items: "{{ xpack_elasticsearch_monitoring_sample_docs.json.hits.hits }}"
+      delegate_to: localhost
+
+    - name: Stop elasticsearch
+      include_role:
+        name: elasticsearch
+      vars:
+        ait_action: elasticsearch_shutdown
+
+    - name: Compare internally-indexed and metricbeat-indexed documents for parity
+      shell: 'python {{ playbook_dir }}/docs_compare.py {{ monitoring_docs_dir }}/logstash/internal {{ monitoring_docs_dir }}/logstash/metricbeat'
+      delegate_to: localhost
