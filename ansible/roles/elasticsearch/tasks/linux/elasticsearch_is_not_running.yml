@@ -15,7 +15,3 @@
       retries: 5
       delay: 3
       until: elasticsearch_process_id.stdout == ""
-    - name: Fail if elasticsearch process is running
-      fail:
-        msg: 'elasticsearch is running'
-      when: elasticsearch_process_id.stdout != ""
