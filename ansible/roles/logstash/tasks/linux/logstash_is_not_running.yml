@@ -12,7 +12,6 @@
       args:
         executable: /bin/bash
       register: logstash_process_id
-    - name: Fail if logstash process is running
-      fail:
-        msg: 'logstash is running'
-      when: logstash_process_id.stdout != ""
+      retries: 5
+      delay: 3
+      until: logstash_process_id.stdout == ""
