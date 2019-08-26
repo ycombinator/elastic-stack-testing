@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 
 # ----------------------------------------------------------------------------
+#
 # Functions to:
-# - Download and install kibana archive: .zip or .tar.gz
-# - Download and install node and yarn
-# - Kibana bootstrap
-# - Run Kibana tests: unit, selenium and xpack
-# - Logging functions
+#  - Download and install kibana archive: .zip or .tar.gz
+#  - Download and install node and yarn
+#  - Kibana bootstrap
+#  - Run Kibana tests: unit, selenium and xpack
+#  - Logging functions
+#
+# Author: Liza Dayoub
+#
 # ----------------------------------------------------------------------------
 
 ###
@@ -16,12 +20,6 @@
 ### to enable color support in Chalk and other related modules.
 ###
 export FORCE_COLOR=1
-
-# ----------------------------------------------------------------------------
-
-if [ -z $COLOR_LOGS ] || ([ ! -z $COLOR_LOGS ] && $COLOR_LOGS); then
-    export COLOR_LOGS=true
-fi
 
 NC='\033[0m' # No Color
 WHITE='\033[1;37m'
@@ -41,11 +39,28 @@ YELLOW='\033[1;33m'
 GRAY='\033[0;30m'
 LIGHT_GRAY='\033[0;37m'
 
-date_timestamp() {
+if [ -z $COLOR_LOGS ] || ([ ! -z $COLOR_LOGS ] && $COLOR_LOGS); then
+    export COLOR_LOGS=true
+fi
+
+Glb_Cache_Dir="${CACHE_DIR:-"$HOME/.kibana"}"
+readonly Glb_Cache_Dir
+
+# *****************************************************************************
+# SECTION: Logging functions
+# *****************************************************************************
+
+# ----------------------------------------------------------------------------
+# Method to get date timestamp
+# ----------------------------------------------------------------------------
+function date_timestamp() {
   date "+%Y-%m-%d %H:%M:%S"
 }
 
-echo_error() {
+# ----------------------------------------------------------------------------
+# Method to print error message
+# ----------------------------------------------------------------------------
+function echo_error() {
   if [ ${COLOR_LOGS} == true ]; then
     echo -e ${RED}"["$(date_timestamp)"] [ERROR] $1" ${NC}
   else
@@ -53,12 +68,18 @@ echo_error() {
   fi
 }
 
-echo_error_exit() {
+# ----------------------------------------------------------------------------
+# Method to print error message and exit with error status
+# -----------------------------------------------------------------------------
+function echo_error_exit() {
   echo_error "$1"
   exit 1
 }
 
-echo_warning() {
+# ----------------------------------------------------------------------------
+# Method to print warning message
+# ----------------------------------------------------------------------------
+function echo_warning() {
   if [ ${COLOR_LOGS} == true ]; then
     echo -e ${YELLOW}"["$(date_timestamp)"] [WARNING] $1" ${NC}
   else
@@ -66,7 +87,10 @@ echo_warning() {
   fi
 }
 
-echo_info() {
+# ----------------------------------------------------------------------------
+# Method to print info message
+# ----------------------------------------------------------------------------
+function echo_info() {
   if [ ${COLOR_LOGS} == true ]; then
     echo -e ${LIGHT_BLUE}"["$(date_timestamp)"] [INFO] $1" ${NC}
   else
@@ -74,7 +98,10 @@ echo_info() {
   fi
 }
 
-echo_debug() {
+# ----------------------------------------------------------------------------
+# Method to print debug message
+# ----------------------------------------------------------------------------
+function echo_debug() {
   if [ ${COLOR_LOGS} == true ]; then
     echo -e ${GRAY}"["$(date_timestamp)"] [DEBUG] $1" ${NC}
   else
@@ -82,13 +109,12 @@ echo_debug() {
   fi
 }
 
-# ----------------------------------------------------------------------------
+# ****************************************************************************
+# SECTION: Kibana CI setup functions
+# ****************************************************************************
 
-Glb_Cache_Dir="${CACHE_DIR:-"$HOME/.kibana"}"
-readonly Glb_Cache_Dir
-
 # ----------------------------------------------------------------------------
-# Create kibana build install directory
+# Method to create Kibana build install directory
 # ----------------------------------------------------------------------------
 function create_install_dir() {
   if [ ! -z $Glb_Install_Dir ]; then
@@ -100,9 +126,7 @@ function create_install_dir() {
 }
 
 # ----------------------------------------------------------------------------
-# Get build server: snapshots
-# TODO: add archive / staging? <- needs hash
-#       - but ES is install from snapshot - ftr limitation ??
+# Method to get build server: snapshots
 # ----------------------------------------------------------------------------
 function get_build_server() {
   if [ ! -z $Glb_Build_Server ]; then
@@ -116,7 +140,7 @@ function get_build_server() {
 }
 
 # ----------------------------------------------------------------------------
-# Get version from kibana package.json file
+# Method to get version from Kibana package.json file
 # ----------------------------------------------------------------------------
 function get_version() {
   if [ ! -z $Glb_Kibana_Version ]; then
@@ -142,7 +166,7 @@ function get_version() {
 }
 
 # ----------------------------------------------------------------------------
-# Get OS
+# Method to get OS
 # ----------------------------------------------------------------------------
 function get_os() {
   if [ ! -z $Glb_OS ]; then
@@ -163,11 +187,10 @@ function get_os() {
   echo_info "Running on OS: $Glb_OS"
 
   readonly Glb_OS
-
 }
 
 # ----------------------------------------------------------------------------
-#
+# Method to get Kibana package
 # ----------------------------------------------------------------------------
 function get_kibana_pkg() {
 
@@ -178,7 +201,6 @@ function get_kibana_pkg() {
   # Get if oss packages are available
   local _splitStr=(${Glb_Kibana_Version//./ })
   local _version=${_splitStr[0]}.${_splitStr[1]}
-  #local _isOssSupported=$(bc <<< "${_version}>=6.3")
   local _isOssSupported=$(echo "$_version 6.3" | awk '{print ($1 >= $2)}')
 
   # Package type
@@ -215,7 +237,7 @@ function get_kibana_pkg() {
 }
 
 # ----------------------------------------------------------------------------
-# Check if Kibana package URL exists
+# Method to check if Kibana package URL exists
 # ----------------------------------------------------------------------------
 function get_kibana_url() {
 
@@ -239,7 +261,7 @@ function get_kibana_url() {
 }
 
 # ----------------------------------------------------------------------------
-# Download and extract Kibana package
+# Method to download and extract Kibana package
 # ----------------------------------------------------------------------------
 function download_and_extract_package() {
 
@@ -296,16 +318,7 @@ function download_and_extract_package() {
 }
 
 # -----------------------------------------------------------------------------
-function install_kibana() {
-  create_install_dir
-  get_build_server
-  get_version
-  get_os
-  get_kibana_pkg
-  get_kibana_url
-  download_and_extract_package
-}
-
+# Method to check if in Kibana repo
 # -----------------------------------------------------------------------------
 function in_kibana_repo() {
   local _dir="$(pwd)"
@@ -314,6 +327,8 @@ function in_kibana_repo() {
   fi
 }
 
+# -----------------------------------------------------------------------------
+# Method to install node
 # -----------------------------------------------------------------------------
 function install_node() {
   local _dir="$(pwd)"
@@ -374,6 +389,8 @@ function install_node() {
 }
 
 # -----------------------------------------------------------------------------
+# Method to install yarn
+# -----------------------------------------------------------------------------
 function install_yarn() {
   echo_info "Installing yarn"
   local _yarnVersion="$(node -e "console.log(String(require('./package.json').engines.yarn || '').replace(/^[^\d]+/,''))")"
@@ -386,23 +403,20 @@ function install_yarn() {
   hash -r
 
   echo_debug "Yarn is here: "
-  echo_debug $(where yarn)
+  if [[ "$Glb_OS" == "windows" ]]; then
+    echo_debug $(where node)
+  else
+    echo_debug $(which node)
+  fi
 }
 
+# ----------------------------------------------------------------------------
+# Method to bootstrap
 # ----------------------------------------------------------------------------
 function yarn_kbn_bootstrap() {
   echo_info "Installing node.js dependencies"
   #yarn config set cache-folder "$Glb_Cache_Dir/yarn"
 
-  # Temporary to get windows tests to run in CI until chromedriver is officially bumped
-  # See: https://github.com/elastic/kibana/pull/24925
-  # TODO: Remove later
-  local _node_ver=$(cat .node-version)
-  local _chromedriver_ver=$(grep chromedriver package.json | sed -ne 's/[^0-9]*\(\([0-9]\.\)\{0,4\}[0-9][^.]\).*/\1/p')
-  if [ "$_chromedriver_ver" == "2.42.1" ] && [[ "$Glb_OS" = "windows" ]]; then
-    echo_warning "Temporary update package.json bump chromedriver."
-    sed -ie 's/"chromedriver": "2.42.1"/"chromedriver": "2.44"/g' package.json
-  fi
   if $Glb_ChromeDriverHack; then
     echo_warning "Temporary update package.json bump chromedriver."
     sed -ie 's/"chromedriver": "^76.0.0"/"chromedriver": "^75.1.0"/g' package.json
@@ -412,16 +426,13 @@ function yarn_kbn_bootstrap() {
 }
 
 # ----------------------------------------------------------------------------
+# Method to check if any files changed during bootstraping
+# ----------------------------------------------------------------------------
 function check_git_changes() {
 
   local _git_changes="$(git ls-files --modified | grep -Ev "yarn.lock")"
 
-  # Temporary to get windows tests to run in CI until chromedriver is officially bumped
-  # See: https://github.com/elastic/kibana/pull/24925
-  # TODO: Remove later
-  local _node_ver=$(cat .node-version)
-  local _chromedriver_ver=$(grep chromedriver package.json | sed -ne 's/[^0-9]*\(\([0-9]\.\)\{0,4\}[0-9][^.]\).*/\1/p')
-  if ([ "$_chromedriver_ver" == "2.42.1" ] && [[ "$Glb_OS" = "windows" ]]) || $Glb_ChromeDriverHack; then
+  if $Glb_ChromeDriverHack; then
     echo_warning "Temporary package.json modified for chromedriver."
     local _git_changes="$(git ls-files --modified | grep -Ev "package.json|yarn.lock")"
   fi
@@ -430,6 +441,8 @@ function check_git_changes() {
   fi
 }
 
+# -----------------------------------------------------------------------------
+# Method to setup CI environment
 # -----------------------------------------------------------------------------
 function run_ci_setup() {
   if [[ ! -z $TEST_SKIP_CI_SETUP ]]; then
@@ -444,20 +457,36 @@ function run_ci_setup() {
 }
 
 # -----------------------------------------------------------------------------
-function add_percy_pkg() {
-  yarn add -D @percy/agent
+# Method to install Kibana
+# -----------------------------------------------------------------------------
+function install_kibana() {
+  create_install_dir
+  get_build_server
+  get_version
+  get_os
+  get_kibana_pkg
+  get_kibana_url
+  download_and_extract_package
 }
 
+# *****************************************************************************
+# SECTION: Percy visual testing functions
+# *****************************************************************************
+
 # -----------------------------------------------------------------------------
-function set_percy_branch() {
+# Method to set percy target branch
+# -----------------------------------------------------------------------------
+function set_percy_target_branch() {
   export PERCY_TARGET_BRANCH=$(git branch | grep \* | cut -d ' ' -f2)
 }
 
 # -----------------------------------------------------------------------------
+# Method to copy oss visual tests into Kibana repo
+# -----------------------------------------------------------------------------
 function cp_visual_tests() {
   # Get files
   git submodule -b $(basename $branch_specifier) add https://github.com/elastic/kibana-visual-tests
-  if [ $? -ne 0 ]; then 
+  if [ $? -ne 0 ]; then
     echo_error_exit "Submodule checkout failed!"
   fi
   cp -r kibana-visual-tests/test/visual_regression test
@@ -467,39 +496,18 @@ function cp_visual_tests() {
 }
 
 # -----------------------------------------------------------------------------
+# Method to copy xpack visual tests into Kibana repo
+# -----------------------------------------------------------------------------
 function cp_xpack_visual_tests() {
   # Get files
   git submodule -b $(basename $branch_specifier) add https://github.com/elastic/kibana-visual-tests
-  if [ $? -ne 0 ]; then 
+  if [ $? -ne 0 ]; then
     echo_error_exit "Submodule checkout failed!"
   fi
   cp -r kibana-visual-tests/x-pack/test/visual_regression x-pack/test
   git rm -f kibana-visual-tests
   git rm -f .gitmodules
   rm -rf .git/modules/kibana-visual-tests/
-}
-
-# -----------------------------------------------------------------------------
-function percy_mods() {
-  # Update setup_mocha
-  sed -ire "s/mocha.suite.beforeEach[(]'global before each', async [(][)] => [{]/mocha.suite.beforeEach('global before each', async function () {/" src/functional_test_runner/lib/mocha/setup_mocha.js
-  sed -ire "s/await lifecycle.trigger[(]'beforeEachTest'[)];/await lifecycle.trigger('beforeEachTest', this.currentTest);/" src/functional_test_runner/lib/mocha/setup_mocha.js
-
-  # Update services index file
-  sed -i "/import [{] InspectorProvider [}].*/a import { VisualTestingProvider } from './visual_testing';" test/functional/services/index.ts
-  sed -i "/export const services = [{]/a visualTesting: VisualTestingProvider," test/functional/services/index.ts
-
-  # Get files
-  git submodule add https://github.com/elastic/kibana-visual-tests
-  mv kibana-visual-tests/src/dev/ci_setup/get_percy_env.js src/dev/ci_setup/get_percy_env.js
-  mv kibana-visual-tests/test/functional/services/visual_testing test/functional/services/visual_testing
-  mv kibana-visual-tests/test/functional/visual_tests test/functional/visual_tests
-  git rm -f kibana-visual-tests
-  git rm -f .gitmodules
-  rm -rf .git/modules/kibana-visual-tests/
-
-  sed -i "/testFiles: [[]/a require.resolve('./visual_tests/visualize')," test/functional/config.js
-
 }
 
 # ----------------------------------------------------------------------------
@@ -514,34 +522,126 @@ function check_percy_pkg() {
                         xargs)
 
   if [[ -z "$_percyVersion" ]]; then
-    #add_percy_pkg
-    #percy_mods
     echo "No percy package available"
     exit 1
   fi
+}
 
+# *****************************************************************************
+# SECTION: Running test functions
+# *****************************************************************************
+
+# -----------------------------------------------------------------------------
+# Method to run Kibana unit tests
+# -----------------------------------------------------------------------------
+function run_unit_tests() {
+  echo_info "In run_unit_tests"
+  run_ci_setup
+
+  export TEST_ES_FROM=snapshot
+  export TEST_BROWSER_HEADLESS=1
+
+  echo_info " -> Running unit tests"
+  "$(FORCE_COLOR=0 yarn bin)/grunt" jenkins:unit --from=${TEST_ES_FROM};
 }
 
 # -----------------------------------------------------------------------------
-function run_selenium_tests() {
+# Method to run Kibana xpack unit tests
+# -----------------------------------------------------------------------------
+function run_xpack_unit_tests() {
+  echo_info "In run_xpack_unit_tests"
   run_ci_setup
+
+  export TEST_ES_FROM=snapshot
+  export TEST_BROWSER_HEADLESS=1
+
+  local _xpack_dir="$(cd x-pack; pwd)"
+  echo_info "-> XPACK_DIR ${_xpack_dir}"
+  cd "$_xpack_dir"
+
+  echo " -> Running mocha tests"
+  yarn test
+  echo ""
+  echo ""
+
+  echo " -> Running jest tests"
+  node scripts/jest --ci --verbose
+  echo ""
+  echo ""
+
+  echo " -> Running SIEM cyclic dependency test"
+  cd "$XPACK_DIR"
+  node legacy/plugins/siem/scripts/check_circular_deps
+  echo ""
+  echo ""
+
+  echo " -> Running jest contracts tests"
+  cd "$XPACK_DIR"
+  node scripts/jest_contract.js --ci --verbose
+  echo ""
+  echo ""
+
+  # echo " -> Running jest integration tests"
+  # node scripts/jest_integration --ci --verbose
+  # echo ""
+  # echo ""
+}
+
+# -----------------------------------------------------------------------------
+# Method to run oss tests from Kibana repo, ones in test/ directory
+# -----------------------------------------------------------------------------
+function run_oss_tests() {
+  echo_info "In run_oss_tests"
+  local testGrp=$1
+
+  run_ci_setup
+  includeTags=$(update_config "test/functional/config.js" $testGrp)
   TEST_KIBANA_BUILD=oss
   install_kibana
 
-  # Run Tests
   export TEST_BROWSER_HEADLESS=1
 
-  echo_info "Running selenium tests"
-  node scripts/functional_tests \
-    --kibana-install-dir=${Glb_Kibana_Dir} \
-    --esFrom snapshot \
-    --config test/functional/config.js \
-    --debug \
-    -- --server.maxPayloadBytes=1679958
+  echo_info " -> Running oss functional tests"
+  eval node scripts/functional_tests \
+        --esFrom snapshot \
+        --kibana-install-dir=${Glb_Kibana_Dir} \
+        --config test/functional/config.js \
+        --debug " $includeTags" \
+        -- --server.maxPayloadBytes=1679958
 }
 
 # -----------------------------------------------------------------------------
-function run_xpack_tests() {
+# Method to run x-pack tests from Kibana repo, ones in x-pack/test/ directory
+# -----------------------------------------------------------------------------
+function run_xpack_func_tests() {
+  echo_info "In run_xpack_func_tests"
+  local testGrp=$1
+
+  run_ci_setup
+  includeTags=$(update_config "x-pack/test/functional/config.js" $testGrp)
+  TEST_KIBANA_BUILD=default
+  install_kibana
+
+  local _xpack_dir="$(cd x-pack; pwd)"
+  echo_info "-> XPACK_DIR ${_xpack_dir}"
+  cd "$_xpack_dir"
+
+  export TEST_BROWSER_HEADLESS=1
+
+  echo_info " -> Running xpack func tests"
+  eval node scripts/functional_tests \
+        --esFrom=snapshot \
+        --config test/functional/config.js \
+        --kibana-install-dir=${Glb_Kibana_Dir} \
+        --debug " $includeTags"
+}
+
+# -----------------------------------------------------------------------------
+# Method to run x-pack tests from Kibana repo, ones in x-pack/test/ directory
+# -----------------------------------------------------------------------------
+function run_xpack_ext_tests() {
+  echo_info "In run_xpack_ext_tests"
+  local funcTests="${1:- false}"
 
   run_ci_setup
   TEST_KIBANA_BUILD=default
@@ -553,50 +653,114 @@ function run_xpack_tests() {
 
   export TEST_BROWSER_HEADLESS=1
 
-  echo_info "Running xpack tests"
-  echo_warning "Not all tests are included"
-
-  echo_info "Run Reports API"
-  node scripts/functional_tests \
-    --config test/reporting/configs/chromium_api.js \
-    --kibana-install-dir=${Glb_Kibana_Dir} \
-    --esFrom=snapshot \
-    --debug
-  rep_api_rc=$?
-
-  echo_info "Run Reports Functional"
-  node scripts/functional_tests \
-    --config test/reporting/configs/chromium_functional.js \
-    --kibana-install-dir=${Glb_Kibana_Dir} \
-    --esFrom=snapshot \
-    --debug
-  rep_func_rc=$?
-
-  echo_info "Run Functional Tests"
-  node scripts/functional_tests \
-    --config test/functional/config.js \
-    --kibana-install-dir=${Glb_Kibana_Dir} \
-    --esFrom=snapshot \
-    --debug
-  func_rc=$?
-
-  echo_info "Run API Integration"
-  node ../scripts/functional_test_runner \
-    --config test/api_integration/config.js \
-    --kibana-install-dir=${Glb_Kibana_Dir} \
-    --esFrom=snapshot \
-    --debug
-  api_rc=$?
-
-  if [ $api_rc -ne 0 ] ||
-     [ $func_rc -ne 0 ] ||
-     [ $rep_api_rc -ne 0 ] ||
-     [ $rep_func_rc -ne 0 ]; then
-    echo_error_exit "Tests failed!"
+  # Note: It is done this way until kibana issue #42454 is resolved
+  matches=$(awk 'match($0, /test[\a-z.]+'\''/) { print substr($0,RSTART,RLENGTH-1) }' scripts/functional_tests.js)
+  failures=0
+  for cfg in $matches; do
+    if [ $cfg == "test/functional/config.js" ] && [ $funcTests == "false" ]; then
+      continue
+    fi
+    echo " -> Running xpack ext tests config: $cfg"
+    node scripts/functional_tests \
+      --esFrom=snapshot \
+      --config $cfg \
+      --kibana-install-dir=${Glb_Kibana_Dir} \
+      --debug
+    if [ $? -ne 0 ]; then
+      failures=1
+    fi
+  done
+  if [ $failures -eq 1 ]; then
+      echo_error_exit "Tests failed!"
   fi
-
 }
 
+# -----------------------------------------------------------------------------
+# Method to run oss tests from Kibana repo, ones in test/ directory for cloud platform
+# -----------------------------------------------------------------------------
+function run_cloud_oss_tests() {
+  echo_info "In run_cloud_oss_tests"
+  local testGrp=$1
+
+  run_ci_setup
+  includeTags=$(update_config "test/functional/config.js" $testGrp)
+
+  export TEST_BROWSER_HEADLESS=1
+
+  echo_info " -> Running cloud oss functional tests"
+  eval node scripts/functional_test_runner \
+        --config test/functional/config.js \
+        --exclude-tag skipCloud \
+        --debug " $includeTags"
+}
+
+# -----------------------------------------------------------------------------
+# Method to run cloud xpack tests
+# -----------------------------------------------------------------------------
+function run_cloud_xpack_func_tests() {
+  echo_info "In run_cloud_xpack_func_tests"
+  local testGrp=$1
+
+  run_ci_setup
+  includeTags=$(update_config "x-pack/test/functional/config.js" $testGrp)
+
+  local _xpack_dir="$(cd x-pack; pwd)"
+  echo_info "-> XPACK_DIR ${_xpack_dir}"
+  cd "$_xpack_dir"
+
+  export TEST_BROWSER_HEADLESS=1
+
+  echo_info " -> Running cloud xpack func tests"
+  eval node ../scripts/functional_test_runner \
+        --config test/functional/config.js \
+        --exclude-tag skipCloud \
+        --debug " $includeTags"
+}
+
+# -----------------------------------------------------------------------------
+# Method to run cloud xpack tests
+# -----------------------------------------------------------------------------
+function run_cloud_xpack_ext_tests() {
+  echo_info "In run_cloud_xpack_ext_tests"
+  echo_warning "Not all tests are running yet on cloud"
+  local funcTests="${1:- false}"
+
+  run_ci_setup
+
+  local _xpack_dir="$(cd x-pack; pwd)"
+  echo_info "-> XPACK_DIR ${_xpack_dir}"
+  cd "$_xpack_dir"
+
+  export TEST_BROWSER_HEADLESS=1
+
+  # Note: Only the following tests run on cloud at this time
+  cfgs = "test/functional/config.js
+          test/reporting/configs/chromium_api.js
+          test/reporting/configs/chromium_functional.js
+          test/api_integration/config.js
+         "
+  failures=0
+  for cfg in $cfgs; do
+    if [ $cfg == "test/functional/config.js" ] && [ $funcTests == "false" ]; then
+      continue
+    fi
+    echo " -> Running cloud xpack ext tests config: $cfg"
+    node ../scripts/functional_test_runner \
+      --esFrom=snapshot \
+      --config $cfg \
+      --exclude-tag skipCloud \
+      --debug
+    if [ $? -ne 0 ]; then
+      failures=1
+    fi
+  done
+  if [ $failures -eq 1 ]; then
+      echo_error_exit "Tests failed!"
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# Method to run code tests
 # -----------------------------------------------------------------------------
 function run_code_tests() {
   run_ci_setup
@@ -608,12 +772,6 @@ function run_code_tests() {
   cd "$_xpack_dir"
 
   export TEST_BROWSER_HEADLESS=1
-
-  #echo_info "Running xpack mocha tests"
-  #yarn test
-
-  #echo_info "Running xpack jest tests"
-  #node scripts/jest --ci --no-cache --verbose
 
   echo_info "Run API Integration"
   node scripts/functional_tests \
@@ -633,96 +791,12 @@ function run_code_tests() {
 
   if [ $api_rc -ne 0 ] ||
      [ $func_rc -ne 0 ]; then
-    echo_error_exit "Tests failed!"
+    echo_error_exit "Code tests failed!"
   fi
 }
 
 # -----------------------------------------------------------------------------
-function run_unit_tests() {
-  run_ci_setup
-  export TEST_ES_FROM=snapshot
-  export TEST_BROWSER_HEADLESS=1
-
-  echo_info "Running unit tests"
-  "$(FORCE_COLOR=0 yarn bin)/grunt" jenkins:unit --from=${TEST_ES_FROM};
-}
-
-# -----------------------------------------------------------------------------
-function run_cloud_selenium_tests() {
-  run_ci_setup
-
-  # Run Tests
-  export TEST_BROWSER_HEADLESS=1
-
-  echo_info "Running selenium tests"
-
-  node scripts/functional_test_runner \
-    --debug \
-    --exclude-tag skipCloud
-}
-
-# -----------------------------------------------------------------------------
-function run_cloud_xpack_tests() {
-  run_ci_setup
-
-  local _xpack_dir="$(cd x-pack; pwd)"
-  echo_info "-> XPACK_DIR ${_xpack_dir}"
-  cd "$_xpack_dir"
-
-  export TEST_BROWSER_HEADLESS=1
-
-  echo_info "Running xpack tests"
-  echo_warning "Not all tests are included"
-
-  echo_info "Run API Integration"
-  node ../scripts/functional_test_runner \
-    --config test/api_integration/config.js \
-    --debug \
-    --exclude-tag skipCloud
-  api_rc=$?
-
-  echo_info "Run Functional Tests"
-  node ../scripts/functional_test_runner \
-    --config test/functional/config.js \
-    --debug \
-    --exclude-tag skipCloud
-  func_rc=$?
-
-  echo_info "Run Reports API"
-  node ../scripts/functional_test_runner \
-    --config test/reporting/configs/chromium_api.js \
-    --debug \
-    --exclude-tag skipCloud
-  rep_api_rc=$?
-
-  echo_info "Run Reports Functional"
-  node ../scripts/functional_test_runner \
-    --config test/reporting/configs/chromium_functional.js \
-    --debug \
-    --exclude-tag skipCloud
-  rep_func_rc=$?
-
-  if [ $api_rc -ne 0 ] ||
-     [ $func_rc -ne 0 ] ||
-     [ $rep_api_rc -ne 0 ] ||
-     [ $rep_func_rc -ne 0 ]; then
-    echo_error_exit "Tests failed!"
-  fi
-
-}
-
-# -----------------------------------------------------------------------------
-function run_cloud_visual_tests_oss() {
-  echo "These are not yet available"
-  exit 1
-}
-
-# -----------------------------------------------------------------------------
-function run_cloud_visual_tests_default() {
- echo "These are not yet available"
- exit 1
-}
-
+# Method to run visual tests under Kibana repo tests/
 # -----------------------------------------------------------------------------
 function run_visual_tests_oss() {
   check_percy_pkg
@@ -733,7 +807,6 @@ function run_visual_tests_oss() {
   TEST_KIBANA_BUILD=oss
   install_kibana
 
-  # Run Tests
   export TEST_BROWSER_HEADLESS=1
 
   echo_info "Running oss visual tests"
@@ -746,6 +819,8 @@ function run_visual_tests_oss() {
 }
 
 # -----------------------------------------------------------------------------
+# Method to run visual tests under Kibana repo x-pack/tests/
+# -----------------------------------------------------------------------------
 function run_visual_tests_default() {
   check_percy_pkg
   run_ci_setup
@@ -755,7 +830,6 @@ function run_visual_tests_default() {
   TEST_KIBANA_BUILD=default
   install_kibana
 
-  # Run Tests
   export TEST_BROWSER_HEADLESS=1
 
   echo_info "Running default visual tests"
@@ -767,27 +841,171 @@ function run_visual_tests_default() {
     --debug
 }
 
-Glb_ChromeDriverHack=true
-if [ "$1" == "selenium" ]; then
-  run_selenium_tests
-elif [ "$1" == "xpack" ]; then
-  run_xpack_tests
-elif [ "$1" == "code" ]; then
-  run_code_tests
-elif [ "$1" == "unit" ]; then
-  run_unit_tests
-elif [ "$1" == "cloud_selenium" ]; then
-  run_cloud_selenium_tests
-elif [ "$1" == "cloud_xpack" ]; then
-  run_cloud_xpack_tests
-elif [ "$1" == "cloud_visual_tests_oss" ]; then
-  run_cloud_visual_tests_oss
-elif [ "$1" == "cloud_visual_tests_default" ]; then
-  run_cloud_visual_tests_default
-elif [ "$1" == "visual_tests_oss" ]; then
-  run_visual_tests_oss
-elif [ "$1" == "visual_tests_default" ]; then
-  run_visual_tests_default
-else
-  echo_error_exit "Invalid test option: $1"
+# *****************************************************************************
+# SECTION: Test grouping functions
+# *****************************************************************************
+
+# -----------------------------------------------------------------------------
+# Method to update config file with files to be included
+# -----------------------------------------------------------------------------
+function update_config_file() {
+  local testGrp=$1
+  local configFile=$2
+
+  if [ -z "$testGrp" ] || [ -z $configFile ] ; then
+    return
+  fi
+
+  if [ ! -f $configFile ]; then
+    return
+  fi
+
+  awk -v beg='testFiles: \[' \
+      -v end='\],' \
+      'NR==FNR{new = new $0 ORS; next} $0~end{f=0} !f{print} $0~beg{printf "%s", new; f=1} ' \
+      <(echo "${testGrp}") $configFile  > temp.config && mv temp.config $configFile
+}
+
+# -----------------------------------------------------------------------------
+# Method to group kibana tests, must be from testFiles in config
+# -----------------------------------------------------------------------------
+function update_config() {
+  local configFile=$1
+  local testGrp=$2
+
+  if [ -z "$testGrp" ]; then
+    return
+  fi
+
+  read testGrp tag < <(parse_str $testGrp)
+
+  tmp=$(join_by \| ${!testGrp})
+  testGrp=$(awk '$0~/resolve.*apps.*('"$tmp"''\''\),)/{printf "%s\n",$0}' $configFile)
+
+  update_config_file "$testGrp" $configFile
+
+  echo $(get_tags "${!tag}")
+}
+
+# -----------------------------------------------------------------------------
+# Method to get tag substring, must be after group name, start with Tag til end
+# ex: ossGrp1TagSomething
+# -----------------------------------------------------------------------------
+function parse_str() {
+  local testGrp=$1
+  local tagStr="Tag"
+
+  rest=${testGrp#*$tagStr}
+  if [ $rest == $testGrp ]; then
+    echo $testGrp
+    return
+  fi
+
+  strLen=$(( ${#testGrp} ))
+  tagInd=$(( ${#testGrp} - ${#rest} - 3 ))
+
+  grp=${testGrp:0:$tagInd}
+  tag=${testGrp:$tagInd:$strLen}
+
+  echo "$grp $tag"
+}
+
+# -----------------------------------------------------------------------------
+# Method to get tags
+# -----------------------------------------------------------------------------
+function get_tags() {
+  local tags=$1
+
+  if [ -z "$tags" ]; then
+    return
+  fi
+
+  arr=($tags)
+  count=0
+  for tag in ${arr[@]}; do
+    arr[$count]="--include-tag $tag"
+    count=$((count+1))
+  done
+
+  echo ${arr[@]}
+}
+
+# -----------------------------------------------------------------------------
+# Method to join a string by a delimiter
+# -----------------------------------------------------------------------------
+function join_by {
+  local IFS="$1"
+  shift
+  echo "$*"
+}
+
+# ****************************************************************************
+# SECTION: Argument parsing and execution
+# ****************************************************************************
+
+if [ $# -lt 1 ] || [ $# -gt 2 ]; then
+    echo_error_exit "Usage: ./jenkins_kibana_tests.sh <test> or <platform> <test_group>"
 fi
+
+if [ $# -eq 1 ]; then
+  TEST_GROUP=$1
+else
+  PLATFORM=$1
+  TEST_GROUP=$2
+  validPlatforms="cloud darwin linux windows"
+  isValidPlatform=$(echo $validPlatforms | grep $PLATFORM)
+  if [ $? -ne 0 ]; then
+    echo_error_exit "Invalid platform '$PLATFORM' must be one of: '$validPlatforms'"
+  fi
+fi
+
+# -- Set to true, if Chromedriver mismatch on workers
+Glb_ChromeDriverHack=false
+
+# Source pre-defined groups
+source ./group_defs.sh
+
+case "$TEST_GROUP" in
+  intake)
+    [ $PLATFORM == "cloud" ] && { echo_error "'intake' job is not valid on cloud"; } || run_unit_tests
+    ;;
+  ossGrp*)
+    [ $PLATFORM == "cloud" ] && { run_cloud_oss_tests $TEST_GROUP; } || run_oss_tests $TEST_GROUP
+    ;;
+  xpackIntake)
+    [ $PLATFORM == "cloud" ] && { echo_error "'x-pack-intake' job is not valid on cloud"; } || run_xpack_unit_tests
+    ;;
+  xpackGrp*)
+    [ $PLATFORM == "cloud" ] && { run_cloud_xpack_func_tests $TEST_GROUP; } || run_xpack_func_tests $TEST_GROUP
+    ;;
+  xpackExt)
+    [ $PLATFORM == "cloud" ] && { run_cloud_xpack_ext_tests; } || run_xpack_ext_tests
+    ;;
+  selenium)
+    run_oss_tests
+    ;;
+  xpack)
+    run_xpack_ext_tests true
+    ;;
+  code)
+    run_code_tests
+    ;;
+  unit)
+    run_unit_tests
+    ;;
+  cloud_selenium)
+    run_cloud_oss_tests
+    ;;
+  cloud_xpack)
+    run_cloud_xpack_ext_tests true
+    ;;
+  visual_tests_oss)
+    run_visual_tests_oss
+    ;;
+  visual_tests_default)
+    run_visual_tests_default
+    ;;
+  *)
+    echo_error "TEST_GROUP '$TEST_GROUP' is invalid group"
+    ;;
+esac
