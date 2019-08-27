@@ -860,8 +860,8 @@ function update_config_file() {
     return
   fi
 
-  awk -v beg='testFiles: \[' \
-      -v end='\],' \
+  awk -v beg='testFiles: \\[' \
+      -v end='\\],' \
       'NR==FNR{new = new $0 ORS; next} $0~end{f=0} !f{print} $0~beg{printf "%s", new; f=1} ' \
       <(echo "${testGrp}") $configFile  > temp.config && mv temp.config $configFile
 }
