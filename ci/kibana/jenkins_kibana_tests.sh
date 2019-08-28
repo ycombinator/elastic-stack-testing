@@ -734,11 +734,11 @@ function run_cloud_xpack_ext_tests() {
   export TEST_BROWSER_HEADLESS=1
 
   # Note: Only the following tests run on cloud at this time
-  cfgs = "test/functional/config.js
-          test/reporting/configs/chromium_api.js
-          test/reporting/configs/chromium_functional.js
-          test/api_integration/config.js
-         "
+  cfgs="test/functional/config.js
+        test/reporting/configs/chromium_api.js
+        test/reporting/configs/chromium_functional.js
+        test/api_integration/config.js
+       "
   failures=0
   for cfg in $cfgs; do
     if [ $cfg == "test/functional/config.js" ] && [ $funcTests == "false" ]; then
