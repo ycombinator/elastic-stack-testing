@@ -422,7 +422,7 @@ function yarn_kbn_bootstrap() {
     sed -ie 's/"chromedriver": "^76.0.0"/"chromedriver": "^75.1.0"/g' package.json
   fi
 
-  yarn kbn bootstrap
+  yarn --network-timeout=600000 kbn bootstrap
 }
 
 # ----------------------------------------------------------------------------
