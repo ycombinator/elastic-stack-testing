@@ -746,7 +746,6 @@ function run_cloud_xpack_ext_tests() {
     fi
     echo " -> Running cloud xpack ext tests config: $cfg"
     node ../scripts/functional_test_runner \
-      --esFrom=snapshot \
       --config $cfg \
       --exclude-tag skipCloud \
       --debug
