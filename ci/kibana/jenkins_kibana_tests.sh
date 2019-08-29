@@ -966,19 +966,37 @@ source ./group_defs.sh
 
 case "$TEST_GROUP" in
   intake)
-    [ $PLATFORM == "cloud" ] && { echo_error "'intake' job is not valid on cloud"; } || run_unit_tests
+    if [ $PLATFORM == "cloud" ]; then
+      echo_error "'intake' job is not valid on cloud"
+    fi
+    run_unit_tests
     ;;
   ossGrp*)
-    [ $PLATFORM == "cloud" ] && { run_cloud_oss_tests $TEST_GROUP; } || run_oss_tests $TEST_GROUP
+    if [ $PLATFORM == "cloud" ]; then
+      run_cloud_oss_tests $TEST_GROUP
+    else
+      run_oss_tests $TEST_GROUP
+    fi
     ;;
   xpackIntake)
-    [ $PLATFORM == "cloud" ] && { echo_error "'x-pack-intake' job is not valid on cloud"; } || run_xpack_unit_tests
+    if [ $PLATFORM == "cloud" ]; then
+      echo_error "'x-pack-intake' job is not valid on cloud"
+    fi
+    run_xpack_unit_tests
     ;;
   xpackGrp*)
-    [ $PLATFORM == "cloud" ] && { run_cloud_xpack_func_tests $TEST_GROUP; } || run_xpack_func_tests $TEST_GROUP
+    if [ $PLATFORM == "cloud" ]; then
+      run_cloud_xpack_func_tests $TEST_GROUP
+    else
+      run_xpack_func_tests $TEST_GROUP
+    fi
     ;;
   xpackExt)
-    [ $PLATFORM == "cloud" ] && { run_cloud_xpack_ext_tests; } || run_xpack_ext_tests
+    if [ $PLATFORM == "cloud" ]; then
+      run_cloud_xpack_ext_tests
+    else
+      run_xpack_ext_tests
+    fi
     ;;
   selenium)
     run_oss_tests
