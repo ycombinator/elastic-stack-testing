@@ -7,7 +7,7 @@
 ---
 
 # Timeout
-kibana_timeout: 60
+kibana_timeout: 120
 
 # Extract package extension
 kibana_package_ext: "{{ kibana_package_url | splitext | last | regex_replace('.gz', '.tar.gz') }}"
