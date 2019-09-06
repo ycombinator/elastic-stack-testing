@@ -94,7 +94,7 @@ def handle_special_case_cluster_stats(internal_doc, metricbeat_doc):
     # usage stats associated with the Metricbeat-created ILM policy.
     ilm = metricbeat_doc["stack_stats"]["xpack"]["ilm"]
 
-    ilm["policy_stats"].pop()
+    ilm["policy_stats"].pop(1)
     metricbeat_doc["stack_stats"]["xpack"]["ilm"]["policy_stats"] = ilm["policy_stats"]
     metricbeat_doc["stack_stats"]["xpack"]["ilm"]["policy_count"] = ilm["policy_count"] - 1
 
