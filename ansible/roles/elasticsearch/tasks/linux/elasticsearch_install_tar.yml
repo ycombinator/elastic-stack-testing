@@ -10,6 +10,7 @@
     url: '{{ elasticsearch_package_url }}'
     dest: '{{ elasticsearch_package }}'
     timeout: '{{ url_timeout }}'
+    checksum: 'sha512:{{ elasticsearch_package_url }}.sha512'
   tags: package_elasticsearch
 
 - name: Install elasticsearch tar package
