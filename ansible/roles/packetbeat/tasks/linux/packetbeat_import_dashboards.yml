@@ -48,5 +48,6 @@
   args:
     executable: /bin/bash
   become: true
+  retries: 1
   when: not packetbeat_setup_help_output.failed and
         packetbeat_setup_help_output.stdout is defined and (packetbeat_setup_help_output.stdout is search('--dashboards'))
