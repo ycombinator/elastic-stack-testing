@@ -10,8 +10,9 @@
     url: '{{ metricbeat_package_url }}'
     dest: '{{ metricbeat_package }}'
     timeout: '{{ url_timeout }}'
+    checksum: 'sha512:{{ metricbeat_package_url }}.sha512'
   tags: package_metricbeat
-  become: true 
+  become: true
 
 - name: Install metricbeat tar package
   unarchive:
@@ -19,4 +20,4 @@
     dest: '{{ metricbeat_install_dir }}'
     remote_src: True
   tags: install_metricbeat
-  become: true 
+  become: true

@@ -10,6 +10,7 @@
     url: '{{ metricbeat_package_url }}'
     dest: '{{ metricbeat_package }}'
     timeout: '{{ url_timeout }}'
+    checksum: 'sha512:{{ metricbeat_package_url }}.sha512'
   tags: package_metricbeat
 
 - name: Install metricbeat rpm package
