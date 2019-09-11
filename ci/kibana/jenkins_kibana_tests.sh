@@ -46,6 +46,10 @@ fi
 Glb_Cache_Dir="${CACHE_DIR:-"$HOME/.kibana"}"
 readonly Glb_Cache_Dir
 
+# For static Jenkins nodes
+Glb_KbnBootStrapped="no"
+Glb_KbnClean="no"
+
 # *****************************************************************************
 # SECTION: Logging functions
 # *****************************************************************************
@@ -107,6 +111,27 @@ function echo_debug() {
   else
     echo -e "["$(date_timestamp)"] [DEBUG] $1"
   fi
+}
+
+# ----------------------------------------------------------------------------
+# Method to exit script
+# ----------------------------------------------------------------------------
+function exit_script() {
+  rc=${1:-0}
+  msg=$2
+
+  if [ $rc -ne 0 ]; then
+    echo_error_exit $msg
+  fi
+  exit
+}
+
+# ----------------------------------------------------------------------------
+# Method to exit script
+# ----------------------------------------------------------------------------
+function check_status_ok() {
+    [[ "${*}" =~ ^(0 )*0$ ]]
+    return
 }
 
 # ****************************************************************************
@@ -178,6 +203,8 @@ function get_os() {
     Glb_OS="windows"
   elif [[ "$_uname" = "Darwin" ]]; then
     Glb_OS="darwin"
+    #TODO: remove later
+    Glb_KbnClean="yes"
   elif [[ "$_uname" = "Linux" ]]; then
     Glb_OS="linux"
   else
@@ -422,7 +449,24 @@ function yarn_kbn_bootstrap() {
     sed -ie 's/"chromedriver": "^76.0.0"/"chromedriver": "^75.1.0"/g' package.json
   fi
 
-  yarn --network-timeout=600000 kbn bootstrap
+  yarn kbn bootstrap
+
+  if [ $? -ne 0 ]; then
+    echo_error_exit "yarn kbn bootstrap failed!"
+  fi
+
+  Glb_KbnBootStrapped="yes"
+}
+
+# ----------------------------------------------------------------------------
+# Method to clean
+# ----------------------------------------------------------------------------
+function yarn_kbn_clean() {
+  echo_info "In yarn_kbn_clean"
+
+  if [ $Glb_KbnBootStrapped == "yes" ] && [ $Glb_KbnClean == "yes" ]; then
+    yarn kbn clean
+  fi
 }
 
 # ----------------------------------------------------------------------------
@@ -454,6 +498,13 @@ function run_ci_setup() {
   install_yarn
   yarn_kbn_bootstrap
   check_git_changes
+}
+
+# -----------------------------------------------------------------------------
+# Method to cleanup CI environment
+# -----------------------------------------------------------------------------
+function run_ci_cleanup() {
+  yarn_kbn_clean
 }
 
 # -----------------------------------------------------------------------------
@@ -536,6 +587,7 @@ function check_percy_pkg() {
 # -----------------------------------------------------------------------------
 function run_unit_tests() {
   echo_info "In run_unit_tests"
+
   run_ci_setup
 
   export TEST_ES_FROM=snapshot
@@ -543,6 +595,11 @@ function run_unit_tests() {
 
   echo_info " -> Running unit tests"
   "$(FORCE_COLOR=0 yarn bin)/grunt" jenkins:unit --from=${TEST_ES_FROM};
+  RC=$?
+
+  run_ci_cleanup
+
+  exit_script $RC "Unit tests failed"
 }
 
 # -----------------------------------------------------------------------------
@@ -550,6 +607,7 @@ function run_unit_tests() {
 # -----------------------------------------------------------------------------
 function run_xpack_unit_tests() {
   echo_info "In run_xpack_unit_tests"
+
   run_ci_setup
 
   export TEST_ES_FROM=snapshot
@@ -563,28 +621,38 @@ function run_xpack_unit_tests() {
   yarn test
   echo ""
   echo ""
+  RC1=$?
 
   echo " -> Running jest tests"
   node scripts/jest --ci --verbose
   echo ""
   echo ""
+  RC2=$?
 
   echo " -> Running SIEM cyclic dependency test"
   cd "$XPACK_DIR"
   node legacy/plugins/siem/scripts/check_circular_deps
   echo ""
   echo ""
+  RC3=$?
 
   echo " -> Running jest contracts tests"
   cd "$XPACK_DIR"
   node scripts/jest_contract.js --ci --verbose
   echo ""
   echo ""
+  RC4=$?
 
   # echo " -> Running jest integration tests"
   # node scripts/jest_integration --ci --verbose
   # echo ""
   # echo ""
+
+  run_ci_cleanup
+
+  rclist=($RC1 $RC2 $RC3 $RC4)
+
+  check_status_ok ${rclist[*]} && exit_script || exit_script 1 "X-pack unit test failed!"
 }
 
 # -----------------------------------------------------------------------------
@@ -595,6 +663,7 @@ function run_oss_tests() {
   local testGrp=$1
 
   run_ci_setup
+
   includeTags=$(update_config "test/functional/config.js" $testGrp)
   TEST_KIBANA_BUILD=oss
   install_kibana
@@ -608,6 +677,11 @@ function run_oss_tests() {
         --config test/functional/config.js \
         --debug " $includeTags" \
         -- --server.maxPayloadBytes=1679958
+  RC=$?
+
+  run_ci_cleanup
+
+  exit_script $RC "OSS Test failed!"
 }
 
 # -----------------------------------------------------------------------------
@@ -618,6 +692,7 @@ function run_xpack_func_tests() {
   local testGrp=$1
 
   run_ci_setup
+
   includeTags=$(update_config "x-pack/test/functional/config.js" $testGrp)
   TEST_KIBANA_BUILD=default
   install_kibana
@@ -634,6 +709,12 @@ function run_xpack_func_tests() {
         --config test/functional/config.js \
         --kibana-install-dir=${Glb_Kibana_Dir} \
         --debug " $includeTags"
+  RC=$?
+
+  run_ci_cleanup
+
+  exit_script $RC "X-Pack Test failed!"
+
 }
 
 # -----------------------------------------------------------------------------
@@ -670,9 +751,11 @@ function run_xpack_ext_tests() {
       failures=1
     fi
   done
-  if [ $failures -eq 1 ]; then
-      echo_error_exit "Tests failed!"
-  fi
+
+  run_ci_cleanup
+
+  exit_script $failures "X-Pack Ext Test failed!"
+
 }
 
 # -----------------------------------------------------------------------------
@@ -692,6 +775,12 @@ function run_cloud_oss_tests() {
         --config test/functional/config.js \
         --exclude-tag skipCloud \
         --debug " $includeTags"
+  RC=$?
+
+  run_ci_cleanup
+
+  exit_script $RC "Cloud OSS Test failed!"
+
 }
 
 # -----------------------------------------------------------------------------
@@ -715,6 +804,12 @@ function run_cloud_xpack_func_tests() {
         --config test/functional/config.js \
         --exclude-tag skipCloud \
         --debug " $includeTags"
+  RC=$?
+
+  run_ci_cleanup
+
+  exit_script $RC "Cloud X-Pack Test failed!"
+
 }
 
 # -----------------------------------------------------------------------------
@@ -753,9 +848,10 @@ function run_cloud_xpack_ext_tests() {
       failures=1
     fi
   done
-  if [ $failures -eq 1 ]; then
-      echo_error_exit "Tests failed!"
-  fi
+
+  run_ci_cleanup
+
+  exit_script $failures "Cloud X-Pack Ext Test failed!"
 }
 
 # -----------------------------------------------------------------------------
@@ -788,10 +884,10 @@ function run_code_tests() {
     --grep="^Code .*"
   func_rc=$?
 
-  if [ $api_rc -ne 0 ] ||
-     [ $func_rc -ne 0 ]; then
-    echo_error_exit "Code tests failed!"
-  fi
+  rclist=($api_rc $func_rc)
+
+  check_status_ok ${rclist[*]} && exit_script || exit_script 1 "Code test failed!"
+
 }
 
 # -----------------------------------------------------------------------------
