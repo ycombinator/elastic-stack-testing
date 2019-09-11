@@ -173,6 +173,18 @@ function remove_es_install_dir() {
 }
 
 # ----------------------------------------------------------------------------
+# Method to remove node_modules directory
+# ----------------------------------------------------------------------------
+function remove_node_modules_dir() {
+  local dir="$(pwd)/node_modules"
+
+  if [ ! -d $dir ]; then
+    return
+  fi
+  rm -rf $dir
+}
+
+# ----------------------------------------------------------------------------
 # Method to get build server: snapshots
 # ----------------------------------------------------------------------------
 function get_build_server() {
@@ -527,7 +539,7 @@ function run_ci_setup() {
 # -----------------------------------------------------------------------------
 function run_ci_cleanup() {
   if [ $Glb_KbnClean == "yes" ]; then
-    yarn_kbn_clean
+    remove_node_modules_dir
     remove_kbn_install_dir
     remove_es_install_dir
   fi
