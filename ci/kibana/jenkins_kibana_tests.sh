@@ -141,13 +141,35 @@ function check_status_ok() {
 # ----------------------------------------------------------------------------
 # Method to create Kibana build install directory
 # ----------------------------------------------------------------------------
-function create_install_dir() {
+function create_kbn_install_dir() {
   if [ ! -z $Glb_Install_Dir ]; then
     return
   fi
   Glb_Install_Dir="$(pwd)/kibana-build"
   mkdir -p "$Glb_Install_Dir"
   readonly Glb_Install_Dir
+}
+
+# ----------------------------------------------------------------------------
+# Method to remove Kibana build install directory
+# ----------------------------------------------------------------------------
+function remove_kbn_install_dir() {
+  if [ ! -d $Glb_Install_Dir ]; then
+    return
+  fi
+  rm -rf "$Glb_Install_Dir"
+}
+
+# ----------------------------------------------------------------------------
+# Method to remove es build install directory
+# ----------------------------------------------------------------------------
+function remove_es_install_dir() {
+  local esdir="$(pwd)/.es"
+
+  if [ ! -d $esdir ]; then
+    return
+  fi
+  rm -rf $esdir
 }
 
 # ----------------------------------------------------------------------------
@@ -459,12 +481,12 @@ function yarn_kbn_bootstrap() {
 }
 
 # ----------------------------------------------------------------------------
-# Method to clean
+# Method to run kbn clean
 # ----------------------------------------------------------------------------
 function yarn_kbn_clean() {
   echo_info "In yarn_kbn_clean"
 
-  if [ $Glb_KbnBootStrapped == "yes" ] && [ $Glb_KbnClean == "yes" ]; then
+  if [ $Glb_KbnBootStrapped == "yes" ]; then
     yarn kbn clean
   fi
 }
@@ -504,14 +526,18 @@ function run_ci_setup() {
 # Method to cleanup CI environment
 # -----------------------------------------------------------------------------
 function run_ci_cleanup() {
-  yarn_kbn_clean
+  if [ $Glb_KbnClean == "yes" ]; then
+    yarn_kbn_clean
+    remove_kbn_install_dir
+    remove_es_install_dir
+  fi
 }
 
 # -----------------------------------------------------------------------------
 # Method to install Kibana
 # -----------------------------------------------------------------------------
 function install_kibana() {
-  create_install_dir
+  create_kbn_install_dir
   get_build_server
   get_version
   get_os
