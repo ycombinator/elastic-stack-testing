@@ -23,6 +23,6 @@ export AIT_VM=vagrant_vm
 # Skip destroying the VM 
 export AIT_SKIP_VM_CLEANUP=true
 
-export PYTHONPATH="$(pwd}/playbooks/monitoring/common"
+export PYTHONPATH="$(pwd)/playbooks/monitoring/common"
 
 source jenkins_build.sh
