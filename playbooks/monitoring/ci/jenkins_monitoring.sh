@@ -14,6 +14,6 @@ export AIT_ANSIBLE_PLAYBOOK="$(pwd)/playbooks/monitoring/${AIT_STACK_PRODUCT}/do
 # Setup VM
 export AIT_VM=vagrant_vm
 
-export PYTHONPATH="$(pwd}/playbooks/monitoring/common"
+export PYTHONPATH="$(pwd)/playbooks/monitoring/common"
 
 source jenkins_build.sh
