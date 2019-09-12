@@ -5,7 +5,7 @@
 export AIT_ROOTDIR=$(pwd)
 
 export AIT_SCRIPTS=${AIT_ROOTDIR}/scripts
-export PYTHONPATH=${AIT_SCRIPTS}/python/lib
+export PYTHONPATH="${PYTHONPATH}:${AIT_SCRIPTS}/python/lib"
 
 export ANSIBLE_ROOTDIR=${AIT_ROOTDIR}/ansible
 export ANSIBLE_CONFIG=${ANSIBLE_ROOTDIR}
