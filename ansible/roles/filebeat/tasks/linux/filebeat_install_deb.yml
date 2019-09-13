@@ -12,6 +12,8 @@
     timeout: '{{ url_timeout }}'
     checksum: 'sha512:{{ filebeat_package_url }}.sha512'
   tags: package_filebeat
+  retries: 4
+  delay: 30
 
 - name: Install filebeat deb package
   apt:

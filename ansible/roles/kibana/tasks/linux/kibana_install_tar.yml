@@ -12,7 +12,9 @@
     timeout: '{{ url_timeout }}'
     checksum: 'sha512:{{ kibana_package_url }}.sha512'
   tags: package_kibana
-
+  retries: 4
+  delay: 30
+  
 - name: Install kibana tar package
   unarchive:
     src: '{{ kibana_package }}'

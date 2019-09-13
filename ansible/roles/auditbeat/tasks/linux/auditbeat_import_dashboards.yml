@@ -48,6 +48,7 @@
   args:
     executable: /bin/bash
   become: true
-  retries: 1
+  retries: 2
+  delay: 30
   when: not auditbeat_setup_help_output.failed and
         auditbeat_setup_help_output.stdout is defined and (auditbeat_setup_help_output.stdout is search('--dashboards'))

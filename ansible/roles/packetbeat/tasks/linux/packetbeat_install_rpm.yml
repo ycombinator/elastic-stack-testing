@@ -12,7 +12,9 @@
     timeout: '{{ url_timeout }}'
     checksum: 'sha512:{{ packetbeat_package_url }}.sha512'
   tags: package_packetbeat
-
+  retries: 4
+  delay: 30
+  
 - name: Install packetbeat rpm package
   yum:
     name: '{{ packetbeat_package }}'
