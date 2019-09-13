@@ -13,6 +13,8 @@
     checksum: 'sha512:{{ apm_server_package_url }}.sha512'
   tags: package_apm_server
   become: true
+  retries: 4
+  delay: 30
 
 - name: Install apm_server tar package
   unarchive:

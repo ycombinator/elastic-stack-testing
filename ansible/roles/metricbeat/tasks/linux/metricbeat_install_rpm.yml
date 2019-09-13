@@ -12,7 +12,9 @@
     timeout: '{{ url_timeout }}'
     checksum: 'sha512:{{ metricbeat_package_url }}.sha512'
   tags: package_metricbeat
-
+  retries: 4
+  delay: 30
+  
 - name: Install metricbeat rpm package
   yum:
     name: '{{ metricbeat_package }}'
