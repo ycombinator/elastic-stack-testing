@@ -49,6 +49,7 @@
   args:
     executable: /bin/bash
   become: true
-  retries: 1
+  retries: 2
+  delay: 30
   when: not filebeat_setup_help_output.failed and
         filebeat_setup_help_output.stdout is defined and (filebeat_setup_help_output.stdout is search('--dashboards'))
