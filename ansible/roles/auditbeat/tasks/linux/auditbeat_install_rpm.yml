@@ -12,6 +12,8 @@
     timeout: '{{ url_timeout }}'
     checksum: 'sha512:{{ auditbeat_package_url }}.sha512'
   tags: package_auditbeat
+  retries: 4
+  delay: 30
 
 - name: Install auditbeat rpm package
   yum:
