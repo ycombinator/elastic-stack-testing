@@ -12,7 +12,9 @@
     timeout: '{{ url_timeout }}'
     checksum: 'sha512:{{ logstash_package_url }}.sha512'
   tags: package_logstash
-
+  retries: 4
+  delay: 30
+  
 - name: Install logstash tar package
   unarchive:
     src: '{{ logstash_package }}'

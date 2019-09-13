@@ -13,7 +13,9 @@
     checksum: 'sha512:{{ filebeat_package_url }}.sha512'
   tags: package_filebeat
   become: true
-
+  retries: 4
+  delay: 30
+  
 - name: Install filebeat tar package
   unarchive:
     src: '{{ filebeat_package }}'

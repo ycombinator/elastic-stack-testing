@@ -12,6 +12,8 @@
     timeout: '{{ url_timeout }}'
     checksum: 'sha512:{{ elasticsearch_package_url }}.sha512'
   tags: package_elasticsearch
+  retries: 4
+  delay: 30
 
 - name: Install elasticsearch tar package
   unarchive:
