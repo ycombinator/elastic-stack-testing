@@ -13,7 +13,9 @@
     checksum: 'sha512:{{ auditbeat_package_url }}.sha512'
   tags: package_auditbeat
   become: true
-  retries: 4
+  register: auditbeat_get_url
+  until: auditbeat_get_url is not failed
+  retries: 2
   delay: 30
 
 - name: Install auditbeat tar package
