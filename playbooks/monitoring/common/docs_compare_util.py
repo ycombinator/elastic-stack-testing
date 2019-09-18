@@ -7,7 +7,7 @@ allowed_insertions_in_metricbeat_docs = [
   # 'path.to.field'
   'service',
   '@timestamp',
-  'agent',
+  'beat',
   'event',
   'host',
   'ecs',
