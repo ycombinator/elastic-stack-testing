@@ -12,7 +12,9 @@
     timeout: '{{ url_timeout }}'
     checksum: 'sha512:{{ apm_server_package_url }}.sha512'
   tags: package_apm_server
-  retries: 4
+  register: apm_server_get_url
+  until: apm_server_get_url is not failed
+  retries: 2
   delay: 30
 
 - name: Install apm_server deb package

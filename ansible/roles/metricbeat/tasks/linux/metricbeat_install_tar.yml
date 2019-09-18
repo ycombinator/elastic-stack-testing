@@ -13,9 +13,11 @@
     checksum: 'sha512:{{ metricbeat_package_url }}.sha512'
   tags: package_metricbeat
   become: true
-  retries: 4
+  register: metricbeat_get_url
+  until: metricbeat_get_url is not failed
+  retries: 2
   delay: 30
-  
+
 - name: Install metricbeat tar package
   unarchive:
     src: '{{ metricbeat_package }}'

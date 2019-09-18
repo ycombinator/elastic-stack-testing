@@ -48,7 +48,9 @@
   args:
     executable: /bin/bash
   become: true
+  register: auditbeat_dashboard_setup
+  until: auditbeat_dashboard_setup is not failed
   retries: 2
-  delay: 30
+  delay: 10
   when: not auditbeat_setup_help_output.failed and
         auditbeat_setup_help_output.stdout is defined and (auditbeat_setup_help_output.stdout is search('--dashboards'))
