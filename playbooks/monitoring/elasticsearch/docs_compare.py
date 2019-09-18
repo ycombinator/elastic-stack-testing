@@ -10,6 +10,22 @@ def handle_special_case_index_recovery(internal_doc, metricbeat_doc):
     internal_doc["index_recovery"]["shards"] = [ internal_doc["index_recovery"]["shards"][0] ]
     metricbeat_doc["index_recovery"]["shards"] = [ metricbeat_doc["index_recovery"]["shards"][0] ]
 
+def handle_special_case_cluster_stats(internal_doc, metricbeat_doc):
+    # We expect the node ID to be different in the internally-collected vs. metricbeat-collected
+    # docs because the tests spin up a fresh 1-node cluster prior to each type of collection.
+    # So we normalize the node names.
+    new_node_name = '__normalized__'
+
+    orig_node_name = internal_doc['cluster_state']['master_node']
+    internal_doc['cluster_state']['master_node'] = new_node_name
+    internal_doc['cluster_state']['nodes'][new_node_name] = internal_doc['cluster_state']['nodes'][orig_node_name]
+    del internal_doc['cluster_state']['nodes'][orig_node_name]
+
+    orig_node_name = metricbeat_doc['cluster_state']['master_node']
+    metricbeat_doc['cluster_state']['master_node'] = new_node_name
+    metricbeat_doc['cluster_state']['nodes'][new_node_name] = metricbeat_doc['cluster_state']['nodes'][orig_node_name]
+    del metricbeat_doc['cluster_state']['nodes'][orig_node_name]
+
 def handle_special_case_node_stats(internal_doc, metricbeat_doc):
     # Metricbeat-indexed docs of `type:node_stats` fake the `source_node` field since its required
     # by the UI. However, it only fakes the `source_node.uuid`, `source_node.name`, and
@@ -45,6 +61,8 @@ def handle_special_case_shards(internal_doc, metricbeat_doc):
 def handle_special_cases(doc_type, internal_doc, metricbeat_doc):
     if doc_type == "index_recovery":
         handle_special_case_index_recovery(internal_doc, metricbeat_doc)
+    if doc_type == "cluster_stats":
+        handle_special_case_cluster_stats(internal_doc, metricbeat_doc)
     if doc_type == 'node_stats':
         handle_special_case_node_stats(internal_doc, metricbeat_doc)
     if doc_type == 'shards':
