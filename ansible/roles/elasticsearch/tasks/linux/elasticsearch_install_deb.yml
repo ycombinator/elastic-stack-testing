@@ -12,7 +12,9 @@
     timeout: '{{ url_timeout }}'
     checksum: 'sha512:{{ elasticsearch_package_url }}.sha512'
   tags: package_elasticsearch
-  retries: 4
+  register: elasticsearch_get_url
+  until: elasticsearch_get_url is not failed
+  retries: 2
   delay: 30
 
 - name: Install elasticsearch deb package
