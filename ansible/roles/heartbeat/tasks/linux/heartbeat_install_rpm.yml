@@ -12,9 +12,12 @@
     timeout: '{{ url_timeout }}'
     checksum: 'sha512:{{ heartbeat_package_url }}.sha512'
   tags: package_heartbeat
-  retries: 4
+  register: heartbeat_get_url
+  until: heartbeat_get_url is not failed
+  retries: 2
   delay: 30
-  
+
+
 - name: Install heartbeat rpm package
   yum:
     name: '{{ heartbeat_package }}'
