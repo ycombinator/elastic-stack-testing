@@ -48,8 +48,10 @@
   args:
     executable: /bin/bash
   become: true
+  register: heartbeat_dashboard_setup
+  until: heartbeat_dashboard_setup is not failed
   retries: 2
-  delay: 30
+  delay: 10
   when: not heartbeat_setup_help_output.failed and
         heartbeat_setup_help_output.stdout is defined and (heartbeat_setup_help_output.stdout is search('--dashboards'))
 

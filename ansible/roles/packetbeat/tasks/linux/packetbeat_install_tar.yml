@@ -13,9 +13,11 @@
     checksum: 'sha512:{{ packetbeat_package_url }}.sha512'
   tags: package_packetbeat
   become: true
-  retries: 4
+  register: packetbeat_get_url
+  until: packetbeat_get_url is not failed
+  retries: 2
   delay: 30
-  
+
 - name: Install packetbeat tar package
   unarchive:
     src: '{{ packetbeat_package }}'

@@ -48,7 +48,9 @@
   args:
     executable: /bin/bash
   become: true
+  register: packetbeat_dashboard_setup
+  until: packetbeat_dashboard_setup is not failed
   retries: 2
-  delay: 30
+  delay: 10
   when: not packetbeat_setup_help_output.failed and
         packetbeat_setup_help_output.stdout is defined and (packetbeat_setup_help_output.stdout is search('--dashboards'))
