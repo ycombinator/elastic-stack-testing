@@ -187,5 +187,11 @@ def check_parity(handle_special_cases = lambda t, i, m: None, allowed_insertions
           log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has unexpected deletion: " + deletion)
           num_errors = num_errors + 1
 
+      print("*** Internally-indexed doc for type='" + doc_type + "': ***")
+      print(internal_doc)
+
+      print("*** Metricbeat-indexed doc for type='" + doc_type + "': ***")
+      print(metricbeat_doc)
+
   if num_errors > 0:
       exit(100 + num_errors)
