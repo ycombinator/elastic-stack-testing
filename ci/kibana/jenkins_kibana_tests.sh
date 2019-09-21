@@ -578,7 +578,7 @@ function cp_visual_tests() {
   if [ $? -ne 0 ]; then
     echo_error_exit "Submodule checkout failed!"
   fi
-  cp -r kibana-visual-tests/test/visual_regression test
+  cp -rf kibana-visual-tests/test/visual_regression test
   git rm -f kibana-visual-tests
   git rm -f .gitmodules
   rm -rf .git/modules/kibana-visual-tests/
@@ -593,7 +593,7 @@ function cp_xpack_visual_tests() {
   if [ $? -ne 0 ]; then
     echo_error_exit "Submodule checkout failed!"
   fi
-  cp -r kibana-visual-tests/x-pack/test/visual_regression x-pack/test
+  cp -rf kibana-visual-tests/x-pack/test/visual_regression x-pack/test
   git rm -f kibana-visual-tests
   git rm -f .gitmodules
   rm -rf .git/modules/kibana-visual-tests/
