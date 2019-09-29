@@ -386,6 +386,11 @@ function in_kibana_repo() {
   if [ ! -f "$_dir/package.json" ] || [ ! -f "$_dir/.node-version" ]; then
     echo_error_exit "CI setup must be run within a Kibana repo"
   fi
+
+  # For rerunning, modified files
+  git checkout test/functional/config.js
+  git checkout x-pack/test/functional/config.js
+  git checkout .yarnrc
 }
 
 # -----------------------------------------------------------------------------
@@ -483,7 +488,13 @@ function yarn_kbn_bootstrap() {
     sed -ie 's/"chromedriver": "^76.0.0"/"chromedriver": "^75.1.0"/g' package.json
   fi
 
-  yarn kbn bootstrap
+  # For windows testing
+  Glb_YarnNetworkTimeout=$(grep "network-timeout" .yarnrc | wc -l)
+  if [ $Glb_YarnNetworkTimeout -eq 0 ]; then
+    echo "network-timeout 600000" >> .yarnrc
+  fi
+
+  yarn kbn bootstrap --prefer-offline
 
   if [ $? -ne 0 ]; then
     echo_error_exit "yarn kbn bootstrap failed!"
@@ -507,12 +518,17 @@ function yarn_kbn_clean() {
 # Method to check if any files changed during bootstraping
 # ----------------------------------------------------------------------------
 function check_git_changes() {
+  local _git_changes
 
-  local _git_changes="$(git ls-files --modified | grep -Ev "yarn.lock")"
+  _git_changes="$(git ls-files --modified | grep -Ev "yarn.lock")"
 
   if $Glb_ChromeDriverHack; then
     echo_warning "Temporary package.json modified for chromedriver."
-    local _git_changes="$(git ls-files --modified | grep -Ev "package.json|yarn.lock")"
+    _git_changes="$(git ls-files --modified | grep -Ev "package.json|yarn.lock")"
+  fi
+  if [ $Glb_YarnNetworkTimeout -eq 0 ]; then
+    echo_warning "Modified network timeout in .yarnrc"
+    _git_changes="$(git ls-files --modified | grep -Ev ".yarnrc")"
   fi
   if [ "$_git_changes" ]; then
     echo_error_exit "'yarn kbn bootstrap' caused changes to the following files:\n$_git_changes"
@@ -1094,6 +1110,7 @@ fi
 
 # -- Set to true, if Chromedriver mismatch on workers
 Glb_ChromeDriverHack=false
+Glb_YarnNetworkTimeout=0
 
 # Source pre-defined groups
 source ./group_defs.sh
