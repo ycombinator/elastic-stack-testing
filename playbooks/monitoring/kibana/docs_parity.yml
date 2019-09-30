@@ -154,7 +154,8 @@
         user: "{{ elasticsearch_username }}"
         password: "{{ elasticsearch_password }}"
         method: POST
-        body: '{ "collapse": { "field": "type" }, "sort": { "timestamp": "asc" } }'
+        # body: '{ "collapse": { "field": "type" }, "sort": { "timestamp": "asc" } }'
+        body: '{ "query": { "term": { "type": "kibana_stats" } }, "_source": [ "timestamp", "kibana_stats" ] }'
         body_format: json
         status_code: 200
       register: xpack_elasticsearch_monitoring_sample_docs
