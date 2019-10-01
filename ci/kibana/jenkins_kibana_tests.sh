@@ -789,8 +789,13 @@ function run_xpack_ext_tests() {
 
   export TEST_BROWSER_HEADLESS=1
 
+  awk_exec="awk"
+  if [[ "$Glb_OS" = "darwin" ]]; then
+    awk_exec="gawk"
+  fi
+
   # Note: It is done this way until kibana issue #42454 is resolved
-  matches=$(awk 'match($0, /test[\a-z.]+'\''/) { print substr($0,RSTART,RLENGTH-1) }' scripts/functional_tests.js)
+  matches=$($awk_exec 'match($0, /test[\a-z.]+'\''/) { print substr($0,RSTART,RLENGTH-1) }' scripts/functional_tests.js)
 
   filter_matches=""
   for grp in ${!testGrp}; do
