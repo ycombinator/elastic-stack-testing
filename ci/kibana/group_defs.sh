@@ -53,3 +53,20 @@ xpackGrp4="monitoring
            snapshot_restore
            spaces
           "
+
+xpackExtGrp1="reporting
+              api_integration
+              alerting_api_integration
+              plugin_api_integration
+              kerberos_api_integration
+             "
+xpackExtGrp2="saml_api_integration
+              token_api_integration
+              oidc_api_integration
+              pki_api_integration
+              spaces_api_integration
+             "
+xpackExtGrp3="saved_object_api_integration
+              ui_capabilities
+              upgrade_assistant_integration
+             "

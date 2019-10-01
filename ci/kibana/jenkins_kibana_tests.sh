@@ -777,6 +777,7 @@ function run_xpack_func_tests() {
 function run_xpack_ext_tests() {
   echo_info "In run_xpack_ext_tests"
   local funcTests="${1:- false}"
+  local testGrp=$2
 
   run_ci_setup
   TEST_KIBANA_BUILD=default
@@ -790,8 +791,20 @@ function run_xpack_ext_tests() {
 
   # Note: It is done this way until kibana issue #42454 is resolved
   matches=$(awk 'match($0, /test[\a-z.]+'\''/) { print substr($0,RSTART,RLENGTH-1) }' scripts/functional_tests.js)
+
+  filter_matches=""
+  for grp in ${!testGrp}; do
+    cfgs=$(echo $matches | tr " " "\n" | grep "test/$grp[\a-z]*")
+    filter_matches="${filter_matches} $cfgs"
+  done
+
+  cfgs=$matches
+  if [ ! -z "$filter_matches" ]; then
+    cfgs=$filter_matches
+  fi
+
   failures=0
-  for cfg in $matches; do
+  for cfg in $cfgs; do
     if [ $cfg == "test/functional/config.js" ] && [ $funcTests == "false" ]; then
       continue
     fi
@@ -1142,11 +1155,11 @@ case "$TEST_GROUP" in
       run_xpack_func_tests $TEST_GROUP
     fi
     ;;
-  xpackExt)
+  xpackExt*)
     if [ $PLATFORM == "cloud" ]; then
       run_cloud_xpack_ext_tests
     else
-      run_xpack_ext_tests
+      run_xpack_ext_tests false $TEST_GROUP
     fi
     ;;
   selenium)
