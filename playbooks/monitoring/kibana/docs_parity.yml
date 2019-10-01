@@ -160,6 +160,15 @@
         status_code: 200
       register: xpack_elasticsearch_monitoring_sample_docs
 
+    - name: Get Kibana log for debugging purposes
+      slurp:
+        src: "{{ kibana_log_file }}"
+      register: kibana_logs
+
+    - name: Print Kibana log for debugging purposes
+      debug:
+        msg: "{{ kibana_logs['content'] | b64decode }}"
+
     - name: Write sample docs to temp files
       copy:
         content: "{{ item._source }}"
