@@ -1,0 +1,7 @@
+kibana.disableWelcomeScreen: true
+xpack.maps.showMapsInspectorAdapter: true
+timelion.ui.enabled: true
+xpack.reporting.csv.maxSizeBytes: 2850
+xpack.telemetry.banner: false
+xpack.reporting.queue.pollInterval: 3000
+xpack.maps.preserveDrawingBuffer: true

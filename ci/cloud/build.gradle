@@ -34,6 +34,7 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
+
 /*
  General Methods
  */
@@ -44,6 +45,7 @@ def genSetupTask(testname) {
         stackVersion = System.env.ESTF_CLOUD_VERSION
         esUserSettings = System.env.ESTF_ES_USER_SETTINGS
         kibanaUserSettings = System.env.ESTF_KIBANA_USER_SETTINGS
+        kibanaUserSettingsOverride = new File('product/settings/kibana.yml').getText('UTF-8')
     }
 }
 

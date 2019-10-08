@@ -9,30 +9,67 @@
 
 package org.estf.gradle;
 
+import co.elastic.cloud.api.builder.ApiClientBuilder;
+import co.elastic.cloud.api.builder.CreateElasticsearchClusterRequestBuilder;
+import co.elastic.cloud.api.builder.CreateKibanaInCreateElasticsearchRequestBuilder;
+import co.elastic.cloud.api.builder.DiscreteSizesBuilder;
+import co.elastic.cloud.api.builder.ElasticsearchClusterPlanBuilder;
+import co.elastic.cloud.api.builder.ElasticsearchClusterTopologyElementBuilder;
+import co.elastic.cloud.api.builder.ElasticsearchConfigurationBuilder;
+import co.elastic.cloud.api.builder.ElasticsearchNodeTypeBuilder;
+import co.elastic.cloud.api.builder.ElasticsearchScriptingUserSettingsBuilder;
+import co.elastic.cloud.api.builder.ElasticsearchScriptTypeSettingsBuilder;
+import co.elastic.cloud.api.builder.ElasticsearchSystemSettingsBuilder;
+import co.elastic.cloud.api.builder.InstanceConfigurationBuilder;
+import co.elastic.cloud.api.builder.KibanaClusterPlanBuilder;
+import co.elastic.cloud.api.builder.KibanaClusterTopologyElementBuilder;
+import co.elastic.cloud.api.builder.KibanaConfigurationBuilder;
+import co.elastic.cloud.api.builder.TopologySizeBuilder;
 import co.elastic.cloud.api.client.ClusterClient;
-import co.elastic.cloud.api.model.generated.CreateElasticsearchClusterRequest;
-import co.elastic.cloud.api.model.generated.ElasticsearchClusterInfo;
-import co.elastic.cloud.api.model.generated.KibanaClusterInfo;
-import co.elastic.cloud.api.model.generated.ClusterCrudResponse;
-import co.elastic.cloud.api.model.generated.ClusterCredentials;
+import co.elastic.cloud.api.client.generated.ClustersElasticsearchApi;
 import co.elastic.cloud.api.client.generated.ClustersKibanaApi;
+import co.elastic.cloud.api.client.generated.PlatformConfigurationInstancesApi;
+import co.elastic.cloud.api.model.generated.ClusterCredentials;
+import co.elastic.cloud.api.model.generated.ClusterCrudResponse;
+import co.elastic.cloud.api.model.generated.CreateElasticsearchClusterRequest;
+import co.elastic.cloud.api.model.generated.CreateKibanaInCreateElasticsearchRequest;
+import co.elastic.cloud.api.model.generated.DiscreteSizes;
+import co.elastic.cloud.api.model.generated.ElasticsearchClusterInfo;
+import co.elastic.cloud.api.model.generated.ElasticsearchClusterPlan;
+import co.elastic.cloud.api.model.generated.ElasticsearchClusterTopologyElement;
+import co.elastic.cloud.api.model.generated.ElasticsearchConfiguration;
+import co.elastic.cloud.api.model.generated.ElasticsearchNodeType;
+import co.elastic.cloud.api.model.generated.ElasticsearchScriptingUserSettings;
+import co.elastic.cloud.api.model.generated.ElasticsearchScriptTypeSettings;
+import co.elastic.cloud.api.model.generated.ElasticsearchSystemSettings;
+import co.elastic.cloud.api.model.generated.InstanceConfiguration;
+import co.elastic.cloud.api.model.generated.KibanaClusterInfo;
+import co.elastic.cloud.api.model.generated.KibanaClusterPlan;
+import co.elastic.cloud.api.model.generated.KibanaClusterTopologyElement;
+import co.elastic.cloud.api.model.generated.KibanaConfiguration;
+import co.elastic.cloud.api.model.generated.TopologySize;
 import co.elastic.cloud.api.util.Waiter;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.Input;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.UUID;
+import org.gradle.api.tasks.TaskAction;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
-
+import java.util.UUID;
 
 public class CreateCloudCluster extends DefaultTask {
+
+    @Input
+    String stackVersion;
 
     @Input
     String kibanaUserSettings;
@@ -41,7 +78,10 @@ public class CreateCloudCluster extends DefaultTask {
     String esUserSettings;
 
     @Input
-    String stackVersion;
+    String esUserSettingsOverride;
+
+    @Input
+    String kibanaUserSettingsOverride;
 
     String clusterId;
     String kibanaClusterId;
@@ -59,9 +99,10 @@ public class CreateCloudCluster extends DefaultTask {
         // Setup cluster client
         CloudApi cloudApi = new CloudApi();
         ClusterClient clusterClient = cloudApi.createClient();
+        PlatformConfigurationInstancesApi instanceClient = new PlatformConfigurationInstancesApi(cloudApi.getApiClient());
 
         // Create cluster
-        ClusterCrudResponse response = clusterClient.createEsCluster(getFromJson());
+        ClusterCrudResponse response = clusterClient.createEsCluster(createClusterRequest(instanceClient));
         ClustersKibanaApi kbnApi = new ClustersKibanaApi(cloudApi.getApiClient());
         Waiter.waitFor(() -> cloudApi.isKibanaRunning(
             kbnApi.getKibanaCluster(response.getKibanaClusterId(), false, true, false, false)
@@ -136,4 +177,114 @@ public class CreateCloudCluster extends DefaultTask {
         return jsonRequest;
     }
 
+    private String createInstanceConfig( PlatformConfigurationInstancesApi instanceClient,
+                                         String instanceType, String name, List<String> types) {
+        DiscreteSizes discreteSizes = new DiscreteSizesBuilder()
+            .setSizes(Collections.singletonList(1024))
+            .setDefaultSize(1024)
+            .setResource(DiscreteSizes.ResourceEnum.MEMORY)
+            .build();
+
+        InstanceConfiguration instanceConfiguration = new InstanceConfigurationBuilder()
+            .setName(name)
+            .setNodeTypes(types)
+            .setInstanceType(instanceType)
+            .setDiscreteSizes(discreteSizes)
+            .build();
+
+        return instanceClient.createInstanceConfiguration(instanceConfiguration).getId();
+    }
+
+    private CreateElasticsearchClusterRequest createClusterRequest(PlatformConfigurationInstancesApi instanceClient) {
+
+        String esConfigId = createInstanceConfig(instanceClient, "elasticsearch", "es-cfg", Arrays.asList("master", "data"));
+
+        String mlConfigId = createInstanceConfig(instanceClient, "elasticsearch", "ml-cfg", Collections.singletonList("ml"));
+
+        String kbnConfigId = createInstanceConfig(instanceClient, "kibana", "kbn-cfg", null);
+
+        TopologySize topologySize = new TopologySizeBuilder()
+            .setValue(1024)
+            .setResource(TopologySize.ResourceEnum.MEMORY)
+            .build();
+
+        ElasticsearchNodeType esNodeType = new ElasticsearchNodeTypeBuilder().setData(true).setMaster(true).build();
+
+        ElasticsearchNodeType mlNodeType = new ElasticsearchNodeTypeBuilder().setMl(true).build();
+
+        ElasticsearchClusterTopologyElement esTopo = new ElasticsearchClusterTopologyElementBuilder()
+            .setInstanceConfigurationId(esConfigId)
+            .setNodeType(esNodeType)
+            .setZoneCount(1)
+            .setSize(topologySize)
+            .build();
+
+        ElasticsearchClusterTopologyElement mlTopo = new ElasticsearchClusterTopologyElementBuilder()
+            .setInstanceConfigurationId(mlConfigId)
+            .setNodeType(mlNodeType)
+            .setZoneCount(1)
+            .setSize(topologySize)
+            .build();
+
+        KibanaClusterTopologyElement kbnTopo = new KibanaClusterTopologyElementBuilder()
+            .setInstanceConfigurationId(kbnConfigId)
+            .setZoneCount(1)
+            .setSize(topologySize)
+            .build();
+
+        ElasticsearchScriptTypeSettings typeSetting = new ElasticsearchScriptTypeSettingsBuilder()
+            .setEnabled(true)
+            .build();
+
+        ElasticsearchScriptingUserSettings userSettings = new ElasticsearchScriptingUserSettingsBuilder()
+            .setInline(typeSetting)
+            .setStored(typeSetting)
+            .build();
+
+        ElasticsearchSystemSettings esSettings = new ElasticsearchSystemSettingsBuilder()
+            .setAutoCreateIndex(true)
+            .setDestructiveRequiresName(false)
+            .setScripting(userSettings)
+            .build();
+
+        ElasticsearchConfigurationBuilder esCfgBld = new ElasticsearchConfigurationBuilder();
+        esCfgBld.setSystemSettings(esSettings);
+        esCfgBld.setVersion(stackVersion);
+        if (esUserSettings != null) {
+            esCfgBld.setUserSettingsYaml(esUserSettings);
+        }
+        if (esUserSettingsOverride != null) {
+            esCfgBld.setUserSettingsOverrideYaml(esUserSettingsOverride);
+        }
+        ElasticsearchConfiguration esCfg = esCfgBld.build();
+
+        KibanaConfigurationBuilder kbnCfgBld = new KibanaConfigurationBuilder();
+        if (kibanaUserSettings != null) {
+            kbnCfgBld.setUserSettingsYaml(kibanaUserSettings);
+        }
+        if (kibanaUserSettingsOverride != null) {
+            kbnCfgBld.setUserSettingsOverrideYaml(kibanaUserSettingsOverride);
+        }
+        KibanaConfiguration kbnCfg = kbnCfgBld.build();
+
+        ElasticsearchClusterPlan plan = new ElasticsearchClusterPlanBuilder()
+            .setElasticsearch(esCfg)
+            .setClusterTopology(Arrays.asList(esTopo, mlTopo))
+            .build();
+
+        KibanaClusterPlan kbnPlan = new KibanaClusterPlanBuilder()
+            .setKibana(kbnCfg)
+            .setClusterTopology(Arrays.asList(kbnTopo))
+            .build();
+
+        CreateKibanaInCreateElasticsearchRequest kbnInEs = new CreateKibanaInCreateElasticsearchRequestBuilder()
+            .setPlan(kbnPlan)
+            .build();
+
+        return new CreateElasticsearchClusterRequestBuilder()
+            .setPlan(plan)
+            .setKibana(kbnInEs)
+            .setClusterName("ESTF_Cluster__" + UUID.randomUUID().toString())
+            .build();
+    }
 }
