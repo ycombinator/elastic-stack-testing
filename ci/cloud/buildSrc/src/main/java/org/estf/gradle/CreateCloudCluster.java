@@ -60,6 +60,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -104,9 +105,11 @@ public class CreateCloudCluster extends DefaultTask {
         // Create cluster
         ClusterCrudResponse response = clusterClient.createEsCluster(createClusterRequest(instanceClient));
         ClustersKibanaApi kbnApi = new ClustersKibanaApi(cloudApi.getApiClient());
+
+        Duration wait = Duration.ofMinutes(15);
         Waiter.waitFor(() -> cloudApi.isKibanaRunning(
             kbnApi.getKibanaCluster(response.getKibanaClusterId(), false, true, false, false)
-        ));
+        ), wait);
 
         // Get cluster info
         clusterId = response.getElasticsearchClusterId();
