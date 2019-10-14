@@ -1,7 +1,10 @@
 kibana.disableWelcomeScreen: true
-xpack.maps.showMapsInspectorAdapter: true
+server.uuid: 5b2de169-2785-441b-ae8c-186a1936b17d
 timelion.ui.enabled: true
-xpack.reporting.csv.maxSizeBytes: 2850
-xpack.telemetry.banner: false
-xpack.reporting.queue.pollInterval: 3000
+xpack.encrypted_saved_objects.encryptionKey: DkdXazszSCYexXqz4YktBGHCRkV6hyNK
 xpack.maps.preserveDrawingBuffer: true
+xpack.maps.showMapsInspectorAdapter: true
+xpack.reporting.csv.maxSizeBytes: 2850
+xpack.reporting.queue.pollInterval: 3000
+xpack.security.encryptionKey: wuGNaIhoMpk5sO4UBxgr3NyW1sFcLgIf
+xpack.telemetry.banner: false
