@@ -927,42 +927,6 @@ function run_cloud_xpack_ext_tests() {
 }
 
 # -----------------------------------------------------------------------------
-# Method to run code tests
-# -----------------------------------------------------------------------------
-function run_code_tests() {
-  run_ci_setup
-  TEST_KIBANA_BUILD=default
-  install_kibana
-
-  local _xpack_dir="$(cd x-pack; pwd)"
-  echo_info "-> XPACK_DIR ${_xpack_dir}"
-  cd "$_xpack_dir"
-
-  export TEST_BROWSER_HEADLESS=1
-
-  echo_info "Run API Integration"
-  node scripts/functional_tests \
-    --kibana-install-dir=${Glb_Kibana_Dir} \
-    --config=test/api_integration/config.js \
-    --esFrom=snapshot \
-    --grep="^apis Code .*"
-  api_rc=$?
-
-  echo_info "Run Functional Tests"
-  node scripts/functional_tests \
-    --kibana-install-dir=${Glb_Kibana_Dir} \
-    --config=test/functional/config.js \
-    --esFrom=snapshot \
-    --grep="^Code .*"
-  func_rc=$?
-
-  rclist=($api_rc $func_rc)
-
-  check_status_ok ${rclist[*]} && exit_script || exit_script 1 "Code test failed!"
-
-}
-
-# -----------------------------------------------------------------------------
 # Method to run visual tests under Kibana repo tests/
 # -----------------------------------------------------------------------------
 function run_visual_tests_oss() {
@@ -1172,9 +1136,6 @@ case "$TEST_GROUP" in
     ;;
   xpack)
     run_xpack_ext_tests true
-    ;;
-  code)
-    run_code_tests
     ;;
   unit)
     run_unit_tests
