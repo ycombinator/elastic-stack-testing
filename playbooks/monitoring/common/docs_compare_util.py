@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import pprint
 from dictdiffer import diff
 
 allowed_insertions_in_metricbeat_docs = [
