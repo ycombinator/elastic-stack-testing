@@ -10,7 +10,7 @@
 packetbeat_run_as_root: true
 
 # packetbeat package
-packetbeat_package: '/tmp/{{ packetbeat_package_url | basename }}'
+packetbeat_package: "{{ lookup('env','AIT_VM_INSTALL_DIR') }}/{{ packetbeat_package_url | basename }}"
 
 # packetbeat bin
 packetbeat_bin_dir: '/usr/share/packetbeat/bin'

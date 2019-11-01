@@ -10,7 +10,7 @@
 filebeat_run_as_root: true
 
 # filebeat package
-filebeat_package: '/tmp/{{ filebeat_package_url | basename }}'
+filebeat_package: "{{ lookup('env','AIT_VM_INSTALL_DIR') }}/{{ filebeat_package_url | basename }}"
 
 # filebeat bin
 filebeat_bin_dir: '/usr/share/filebeat/bin'

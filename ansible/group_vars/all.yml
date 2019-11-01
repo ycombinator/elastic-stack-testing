@@ -18,7 +18,7 @@ package_server: ''
 package_ver:  ''
 package_hash: ''
 package_arch: ''
-package_ext:  '' 
+package_ext:  ''
 package_url:  '{{ package_server }}/{{ package_ver }}-{{ package_hash }}/downloads'
 
 #----------------------------------------------------------------------------------------------------------------------
@@ -30,8 +30,8 @@ package_url:  '{{ package_server }}/{{ package_ver }}-{{ package_hash }}/downloa
 
 # Specify for windows and linux
 install_dirs:
-  'tar.gz': '/tmp'
-  'zip': 'c:\temp'
+  'tar.gz': "{{ lookup('env','AIT_VM_INSTALL_DIR') }}"
+  'zip':    "{{ lookup('env','AIT_VM_WIN_INSTALL_DIR') }}"
 install_dir: '{{ install_dirs[package_ext] }}'
 install_as_root: false
 
@@ -57,7 +57,7 @@ elasticsearch_config_params:
 # If set to False other parameters may be combined/overwrite those set by the user, ex: multi-node setup
 elasticsearch_config_params_strict: False
 
-# If a file is set it takes higher precedence than above parameters 
+# If a file is set it takes higher precedence than above parameters
 # elasticsearch_config_params_file: ''
 
 #----------------------------------------------------------------------------------------------------------------------

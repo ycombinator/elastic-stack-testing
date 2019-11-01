@@ -94,6 +94,12 @@ else
   ANSIBLE_ES_VARS = ANSIBLE_DEFAULT_ES_VARS
 end
 
+SYNC_FOLDER = "no"
+if ENV['AIT_SYNC_KBN_DIR']
+  SYNC_FOLDER = "yes"
+  SYNC_FOLDER_NAME = ENV['AIT_SYNC_FOLDER_NAME']
+end
+
 # Configure Vagrant
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
@@ -103,6 +109,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network :forwarded_port, guest:KIBANA_GUEST_PORT, host:KIBANA_PORT
 
   config.ssh.insert_key = false
+
+  # Sync folder
+  if SYNC_FOLDER == "yes"
+    config.vm.synced_folder "kibana-dir/", SYNC_FOLDER_NAME, create: true
+  end
 
   # Configure Provider
   config.vm.provider :virtualbox do |vb|

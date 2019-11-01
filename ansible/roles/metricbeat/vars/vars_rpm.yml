@@ -10,7 +10,7 @@
 metricbeat_run_as_root: true
 
 # metricbeat package
-metricbeat_package: '/tmp/{{ metricbeat_package_url | basename }}'
+metricbeat_package: "{{ lookup('env','AIT_VM_INSTALL_DIR') }}/{{ metricbeat_package_url | basename }}"
 
 # metricbeat bin
 metricbeat_bin_dir: '/usr/share/metricbeat/bin'

@@ -15,8 +15,8 @@ vagrant_dirs:
   'linux': /vagranelastic_pkgt
 current_host_ip: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
 install_dirs:
-  'tar.gz': '/tmp'
-  'zip':    'c:\temp'
+  'tar.gz': "{{ lookup('env','AIT_VM_INSTALL_DIR') }}"
+  'zip':    "{{ lookup('env','AIT_VM_WIN_INSTALL_DIR') }}"
 install_dir: '{{ install_dirs[package_ext] }}'
 install_as_root: false
 # Localhost certificate directory

@@ -25,8 +25,8 @@ package_url:  '{{ package_server }}/{{ package_ver }}-{{ package_hash }}/downloa
 
 # Specify for windows and linux
 install_dirs:
-  'tar.gz': '/tmp'
-  'zip':    'c:\temp'
+  'tar.gz': "{{ lookup('env','AIT_VM_INSTALL_DIR') }}"
+  'zip':    "{{ lookup('env','AIT_VM_WIN_INSTALL_DIR') }}"
 install_dir: '{{ install_dirs[package_ext] }}'
 install_as_root: false
 
