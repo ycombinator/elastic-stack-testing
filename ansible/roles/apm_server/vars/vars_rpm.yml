@@ -10,7 +10,7 @@
 apm_server_run_as_root: true
 
 # apm_server package
-apm_server_package: '/tmp/{{ apm_server_package_url | basename }}'
+apm_server_package: "{{ lookup('env','AIT_VM_INSTALL_DIR') }}/{{ apm_server_package_url | basename }}"
 
 # apm_server bin
 apm_server_bin_dir: '/usr/share/apm_server/bin'

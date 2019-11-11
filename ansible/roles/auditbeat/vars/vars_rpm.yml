@@ -10,7 +10,7 @@
 auditbeat_run_as_root: true
 
 # auditbeat package
-auditbeat_package: '/tmp/{{ auditbeat_package_url | basename }}'
+auditbeat_package: "{{ lookup('env','AIT_VM_INSTALL_DIR') }}/{{ auditbeat_package_url | basename }}"
 
 # auditbeat bin
 auditbeat_bin_dir: '/usr/share/auditbeat/bin'

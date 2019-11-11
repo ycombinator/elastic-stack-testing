@@ -10,7 +10,7 @@
 elasticsearch_run_as_root: true
 
 # Elasticsearch package
-elasticsearch_package: '/tmp/{{ elasticsearch_package_url | basename }}'
+elasticsearch_package: "{{ lookup('env','AIT_VM_INSTALL_DIR') }}/{{ elasticsearch_package_url | basename }}"
 
 # Elasticsearch bin
 elasticsearch_bin_dir: '/usr/share/elasticsearch/bin'

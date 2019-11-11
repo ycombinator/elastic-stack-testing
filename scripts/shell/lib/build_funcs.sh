@@ -263,6 +263,16 @@ run_vm() {
     echo_error "Invalid file: $AIT_VM"
     exit 1
   fi
+
+  # Sync folder
+  # NOTE: Right now this is only for Kibana directory
+  # if variable is empty, return
+  if [ ! -z $AIT_SYNC_KBN_DIR ] && [ "$AIT_SYNC_KBN_DIR" == "yes" ]; then
+    _ext=$(grep package_ext $WORKSPACE/vars.yml | sed "s/.*: //")
+    _kibana_dir=$(grep kibana_package_url $WORKSPACE/vars.yml | sed "s/.*\///" | sed s/"\.$_ext"//g)
+    export AIT_SYNC_FOLDER_NAME=$AIT_VM_INSTALL_DIR/$_kibana_dir
+  fi
+
   # Run vm shell script
   echo_info "Run script: ${AIT_VM}"
   cd $(dirname $AIT_VM)

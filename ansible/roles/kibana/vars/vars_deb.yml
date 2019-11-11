@@ -10,7 +10,7 @@
 kibana_run_as_root: true
 
 # kibana package
-kibana_package: '/tmp/{{ kibana_package_url | basename }}'
+kibana_package: "{{ lookup('env','AIT_VM_INSTALL_DIR') }}/{{ kibana_package_url | basename }}"
 
 # kibana bin
 kibana_bin_dir: '/usr/share/kibana/bin'

@@ -10,7 +10,7 @@
 logstash_run_as_root: true
 
 # logstash package
-logstash_package: '/tmp/{{ logstash_package_url | basename }}'
+logstash_package: "{{ lookup('env','AIT_VM_INSTALL_DIR') }}/{{ logstash_package_url | basename }}"
 
 # logstash bin
 logstash_bin_dir: '/usr/share/logstash/bin'
@@ -18,7 +18,7 @@ logstash_exe: '{{ logstash_bin_dir }}/logstash'
 logstash_plugin_exe: '{{ logstash_bin_dir }}/logstash-plugin'
 
 # logstash logs
-logstash_log_dir: '/tmp/log/logstash'
+logstash_log_dir: "{{ lookup('env','AIT_VM_INSTALL_DIR') }}/log/logstash"
 logstash_log_file: '{{ logstash_log_dir }}/logstash.log'
 
 # logstash config

@@ -10,7 +10,7 @@
 heartbeat_run_as_root: true
 
 # heartbeat package
-heartbeat_package: '/tmp/{{ heartbeat_package_url | basename }}'
+heartbeat_package: "{{ lookup('env','AIT_VM_INSTALL_DIR') }}/{{ heartbeat_package_url | basename }}"
 
 # heartbeat bin
 heartbeat_bin_dir: '/usr/share/heartbeat/bin'
