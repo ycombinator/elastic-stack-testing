@@ -26,6 +26,11 @@ heartbeat_package_ext: "{{ heartbeat_package_url | splitext | last | regex_repla
 # Variables to run multiple role task files in a group
 # Must have role name (key), action and args that map to individual task files
 heartbeat_roles:
+  heartbeat_install_config_start_verify:
+    - { action: 'heartbeat_install', args: {} }
+    - { action: 'heartbeat_config', args: {} }
+    - { action: 'heartbeat_startup', args: {} }
+    - { action: 'heartbeat_is_running', args: {} }
   heartbeat_install_config_start_verify_import_dashboards:
     - { action: 'heartbeat_install', args: {} }
     - { action: 'heartbeat_config', args: {} }
