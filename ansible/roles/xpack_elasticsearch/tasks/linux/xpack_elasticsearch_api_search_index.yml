@@ -1,0 +1,29 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Elasticsearch API request
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Run elasticsearch api search
+  block:
+    - name: Elasticsearch HTTPS GET _search
+      uri:
+        url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/{{ index_prefix }}*/_search"
+        method: GET
+        user: "{{ elasticsearch_username }}"
+        password: "{{ elasticsearch_password }}"
+        validate_certs: no
+        return_content: yes
+        status_code: 200
+      register: elasticsearch_search_index
+    - debug:
+        msg: '{{ elasticsearch_search_index }}'
+    - name: Fail if index is not found
+      fail:
+        msg: "Prefix: {{ index_prefix }} not found"
+      when: elasticsearch_search_index.content == ""
+    - name: Fail if hits is null
+      fail:
+        msg: "Prefix: {{ index_prefix }} has no docs indexed"
+      when: (elasticsearch_search_index.json.hits.hits | length == 0)
