@@ -14,34 +14,41 @@ xpack_filebeat_roles:
     - { action: 'filebeat_install', parent: 'filebeat', args: {} }
     - { action: 'xpack_filebeat_config',  parent: '', args: {} }
     - { action: 'filebeat_restart',  parent: 'filebeat', args: {} }
+    - { action: 'filebeat_log_tail', parent: 'filebeat', args: {ait_log_searchstr: started} }
     - { action: 'filebeat_is_running', parent: 'filebeat', args: {} }
   xpack_filebeat_config_start_verify:
     - { action: 'xpack_filebeat_config',  parent: '', args: {} }
     - { action: 'filebeat_restart',  parent: 'filebeat', args: {} }
+    - { action: 'filebeat_log_tail', parent: 'filebeat', args: {ait_log_searchstr: started} }
     - { action: 'filebeat_is_running', parent: 'filebeat', args: {} }
   xpack_filebeat_install_config_start_verify_import_dashboards:
     - { action: 'filebeat_install', parent: 'filebeat', args: {} }
     - { action: 'xpack_filebeat_config',  parent: '', args: {} }
     - { action: 'filebeat_restart',  parent: 'filebeat', args: {} }
+    - { action: 'filebeat_log_tail', parent: 'filebeat', args: {ait_log_searchstr: started} }
     - { action: 'filebeat_is_running', parent: 'filebeat', args: {} }
     - { action: 'filebeat_import_dashboards', parent: 'filebeat', args: {} }
   xpack_filebeat_config_start_verify_import_dashboards:
     - { action: 'xpack_filebeat_config',  parent: '', args: {} }
     - { action: 'filebeat_restart',  parent: 'filebeat', args: {} }
+    - { action: 'filebeat_log_tail', parent: 'filebeat', args: {ait_log_searchstr: started} }
     - { action: 'filebeat_is_running', parent: 'filebeat', args: {} }
     - { action: 'filebeat_import_dashboards', parent: 'filebeat', args: {} }
   xpack_filebeat_rmconfig_start_verify:
     - { action: 'xpack_filebeat_config_remove', parent: '', args: {} }
     - { action: 'filebeat_restart',  parent: 'filebeat', args: {} }
+    - { action: 'filebeat_log_tail', parent: 'filebeat', args: {ait_log_searchstr: started} }
     - { action: 'filebeat_is_running', parent: 'filebeat', args: {} }
   xpack_filebeat_install_cloud_start_verify:
     - { action: 'filebeat_install', parent: 'filebeat', args: {} }
     - { action: 'xpack_filebeat_config_cloud',  parent: '', args: {} }
     - { action: 'filebeat_restart',  parent: 'filebeat', args: {} }
+    - { action: 'filebeat_log_tail', parent: 'filebeat', args: {ait_log_searchstr: started} }
     - { action: 'filebeat_is_running', parent: 'filebeat', args: {} }
   xpack_filebeat_cloud_start_verify:
     - { action: 'xpack_filebeat_config_cloud',  parent: '', args: {} }
     - { action: 'filebeat_restart',  parent: 'filebeat', args: {} }
+    - { action: 'filebeat_log_tail', parent: 'filebeat', args: {ait_log_searchstr: started} }
     - { action: 'filebeat_is_running', parent: 'filebeat', args: {} }
 
 

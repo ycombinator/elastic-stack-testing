@@ -14,34 +14,41 @@ xpack_packetbeat_roles:
     - { action: 'packetbeat_install', parent: 'packetbeat', args: {} }
     - { action: 'xpack_packetbeat_config',  parent: '', args: {} }
     - { action: 'packetbeat_restart',  parent: 'packetbeat', args: {} }
+    - { action: 'packetbeat_log_tail', parent: 'packetbeat', args: {ait_log_searchstr: started} }
     - { action: 'packetbeat_is_running', parent: 'packetbeat', args: {} }
   xpack_packetbeat_config_start_verify:
     - { action: 'xpack_packetbeat_config',  parent: '', args: {} }
     - { action: 'packetbeat_restart',  parent: 'packetbeat', args: {} }
+    - { action: 'packetbeat_log_tail', parent: 'packetbeat', args: {ait_log_searchstr: started} }
     - { action: 'packetbeat_is_running', parent: 'packetbeat', args: {} }
   xpack_packetbeat_install_config_start_verify_import_dashboards:
     - { action: 'packetbeat_install', parent: 'packetbeat', args: {} }
     - { action: 'xpack_packetbeat_config',  parent: '', args: {} }
     - { action: 'packetbeat_restart',  parent: 'packetbeat', args: {} }
+    - { action: 'packetbeat_log_tail', parent: 'packetbeat', args: {ait_log_searchstr: started} }
     - { action: 'packetbeat_is_running', parent: 'packetbeat', args: {} }
     - { action: 'packetbeat_import_dashboards', parent: 'packetbeat', args: {} }
   xpack_packetbeat_config_start_verify_import_dashboards:
     - { action: 'xpack_packetbeat_config',  parent: '', args: {} }
     - { action: 'packetbeat_restart',  parent: 'packetbeat', args: {} }
+    - { action: 'packetbeat_log_tail', parent: 'packetbeat', args: {ait_log_searchstr: started} }
     - { action: 'packetbeat_is_running', parent: 'packetbeat', args: {} }
     - { action: 'packetbeat_import_dashboards', parent: 'packetbeat', args: {} }
   xpack_packetbeat_rmconfig_start_verify:
     - { action: 'xpack_packetbeat_config_remove', parent: '', args: {} }
     - { action: 'packetbeat_restart',  parent: 'packetbeat', args: {} }
+    - { action: 'packetbeat_log_tail', parent: 'packetbeat', args: {ait_log_searchstr: started} }
     - { action: 'packetbeat_is_running', parent: 'packetbeat', args: {} }
   xpack_packetbeat_install_cloud_start_verify:
     - { action: 'packetbeat_install', parent: 'packetbeat', args: {} }
     - { action: 'xpack_packetbeat_config_cloud',  parent: '', args: {} }
     - { action: 'packetbeat_restart',  parent: 'packetbeat', args: {} }
+    - { action: 'packetbeat_log_tail', parent: 'packetbeat', args: {ait_log_searchstr: started} }
     - { action: 'packetbeat_is_running', parent: 'packetbeat', args: {} }
   xpack_packetbeat_cloud_start_verify:
     - { action: 'xpack_packetbeat_config_cloud',  parent: '', args: {} }
     - { action: 'packetbeat_restart',  parent: 'packetbeat', args: {} }
+    - { action: 'packetbeat_log_tail', parent: 'packetbeat', args: {ait_log_searchstr: started} }
     - { action: 'packetbeat_is_running', parent: 'packetbeat', args: {} }
 
 # Task files for group use, keep in sync with tasks/main.yml except for parent tasks

@@ -30,11 +30,13 @@ metricbeat_roles:
     - { action: 'metricbeat_install', args: {} }
     - { action: 'metricbeat_config', args: {} }
     - { action: 'metricbeat_startup', args: {} }
+    - { action: 'metricbeat_log_tail', args: {ait_log_searchstr: started} }
     - { action: 'metricbeat_is_running', args: {} }
   metricbeat_install_config_start_verify_import_dashboards:
     - { action: 'metricbeat_install', args: {} }
     - { action: 'metricbeat_config', args: {} }
     - { action: 'metricbeat_startup', args: {} }
+    - { action: 'metricbeat_log_tail', args: {ait_log_searchstr: started} }
     - { action: 'metricbeat_is_running', args: {} }
     - { action: 'metricbeat_import_dashboards', args: {} }
   metricbeat_shutdown_uninstall_verify:
@@ -48,3 +50,8 @@ metricbeat_task_files:
   - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_metricbeat_pkg_ext }}.yml'
   - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_metricbeat_pkg_mgr | trim }}.yml'
   - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_metricbeat_srv_mgr | trim }}.yml'
+
+# metricbeat log search strings
+metricbeat_log_find:
+  started: '.*Connection to backoff\(elasticsearch.*established'
+  stopped: 'TBD'

@@ -14,34 +14,41 @@ xpack_auditbeat_roles:
     - { action: 'auditbeat_install', parent: 'auditbeat', args: {} }
     - { action: 'xpack_auditbeat_config',  parent: '', args: {} }
     - { action: 'auditbeat_restart',  parent: 'auditbeat', args: {} }
+    - { action: 'auditbeat_log_tail', parent: 'auditbeat', args: {ait_log_searchstr: started} }
     - { action: 'auditbeat_is_running', parent: 'auditbeat', args: {} }
   xpack_auditbeat_config_start_verify:
     - { action: 'xpack_auditbeat_config',  parent: '', args: {} }
     - { action: 'auditbeat_restart',  parent: 'auditbeat', args: {} }
+    - { action: 'auditbeat_log_tail', parent: 'auditbeat', args: {ait_log_searchstr: started} }
     - { action: 'auditbeat_is_running', parent: 'auditbeat', args: {} }
   xpack_auditbeat_install_config_start_verify_import_dashboards:
     - { action: 'auditbeat_install', parent: 'auditbeat', args: {} }
     - { action: 'xpack_auditbeat_config',  parent: '', args: {} }
     - { action: 'auditbeat_restart',  parent: 'auditbeat', args: {} }
+    - { action: 'auditbeat_log_tail', parent: 'auditbeat', args: {ait_log_searchstr: started} }
     - { action: 'auditbeat_is_running', parent: 'auditbeat', args: {} }
     - { action: 'auditbeat_import_dashboards', parent: 'auditbeat', args: {} }
   xpack_auditbeat_config_start_verify_import_dashboards:
     - { action: 'xpack_auditbeat_config',  parent: '', args: {} }
     - { action: 'auditbeat_restart',  parent: 'auditbeat', args: {} }
+    - { action: 'auditbeat_log_tail', parent: 'auditbeat', args: {ait_log_searchstr: started} }
     - { action: 'auditbeat_is_running', parent: 'auditbeat', args: {} }
     - { action: 'auditbeat_import_dashboards', parent: 'auditbeat', args: {} }
   xpack_auditbeat_rmconfig_start_verify:
     - { action: 'xpack_auditbeat_config_remove', parent: '', args: {} }
     - { action: 'auditbeat_restart',  parent: 'auditbeat', args: {} }
+    - { action: 'auditbeat_log_tail', parent: 'auditbeat', args: {ait_log_searchstr: started} }
     - { action: 'auditbeat_is_running', parent: 'auditbeat', args: {} }
   xpack_auditbeat_install_cloud_start_verify:
     - { action: 'auditbeat_install', parent: 'auditbeat', args: {} }
     - { action: 'xpack_auditbeat_config_cloud',  parent: '', args: {} }
     - { action: 'auditbeat_restart',  parent: 'auditbeat', args: {} }
+    - { action: 'auditbeat_log_tail', parent: 'auditbeat', args: {ait_log_searchstr: started} }
     - { action: 'auditbeat_is_running', parent: 'auditbeat', args: {} }
   xpack_auditbeat_cloud_start_verify:
     - { action: 'xpack_auditbeat_config_cloud',  parent: '', args: {} }
     - { action: 'auditbeat_restart',  parent: 'auditbeat', args: {} }
+    - { action: 'auditbeat_log_tail', parent: 'auditbeat', args: {ait_log_searchstr: started} }
     - { action: 'auditbeat_is_running', parent: 'auditbeat', args: {} }
 
 

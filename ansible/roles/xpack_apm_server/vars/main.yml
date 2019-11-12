@@ -14,25 +14,30 @@ xpack_apm_server_roles:
     - { action: 'apm_server_install', parent: 'apm_server', args: {} }
     - { action: 'xpack_apm_server_config',  parent: '', args: {} }
     - { action: 'apm_server_restart',  parent: 'apm_server', args: {} }
+    - { action: 'apm_server_log_tail', parent: 'apm_server', args: {ait_log_searchstr: started} }
     - { action: 'apm_server_is_running', parent: 'apm_server', args: {} }
   xpack_apm_server_config_start_verify:
     - { action: 'xpack_apm_server_config',  parent: '', args: {} }
     - { action: 'apm_server_restart',  parent: 'apm_server', args: {} }
+    - { action: 'apm_server_log_tail', parent: 'apm_server', args: {ait_log_searchstr: started} }
     - { action: 'apm_server_is_running', parent: 'apm_server', args: {} }
   xpack_apm_server_install_config_start_verify_import_dashboards:
     - { action: 'apm_server_install', parent: 'apm_server', args: {} }
     - { action: 'xpack_apm_server_config',  parent: '', args: {} }
     - { action: 'apm_server_restart',  parent: 'apm_server', args: {} }
+    - { action: 'apm_server_log_tail', parent: 'apm_server', args: {ait_log_searchstr: started} }
     - { action: 'apm_server_is_running', parent: 'apm_server', args: {} }
     - { action: 'apm_server_import_dashboards', parent: 'apm_server', args: {} }
   xpack_apm_server_config_start_verify_import_dashboards:
     - { action: 'xpack_apm_server_config',  parent: '', args: {} }
     - { action: 'apm_server_restart',  parent: 'apm_server', args: {} }
+    - { action: 'apm_server_log_tail', parent: 'apm_server', args: {ait_log_searchstr: started} }
     - { action: 'apm_server_is_running', parent: 'apm_server', args: {} }
     - { action: 'apm_server_import_dashboards', parent: 'apm_server', args: {} }
   xpack_apm_server_rmconfig_start_verify:
     - { action: 'xpack_apm_server_config_remove', parent: '', args: {} }
     - { action: 'apm_server_restart',  parent: 'apm_server', args: {} }
+    - { action: 'apm_server_log_tail', parent: 'apm_server', args: {ait_log_searchstr: started} }
     - { action: 'apm_server_is_running', parent: 'apm_server', args: {} }
   xpack_apm_server_install_cloud_start_verify:
     - { action: 'apm_server_install', parent: 'apm_server', args: {} }
