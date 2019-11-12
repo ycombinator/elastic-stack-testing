@@ -33,11 +33,13 @@ apm_server_roles:
     - { action: 'apm_server_install', args: {} }
     - { action: 'apm_server_config', args: {} }
     - { action: 'apm_server_startup', args: {} }
+    - { action: 'apm_server_log_tail', args: {ait_log_searchstr: started} }
     - { action: 'apm_server_is_running', args: {} }
   apm_server_install_config_start_verify_import_dashboards:
     - { action: 'apm_server_install', args: {} }
     - { action: 'apm_server_config', args: {} }
     - { action: 'apm_server_startup', args: {} }
+    - { action: 'apm_server_log_tail', args: {ait_log_searchstr: started} }
     - { action: 'apm_server_is_running', args: {} }
     - { action: 'apm_server_import_dashboards', args: {} }
   apm_server_shutdown_uninstall_verify:
@@ -51,3 +53,8 @@ apm_server_task_files:
   - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_apm_server_pkg_ext }}.yml'
   - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_apm_server_pkg_mgr | trim }}.yml'
   - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_apm_server_srv_mgr | trim }}.yml'
+
+# apm log search strings
+apm_server_log_find:
+  started: '.*Connection to backoff\(elasticsearch.*established'
+  stopped: 'TBD'

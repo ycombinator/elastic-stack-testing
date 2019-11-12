@@ -30,11 +30,13 @@ filebeat_roles:
     - { action: 'filebeat_install', args: {} }
     - { action: 'filebeat_config', args: {} }
     - { action: 'filebeat_startup', args: {} }
+    - { action: 'filebeat_log_tail', args: {ait_log_searchstr: started} }
     - { action: 'filebeat_is_running', args: {} }
   filebeat_install_config_start_verify_import_dashboards:
     - { action: 'filebeat_install', args: {} }
     - { action: 'filebeat_config', args: {} }
     - { action: 'filebeat_startup', args: {} }
+    - { action: 'filebeat_log_tail', args: {ait_log_searchstr: started} }
     - { action: 'filebeat_is_running', args: {} }
     - { action: 'filebeat_import_dashboards', args: {} }
   filebeat_shutdown_uninstall_verify:
@@ -48,3 +50,9 @@ filebeat_task_files:
   - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_filebeat_pkg_ext }}.yml'
   - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_filebeat_pkg_mgr | trim }}.yml'
   - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_filebeat_srv_mgr | trim }}.yml'
+
+# filebeat log search strings
+filebeat_log_find:
+  started: '.*Connection to backoff\(elasticsearch.*established'
+  stopped: 'TBD'
+

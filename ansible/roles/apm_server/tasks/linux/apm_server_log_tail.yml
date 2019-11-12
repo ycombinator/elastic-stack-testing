@@ -1,0 +1,37 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Log search
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Get system date
+  shell: date
+  register: apm_server_date
+
+- name: Get date now
+  shell: date +"%Y-%m-%dT%H:%M" --date "{{ apm_server_date.stdout }}"
+  register: apm_server_date_now
+
+- name: Get date lower limit
+  shell: date +"%Y-%m-%dT%H:%M" --date "{{ apm_server_date.stdout }} -1 minutes"
+  register: apm_server_date_lower
+
+- name: Get date higher limit
+  shell: date +"%Y-%m-%dT%H:%M" --date "{{ apm_server_date.stdout }} +1 minutes"
+  register: apm_server_date_higher
+
+- name: Set search string
+  set_fact:
+    search_str: "{%- if ait_args is defined -%}
+                    {{ apm_server_log_find[ait_args.get('ait_log_searchstr')] }}
+                 {%- elif ait_log_searchstr is defined -%}
+                    {{ apm_server_log_find[ait_log_searchstr] }}
+                 {%- endif -%}"
+
+- name: Wait for log file and search string to be present
+  wait_for:
+    path: '{{ apm_server_log_file }}'
+    timeout: '{{ apm_server_timeout }}'
+    search_regex: '({{ apm_server_date_now.stdout }}|{{ apm_server_date_lower.stdout }}|{{ apm_server_date_higher.stdout }})([\w*\W*\n]*){{ search_str }}'
+  become: true

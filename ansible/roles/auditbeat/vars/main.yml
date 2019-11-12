@@ -30,6 +30,7 @@ auditbeat_roles:
     - { action: 'auditbeat_install', args: {} }
     - { action: 'auditbeat_config', args: {} }
     - { action: 'auditbeat_startup', args: {} }
+    - { action: 'auditbeat_log_tail', args: {ait_log_searchstr: started} }
     - { action: 'auditbeat_is_running', args: {} }
     - { action: 'auditbeat_import_dashboards', args: {} }
   auditbeat_shutdown_uninstall_verify:
@@ -43,3 +44,8 @@ auditbeat_task_files:
   - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_auditbeat_pkg_ext }}.yml'
   - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_auditbeat_pkg_mgr | trim }}.yml'
   - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_auditbeat_srv_mgr | trim }}.yml'
+
+# auditbeat log search strings
+auditbeat_log_find:
+  started: '.*Connection to backoff\(elasticsearch.*established'
+  stopped: 'TBD'

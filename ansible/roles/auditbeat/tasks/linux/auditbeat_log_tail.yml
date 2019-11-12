@@ -1,0 +1,37 @@
+#-----------------------------------------------------------------------------------------------------------------------
+# Log search
+#
+# Author: liza.dayoub@elastic.co
+#-----------------------------------------------------------------------------------------------------------------------
+---
+
+- name: Get system date
+  shell: date
+  register: auditbeat_date
+
+- name: Get date now
+  shell: date +"%Y-%m-%dT%H:%M" --date "{{ auditbeat_date.stdout }}"
+  register: auditbeat_date_now
+
+- name: Get date lower limit
+  shell: date +"%Y-%m-%dT%H:%M" --date "{{ auditbeat_date.stdout }} -1 minutes"
+  register: auditbeat_date_lower
+
+- name: Get date higher limit
+  shell: date +"%Y-%m-%dT%H:%M" --date "{{ auditbeat_date.stdout }} +1 minutes"
+  register: auditbeat_date_higher
+
+- name: Set search string
+  set_fact:
+    search_str: "{%- if ait_args is defined -%}
+                    {{ auditbeat_log_find[ait_args.get('ait_log_searchstr')] }}
+                 {%- elif ait_log_searchstr is defined -%}
+                    {{ auditbeat_log_find[ait_log_searchstr] }}
+                 {%- endif -%}"
+
+- name: Wait for log file and search string to be present
+  wait_for:
+    path: '{{ auditbeat_log_file }}'
+    timeout: '{{ auditbeat_timeout }}'
+    search_regex: '({{ auditbeat_date_now.stdout }}|{{ auditbeat_date_lower.stdout }}|{{ auditbeat_date_higher.stdout }})([\w*\W*\n]*){{ search_str }}'
+  become: true

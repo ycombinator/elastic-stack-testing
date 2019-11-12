@@ -30,11 +30,13 @@ packetbeat_roles:
     - { action: 'packetbeat_install', args: {} }
     - { action: 'packetbeat_config', args: {} }
     - { action: 'packetbeat_startup', args: {} }
+    - { action: 'packetbeat_log_tail', args: {ait_log_searchstr: started} }
     - { action: 'packetbeat_is_running', args: {} }
   packetbeat_install_config_start_verify_import_dashboards:
     - { action: 'packetbeat_install', args: {} }
     - { action: 'packetbeat_config', args: {} }
     - { action: 'packetbeat_startup', args: {} }
+    - { action: 'packetbeat_log_tail', args: {ait_log_searchstr: started} }
     - { action: 'packetbeat_is_running', args: {} }
     - { action: 'packetbeat_import_dashboards', args: {} }
   packetbeat_shutdown_uninstall_verify:
@@ -48,3 +50,8 @@ packetbeat_task_files:
   - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_packetbeat_pkg_ext }}.yml'
   - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_packetbeat_pkg_mgr | trim }}.yml'
   - '{{ ansible_system | lower }}/{{ item.action }}_{{ ait_packetbeat_srv_mgr | trim }}.yml'
+
+# packetbeat log search strings
+packetbeat_log_find:
+  started: '.*Connection to backoff\(elasticsearch.*established'
+  stopped: 'TBD'
