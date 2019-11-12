@@ -5,16 +5,24 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- shell: date +"%Y-%m-%dT%H:%M"
+- name: Get system date
+  shell: date
   register: logstash_date
-- set_fact:
-    logstash_date_ind0: "{{ logstash_date.stdout.split(':')[0] }}"
-    minute_minus1: "{{ logstash_date.stdout.split(':')[1] | int - 01 }}"
-    minute_plus1:  "{{ logstash_date.stdout.split(':')[1] | int + 01 }}"
-- set_fact:
-    logstash_date_now: "{{ logstash_date.stdout }}"
-    logstash_date_minus1: "{{ logstash_date_ind0 }}:{{ '%02d'|format(minute_minus1|int) }}"
-    logstash_date_plus1:  "{{ logstash_date_ind0 }}:{{ '%02d'|format(minute_plus1|int) }}"
+
+- name: Get date now
+  shell: date +"%Y-%m-%dT%H:%M" --date "{{ logstash_date.stdout }}"
+  register: logstash_date_now
+
+- name: Get date lower limit
+  shell: date +"%Y-%m-%dT%H:%M" --date "{{ logstash_date.stdout }} -1 minutes"
+  register: logstash_date_lower
+
+- name: Get date higher limit
+  shell: date +"%Y-%m-%dT%H:%M" --date "{{ logstash_date.stdout }} +1 minutes"
+  register: logstash_date_higher
+
+- name: Set search string
+  set_fact:
     search_str: "{%- if ait_args is defined -%}
                     {{ logstash_log_find[ait_args.get('ait_log_searchstr')] }}
                  {%- elif ait_log_searchstr is defined -%}
@@ -25,4 +33,4 @@
   wait_for:
     path: '{{ logstash_log_file }}'
     timeout: '{{ logstash_timeout }}'
-    search_regex: '({{ logstash_date_now }}|{{ logstash_date_minus1 }}|{{ logstash_date_plus1 }})([\w*\W*\n]*){{ search_str }}'
+    search_regex: '({{ logstash_date_now.stdout }}|{{ logstash_date_lower.stdout }}|{{ logstash_date_higher.stdout }})([\w*\W*\n]*){{ search_str }}'

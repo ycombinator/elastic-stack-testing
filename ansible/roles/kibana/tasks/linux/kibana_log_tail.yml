@@ -5,16 +5,24 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-- shell: date +"%Y-%m-%dT%H:%M"
+- name: Get system date
+  shell: date
   register: kibana_date
-- set_fact:
-    kibana_date_ind0: "{{ kibana_date.stdout.split(':')[0] }}"
-    minute_minus1: "{{ kibana_date.stdout.split(':')[1] | int - 01 }}"
-    minute_plus1:  "{{ kibana_date.stdout.split(':')[1] | int + 01 }}"
-- set_fact:
-    kibana_date_now: "{{ kibana_date.stdout }}"
-    kibana_date_minus1: "{{ kibana_date_ind0 }}:{{ '%02d'|format(minute_minus1|int) }}"
-    kibana_date_plus1:  "{{ kibana_date_ind0 }}:{{ '%02d'|format(minute_plus1|int) }}"
+
+- name: Get date now
+  shell: date +"%Y-%m-%dT%H:%M" --date "{{ kibana_date.stdout }}"
+  register: kibana_date_now
+
+- name: Get date lower limit
+  shell: date +"%Y-%m-%dT%H:%M" --date "{{ kibana_date.stdout }} -1 minutes"
+  register: kibana_date_lower
+
+- name: Get date higher limit
+  shell: date +"%Y-%m-%dT%H:%M" --date "{{ kibana_date.stdout }} +1 minutes"
+  register: kibana_date_higher
+
+- name: Set search string
+  set_fact:
     search_str: "{%- if ait_args is defined -%}
                     {{ kibana_log_find[ait_args.get('ait_log_searchstr')] }}
                  {%- elif ait_log_searchstr is defined -%}
@@ -25,4 +33,4 @@
   wait_for:
     path: '{{ kibana_log_file }}'
     timeout: '{{ kibana_timeout }}'
-    search_regex: '({{ kibana_date_now }}|{{ kibana_date_minus1 }}|{{ kibana_date_plus1 }})([\w*\W*\n]*){{ search_str }}'
+    search_regex: '({{ kibana_date_now.stdout }}|{{ kibana_date_lower.stdout }}|{{ kibana_date_higher.stdout }})([\w*\W*\n]*){{ search_str }}'
