@@ -19,3 +19,26 @@
     - { role: apm_server, ait_role: apm_server_install_config_start_verify }
     - { role: heartbeat, ait_role: heartbeat_install_config_start_verify }
     - { role: auditbeat, ait_role: auditbeat_install_config_start_verify_import_dashboards }
+
+  tasks:
+
+    - name: Wait for some documents to be indexed
+      wait_for:
+        timeout: 30
+
+    - name: Check index hits
+      include_role:
+        name: elasticsearch
+      vars:
+        index_prefix: "{{ index_item }}"
+        ait_action: elasticsearch_api_search_index
+      with_items:
+        - "filebeat"
+        - "metricbeat"
+        - "packetbeat"
+        - "apm"
+        - "heartbeat"
+        - "auditbeat"
+        - "logstash"
+      loop_control:
+        loop_var: index_item
