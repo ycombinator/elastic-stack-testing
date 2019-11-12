@@ -5,24 +5,32 @@
 #-----------------------------------------------------------------------------------------------------------------------
 ---
 
-# TODO: maybe make this handler, it fails if it is already running on the second time
-- name: Wait for log file to be present
+- name: Get system date
+  shell: date
+  register: elasticsearch_date
+
+- name: Get date now
+  shell: date +"%Y-%m-%dT%H:%M" --date "{{ elasticsearch_date.stdout }}"
+  register: elasticsearch_date_now
+
+- name: Get date lower limit
+  shell: date +"%Y-%m-%dT%H:%M" --date "{{ elasticsearch_date.stdout }} -1 minutes"
+  register: elasticsearch_date_lower
+
+- name: Get date higher limit
+  shell: date +"%Y-%m-%dT%H:%M" --date "{{ elasticsearch_date.stdout }} +1 minutes"
+  register: elasticsearch_date_higher
+
+- name: Set search string
+  set_fact:
+    search_str: "{%- if ait_args is defined -%}
+                    {{ elasticsearch_log_find[ait_args.get('ait_log_searchstr')] }}
+                 {%- elif ait_log_searchstr is defined -%}
+                    {{ elasticsearch_log_find[ait_log_searchstr] }}
+                 {%- endif -%}"
+
+- name: Wait for log file and search string to be present
   wait_for:
     path: '{{ elasticsearch_log_file }}'
     timeout: '{{ elasticsearch_timeout }}'
-  become: '{{ elasticsearch_run_as_root | default(omit) }}'
-  tags: elasticsearch_log_check
-
-# TODO: throw error exception thrown for the jinja2 template
-- name: Wait for elasticsearch log string
-  shell: >-
-    timeout "{{ elasticsearch_timeout }}"
-    sed -r '/{%- if ait_args is defined -%}
-                {{ elasticsearch_log_find[ait_args.get('ait_log_searchstr')] }}
-             {%- elif ait_log_searchstr is defined -%}
-                {{ elasticsearch_log_find[ait_log_searchstr] }}
-             {%- endif -%}/q' <(tail -n 0 -f "{{ elasticsearch_log_file }}")
-  args:
-    executable: /bin/bash
-  become: '{{ elasticsearch_run_as_root | default(omit) }}'
-  tags: elasticsearch_log_check
+    search_regex: '({{ elasticsearch_date_now.stdout }}|{{ elasticsearch_date_lower.stdout }}|{{ elasticsearch_date_higher.stdout }})([\w*\W*\n]*){{ search_str }}'
