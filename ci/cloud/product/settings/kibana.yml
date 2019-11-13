@@ -7,4 +7,4 @@ xpack.maps.showMapsInspectorAdapter: true
 xpack.reporting.csv.maxSizeBytes: 2850
 xpack.reporting.queue.pollInterval: 3000
 xpack.security.encryptionKey: wuGNaIhoMpk5sO4UBxgr3NyW1sFcLgIf
-xpack.telemetry.banner: false
+telemetry.banner: false
