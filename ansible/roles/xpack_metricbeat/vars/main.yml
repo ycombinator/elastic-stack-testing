@@ -10,6 +10,8 @@ xpack_metricbeat_package: '{{ metricbeat_install_dir }}/metricbeat_{{ xpack_metr
 # Variables to run multiple role task files in a group
 # Must have role name (key), action and args that map to individual task files
 xpack_metricbeat_roles:
+  xpack_metricbeat_config_only:
+    - { action: 'xpack_metricbeat_config',  parent: '', args: {} }
   xpack_metricbeat_install_config_start_verify:
     - { action: 'metricbeat_install', parent: 'metricbeat', args: {} }
     - { action: 'xpack_metricbeat_config',  parent: '', args: {} }

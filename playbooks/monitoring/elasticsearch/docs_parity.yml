@@ -116,33 +116,34 @@
       vars:
         ait_action: metricbeat_install
 
+    - name: Config metricbeat
+      include_role:
+        name: xpack_metricbeat
+      vars:
+        ait_action: xpack_metricbeat_config
+
     - name: Enable metricbeat's elasticsearch module
-      file:
-        path: '{{ metricbeat_rootdir }}/modules.d/elasticsearch.yml.disabled'
-        state: absent
+      shell: '{{ metricbeat_exe }} -c {{ metricbeat_config_file }} modules enable elasticsearch-xpack'
+      args:
+        executable: /bin/bash
       become: true
 
-    - name: Configure metricbeat's elasticsearch module to collect monitoring documents
-      copy:
-        dest: '{{ metricbeat_rootdir }}/modules.d/elasticsearch.yml'
-        content: |
-          - module: elasticsearch
-            metricsets:
-            - ccr
-            - cluster_stats
-            - index
-            - index_recovery
-            - index_summary
-            - ml_job
-            - node_stats
-            - shard
-            period: 10s
-            hosts: ["https://{{ current_host_ip }}:{{ elasticsearch_port }}"]
+    - name: Comment out hosts line in elasticsearch-xpack config file
+      become: true
+      replace:
+        path: '{{ metricbeat_rootdir }}/modules.d/elasticsearch-xpack.yml'
+        regexp: 'hosts:'
+        replace: '#hosts:'
+
+    - name: Configure elasticsearch-xpack module
+      become: true
+      blockinfile:
+        path: '{{ metricbeat_rootdir  }}/modules.d/elasticsearch-xpack.yml'
+        content: |2
+            hosts: ["https://{{ current_host_ip  }}:{{ elasticsearch_port  }}"]
             ssl.verification_mode: none
             username: "{{ elasticsearch_username }}"
             password: "{{ elasticsearch_password }}"
-            xpack.enabled: true
-      become: true
 
     - name: Start metricbeat
       include_role:
