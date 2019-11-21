@@ -24,7 +24,6 @@ public class CloudApi {
     private ClusterClient clusterClient;
     private String host;
     private String apiVer = "/api/v0.1";
-    private String region = "/v1-regions/us-east-1";
     private ApiClient authenticatedApiClient;
 
     public ClusterClient createClient() {
@@ -40,6 +39,7 @@ public class CloudApi {
         }
         String url = getUrl();
 
+
         System.out.println(" .. Setting up API client");
         // Setup cloud API client
         ApiClient authApiClient = new ApiClientBuilder()
@@ -52,7 +52,7 @@ public class CloudApi {
                 .build()).getToken();
         token = "Bearer " + token;
         authenticatedApiClient = new ApiClientBuilder()
-                .setBasePath(url + region)
+                .setBasePath(url + getRegion())
                 .setApiKey(token).build();
         authenticatedApiClient.setDebugging(true);
         System.out.println(" .. Successfully setup API client");
@@ -95,5 +95,32 @@ public class CloudApi {
 
     private String getUrl() {
        return "https://" + getHost() + apiVer;
+    }
+
+    private String getRegion() {
+        String default_region_path = "/v1-regions/us-east-1";
+        ArrayList<String> regions = new ArrayList<>();
+        regions.add("us-east-1");
+        regions.add("us-west-1");
+        regions.add("eu-west-1");
+        regions.add("ap-southeast-1");
+        regions.add("ap-northeast-1");
+        regions.add("sa-east-1");
+        regions.add("ap-southeast-2");
+        regions.add("aws-eu-central-1");
+        regions.add("gcp-us-central1");
+        regions.add("gcp-europe-west-1");
+        regions.add("azure-eastus2");
+
+        String data_region = System.getenv("ESTF_CLOUD_REGION");
+        if (data_region == null) {
+            return default_region_path;
+        }
+
+        if (regions.contains(data_region)) {
+            return "/v1-regions/" + data_region;
+        }
+
+        return default_region_path;
     }
 }
