@@ -121,7 +121,13 @@ public class CreateCloudCluster extends DefaultTask {
         String provider = "aws.staging";
         if (region.contains("gcp")) {
             provider = "gcp";
+            region = region.replace("gcp-","");
+        } else if (region.contains("azure")) {
+            provider = "staging.azure";
+            region = region.replace("azure-","");
         }
+
+        // TODO: see if I can get this from cluster info
         String elasticsearch_url = String.format("https://%s.%s.%s.%s:%s", clusterId, region, provider, domain, port);
         String kibana_url = String.format("https://%s.%s.%s.%s:%s", kibanaClusterId, region, provider, domain, port);
 
