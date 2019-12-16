@@ -1097,6 +1097,9 @@ Glb_YarnNetworkTimeout=0
 # Source pre-defined groups
 source ./group_defs.sh
 
+# set GCS_UPLOAD_PREFIX env 
+export GCS_UPLOAD_PREFIX="internal-ci-artifacts/jobs/${env.JOB_NAME}/${BUILD_NUMBER}"
+
 case "$TEST_GROUP" in
   intake)
     if [ $PLATFORM == "cloud" ]; then
