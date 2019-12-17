@@ -933,8 +933,7 @@ function run_visual_tests_oss() {
   check_percy_pkg
   run_ci_setup
   set_percy_branch
-  cp_visual_tests
-
+ 
   TEST_KIBANA_BUILD=oss
   install_kibana
 
@@ -956,8 +955,7 @@ function run_visual_tests_default() {
   check_percy_pkg
   run_ci_setup
   set_percy_branch
-  cp_xpack_visual_tests
-
+  
   TEST_KIBANA_BUILD=default
   install_kibana
 
