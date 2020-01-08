@@ -1,3 +1,5 @@
+TASK:
+  - saas_run_kibana_tests
 JOB:
   - ossGrp1
   - ossGrp2

@@ -359,13 +359,12 @@ run_tests() {
 
 # ----------------------------------------------------------------------------
 run_cloud_tests() {
-  test_task=$1
-  if [ -z $test_task ]; then
+  if [ -z $TASK ]; then
     echo_error "Gradle task name must be supplied"
     exit 1
   fi
   cd ${AIT_CI_CLOUD_DIR}
-  ./gradlew $test_task
+  ./gradlew $TASK
   RC=$?
   if [ $RC -ne 0 ]; then
     echo_error "Tests failed!"

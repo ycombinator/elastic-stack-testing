@@ -1,0 +1,86 @@
+/*
+    @description: Common tasks for cloud testing
+
+    @author: Liza Dayoub
+
+ */
+
+import org.estf.gradle.ShellCommand
+import org.ajoberstar.grgit.Grgit
+
+plugins {
+  id 'org.ajoberstar.grgit' version '1.7.2' apply false
+}
+
+group 'org.estf.cloud'
+version '1.0'
+
+apply plugin: 'groovy'
+
+repositories {
+    mavenCentral()
+}
+
+// *********************************************************************************
+task get_kibana_repo {
+  doFirst {
+    println "In ${name}"
+    def grgit = Grgit.clone(dir: "$buildDir/kibana",
+                            uri: 'git@github.com:elastic/kibana.git',
+                            refToCheckout: System.env.ESTF_KIBANA_VERSION)
+    println grgit.describe()
+  }
+}
+
+// *********************************************************************************
+task get_jenkins_exe (type: Copy, dependsOn: get_kibana_repo) {
+    println "In ${name}"
+    from "$buildDir/../../kibana"
+    into "$buildDir/kibana"
+    include "*.sh"
+}
+
+// *********************************************************************************
+task run_kibana_tests(dependsOn: get_jenkins_exe) {
+    doFirst {
+
+        // Add system environment variables
+        def envList = []
+        System.getenv().each { key, value ->
+            envList.add(key + "=" + value)
+        }
+
+        println "************"
+        println System.getenv()
+        println "************"
+
+        def kibanaUri = new URI(rootProject.properties.kibana_url)
+        def elasticUri = new URI(rootProject.properties.elasticsearch_url)
+
+        // Add specific Kibana environment variables
+        envList.add("TEST_KIBANA_HOSTNAME=" + kibanaUri?.getHost())
+        envList.add("TEST_KIBANA_PROTOCOL=" + 'https')
+        envList.add("TEST_KIBANA_PORT=" + kibanaUri?.getPort())
+        envList.add("TEST_KIBANA_USER=" + rootProject.properties.es_username)
+        envList.add("TEST_KIBANA_PASS=" + rootProject.properties.es_password)
+
+        envList.add("TEST_ES_HOSTNAME=" + elasticUri?.getHost())
+        envList.add("TEST_ES_PROTOCOL=" + 'https')
+        envList.add("TEST_ES_PORT=" + elasticUri?.getPort())
+        envList.add("TEST_ES_USER=" + rootProject.properties.es_username)
+        envList.add("TEST_ES_PASS=" + rootProject.properties.es_password)
+
+        // Run Kibana tests
+        println "Running Kibana Tests...."
+        ShellCommand shell = new ShellCommand("./jenkins_kibana_tests.sh cloud " + System.env.JOB, "$buildDir/kibana", envList)
+        shell.waitFor()
+
+        println "**************"
+        println System.getenv()
+        println "**************"
+
+        if (shell.getRc() != 0) {
+            throw new GradleException("Kibana Tests Failed!")
+        }
+    }
+}
