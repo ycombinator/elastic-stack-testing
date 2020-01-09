@@ -54,21 +54,21 @@ task run_kibana_tests(dependsOn: get_jenkins_exe) {
         println System.getenv()
         println "************"
 
-        def kibanaUri = new URI(rootProject.properties.kibana_url)
-        def elasticUri = new URI(rootProject.properties.elasticsearch_url)
+        def kibanaUri = new URI(rootProject.props.kibana_url)
+        def elasticUri = new URI(rootProject.props.elasticsearch_url)
 
         // Add specific Kibana environment variables
         envList.add("TEST_KIBANA_HOSTNAME=" + kibanaUri?.getHost())
         envList.add("TEST_KIBANA_PROTOCOL=" + 'https')
         envList.add("TEST_KIBANA_PORT=" + kibanaUri?.getPort())
-        envList.add("TEST_KIBANA_USER=" + rootProject.properties.es_username)
-        envList.add("TEST_KIBANA_PASS=" + rootProject.properties.es_password)
+        envList.add("TEST_KIBANA_USER=" + rootProject.props.es_username)
+        envList.add("TEST_KIBANA_PASS=" + rootProject.props.es_password)
 
         envList.add("TEST_ES_HOSTNAME=" + elasticUri?.getHost())
         envList.add("TEST_ES_PROTOCOL=" + 'https')
         envList.add("TEST_ES_PORT=" + elasticUri?.getPort())
-        envList.add("TEST_ES_USER=" + rootProject.properties.es_username)
-        envList.add("TEST_ES_PASS=" + rootProject.properties.es_password)
+        envList.add("TEST_ES_USER=" + rootProject.props.es_username)
+        envList.add("TEST_ES_PASS=" + rootProject.props.es_password)
 
         // Run Kibana tests
         println "Running Kibana Tests...."

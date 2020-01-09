@@ -68,7 +68,7 @@ task saas_setup {
             properties.load(it)
         }
 
-        rootProject.ext.properties = properties
+        rootProject.ext.props = properties
         rootProject.ext.cluster_id = _setup_task.getClusterId()
         rootProject.ext.kibana_cluster_id = _setup_task.getKibanaClusterId()
     }
@@ -104,10 +104,10 @@ task saas_upgrade {
 // *********************************************************************************
 task upload_bank_data(type: UploadData) {
     doFirst {
-        esBaseUrl = rootProject.properties.elasticsearch_url
-        kbnBaseUrl = rootProject.properties.kibana_url
-        username = rootProject.properties.es_username
-        password = rootProject.properties.es_password
+        esBaseUrl = rootProject.props.elasticsearch_url
+        kbnBaseUrl = rootProject.props.kibana_url
+        username = rootProject.props.es_username
+        password = rootProject.props.es_password
     }
 }
 
