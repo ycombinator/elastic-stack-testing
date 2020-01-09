@@ -35,7 +35,7 @@ task get_kibana_repo {
 // *********************************************************************************
 task get_jenkins_exe (type: Copy, dependsOn: get_kibana_repo) {
     println "In ${name}"
-    from "$buildDir/../../kibana"
+    from "$buildDir/../../../kibana"
     into "$buildDir/kibana"
     include "*.sh"
 }
@@ -72,7 +72,7 @@ task run_kibana_tests(dependsOn: get_jenkins_exe) {
 
         // Run Kibana tests
         println "Running Kibana Tests...."
-        ShellCommand shell = new ShellCommand("./jenkins_kibana_tests.sh cloud " + System.env.JOB, "$buildDir/../kibana", envList)
+        ShellCommand shell = new ShellCommand("./jenkins_kibana_tests.sh cloud " + System.env.JOB, "$buildDir/kibana", envList)
         shell.waitFor()
 
         println "**************"
