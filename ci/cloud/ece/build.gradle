@@ -45,22 +45,6 @@ task getenv_var {
  */
 
 // *********************************************************************************
-task chown_mnt(type:Exec) {
-  doFirst {
-    println 'chown of /mnt to user'
-    commandLine 'sudo', 'chown', System.getenv('USER'), '/mnt'
-  }
-}
-
-// *********************************************************************************
-task set_virtual_memory(type:Exec) {
-  doFirst {
-    println 'set virtual memory to 262144'
-    commandLine 'sudo', 'sysctl', '-w', 'vm.max_map_count=262144'
-  }
-}
-
-// *********************************************************************************
 task create_ece_dir() {
   doFirst {
     mkdir "$buildDir/ece"
@@ -86,7 +70,7 @@ task install_ece(dependsOn: ['chown_mnt', 'set_virtual_memory', 'create_ece_dir'
     downloadShellFile('https://download.elastic.co/cloud/elastic-cloud-enterprise.sh',
                       'elastic-cloud-enterprise.sh',
                       "$buildDir/ece")
-    ShellCommand shell = new ShellCommand("./elastic-cloud-enterprise.sh install",
+    ShellCommand shell = new ShellCommand("./elastic-cloud-enterprise.sh --host-storage-path /tmp install",
                                           "$buildDir/ece")
     shell.waitFor()
     def out = shell.getOutput()
