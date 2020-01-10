@@ -70,7 +70,7 @@ task install_ece(dependsOn: create_ece_dir) {
     downloadShellFile('https://download.elastic.co/cloud/elastic-cloud-enterprise.sh',
                       'elastic-cloud-enterprise.sh',
                       "$buildDir/ece")
-    ShellCommand shell = new ShellCommand("./elastic-cloud-enterprise.sh --host-storage-path /tmp install",
+    ShellCommand shell = new ShellCommand("./elastic-cloud-enterprise.sh install --host-storage-path /tmp",
                                           "$buildDir/ece")
     shell.waitFor()
     def out = shell.getOutput()
