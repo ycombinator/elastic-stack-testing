@@ -86,7 +86,18 @@ task saas_cleanup {
 }
 
 // *********************************************************************************
-task saas_upgrade {
+task upload_bank_data(type: UploadData) {
+    doFirst {
+        esBaseUrl = rootProject.props.elasticsearch_url
+        kbnBaseUrl = rootProject.props.kibana_url
+        username = rootProject.props.es_username
+        password = rootProject.props.es_password
+    }
+}
+
+// *********************************************************************************
+task saas_upgrade_run_kibana_tests {
+    rootProject.ext.test_task = "${name}"
     doFirst {
         // Upload data
         upload_bank_data.execute()
@@ -98,29 +109,20 @@ task saas_upgrade {
         def _upgrade_task = genUpgradeTask(rootProject.test_task,
                                            cluster_id, kibana_cluster_id, true)
         _upgrade_task.execute()
+        tasks.getByPath(':common:run_kibana_tests').execute()
     }
 }
 
 // *********************************************************************************
-task upload_bank_data(type: UploadData) {
+task saas_run_kibana_tests {
+    rootProject.ext.test_task = "${name}"
     doFirst {
-        esBaseUrl = rootProject.props.elasticsearch_url
-        kbnBaseUrl = rootProject.props.kibana_url
-        username = rootProject.props.es_username
-        password = rootProject.props.es_password
+        tasks.getByPath(':common:run_kibana_tests').execute()
     }
 }
 
-// *********************************************************************************
-task saas_run_kibana_tests(type: GradleBuild) {
-    finalizedBy saas_cleanup
-    rootProject.ext.test_task = "${name}"
-    tasks = ['saas_setup', ':common:run_kibana_tests']
-}
+saas_run_kibana_tests.dependsOn saas_setup
+saas_run_kibana_tests.finalizedBy saas_cleanup
 
-// *********************************************************************************
-task saas_upgrade_run_kibana_tests(type: GradleBuild) {
-    finalizedBy saas_cleanup
-    rootProject.ext.test_task = "${name}"
-    tasks = ['saas_setup', 'saas_upgrade', ':common:run_kibana_tests']
-}
+saas_upgrade_run_kibana_tests.dependsOn saas_setup
+saas_upgrade_run_kibana_tests.finalizedBy saas_cleanup

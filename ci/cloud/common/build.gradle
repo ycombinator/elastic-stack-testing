@@ -50,10 +50,6 @@ task run_kibana_tests(dependsOn: get_jenkins_exe) {
             envList.add(key + "=" + value)
         }
 
-        println "************"
-        println System.getenv()
-        println "************"
-
         def kibanaUri = new URI(rootProject.props.kibana_url)
         def elasticUri = new URI(rootProject.props.elasticsearch_url)
 
@@ -74,10 +70,6 @@ task run_kibana_tests(dependsOn: get_jenkins_exe) {
         println "Running Kibana Tests...."
         ShellCommand shell = new ShellCommand("./jenkins_kibana_tests.sh cloud " + System.env.JOB, "$buildDir/kibana", envList)
         shell.waitFor()
-
-        println "**************"
-        println System.getenv()
-        println "**************"
 
         if (shell.getRc() != 0) {
             throw new GradleException("Kibana Tests Failed!")
