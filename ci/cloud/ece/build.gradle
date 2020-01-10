@@ -64,7 +64,7 @@ def downloadShellFile(link, name, dirname) {
 }
 
 // *********************************************************************************
-task install_ece(dependsOn: ['chown_mnt', 'set_virtual_memory', 'create_ece_dir']) {
+task install_ece(dependsOn: create_ece_dir) {
   doFirst {
     def match = ""
     downloadShellFile('https://download.elastic.co/cloud/elastic-cloud-enterprise.sh',
