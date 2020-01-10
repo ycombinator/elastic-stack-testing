@@ -1,3 +1,3 @@
 rootProject.name = 'estf'
 
-include 'common', 'saas'
+include 'common', 'saas', 'ece'
