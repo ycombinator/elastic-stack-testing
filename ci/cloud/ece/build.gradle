@@ -34,7 +34,9 @@ task getenv_var {
     ext.kibana_ver = System.env.ESTF_KIBANA_VERSION
     ext.cloud_ver =  System.env.ESTF_CLOUD_VERSION
     ext.build_hash = System.env.ESTF_BUILD_HASH
+    ext.homedir = System.env.HOME
     ext.ver_whole = "$cloud_ver-$build_hash"
+    ext.datadir = "$homedir/data"
   }
 }
 
@@ -48,7 +50,7 @@ task getenv_var {
 task create_ece_dir() {
   doFirst {
     mkdir "$buildDir/ece"
-    mkdir "$buildDir/data"
+    mkdir "${getenv_var['datadir']}"
   }
 }
 
@@ -76,7 +78,7 @@ task install_ece(dependsOn: create_ece_dir) {
     downloadShellFile('https://download.elastic.co/cloud/elastic-cloud-enterprise.sh',
                       'elastic-cloud-enterprise.sh',
                       "$buildDir/ece")
-    ShellCommand shell = new ShellCommand("./elastic-cloud-enterprise.sh install --host-storage-path $buildDir/data",
+    ShellCommand shell = new ShellCommand("./elastic-cloud-enterprise.sh install --host-storage-path ${getenv_var['datadir']}",
                                           "$buildDir/ece")
     shell.waitFor()
     def out = shell.getOutput()
