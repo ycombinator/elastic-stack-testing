@@ -399,7 +399,7 @@ def downloadTarFile(link, name, dirname) {
   }
   exec {
     workingDir dirname
-    commandLine 'tar', 'xvzf', name
+    commandLine 'tar', 'xzf', name
   }
   exec {
     workingDir dirname
@@ -483,6 +483,7 @@ task ecctl_create_deployment() {
     file.append("elasticsearch_url=" + es_url + "\n")
     file.append("es_username=" + es_username + "\n")
     file.append("es_password=" + es_password + "\n")
+    file.append("tls_reject=" + "true\n")
 
     Properties properties = new Properties()
     file.withInputStream {
