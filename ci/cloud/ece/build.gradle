@@ -61,6 +61,11 @@ def downloadShellFile(link, name, dirname) {
     workingDir dirname
     commandLine 'chmod', '+x', name
   }
+  //Workaround for infra #16779
+  exec {
+      workingDir dirname
+      commandLine 'sed', '-i', '/verifyHostPreconditions$/d', name
+  }
 }
 
 // *********************************************************************************
