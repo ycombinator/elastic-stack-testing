@@ -438,7 +438,7 @@ task ecctl_create_deployment() {
   doFirst {
     println "In ${name}"
     def match = ""
-    def plan = "$buildDir/ecePlan.json"
+    def plan = "$projectDir/ecePlan.json"
     def name = "ESTF__" + UUID.randomUUID().toString()
     def ip =  getIP()
     ShellCommand shell = new ShellCommand("./ecctl deployment create -f " + plan +
