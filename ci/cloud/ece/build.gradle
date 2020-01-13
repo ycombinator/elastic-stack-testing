@@ -48,6 +48,7 @@ task getenv_var {
 task create_ece_dir() {
   doFirst {
     mkdir "$buildDir/ece"
+    mkdir "$buildDir/docker-data"
   }
 }
 
@@ -75,7 +76,7 @@ task install_ece(dependsOn: create_ece_dir) {
     downloadShellFile('https://download.elastic.co/cloud/elastic-cloud-enterprise.sh',
                       'elastic-cloud-enterprise.sh',
                       "$buildDir/ece")
-    ShellCommand shell = new ShellCommand("./elastic-cloud-enterprise.sh install --host-storage-path /tmp",
+    ShellCommand shell = new ShellCommand("./elastic-cloud-enterprise.sh install --host-storage-path $buildDir/docker-data",
                                           "$buildDir/ece")
     shell.waitFor()
     def out = shell.getOutput()
