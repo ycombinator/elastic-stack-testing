@@ -384,32 +384,36 @@ def getIP() {
   return out
 }
 
-
 // *********************************************************************************
-task get_ecctl_repo() {
+task create_ecctl_dir() {
   doFirst {
-    println "In ${name}"
-    java.lang.System.setProperty("org.ajoberstar.grgit.auth.session.config.StrictHostKeyChecking", "no")
-    def grgit = Grgit.clone(dir: "$buildDir/ecctl",
-                            uri: 'git@github.com:elastic/ecctl.git',
-                            refToCheckout: 'master')
-    println grgit.describe()
+    mkdir "$buildDir/ecctl"
   }
 }
 
 // *********************************************************************************
-task build_ecctl(dependsOn: get_ecctl_repo) {
+def downloadTarFile(link, name, dirname) {
+  exec {
+    workingDir dirname
+    commandLine 'curl', '-s',  link, '-o', name
+  }
+  exec {
+    workingDir dirname
+    commandLine 'tar', 'xvzf', name
+  }
+  exec {
+    workingDir dirname
+    commandLine 'rm', name
+  }
+}
+
+// *********************************************************************************
+task get_ecctl(dependsOn: create_ecctl_dir) {
   doFirst {
     println "In ${name}"
-    ShellCommand shell = new ShellCommand("make ecctl", "$buildDir/ecctl")
-    shell.waitFor()
-    def out = shell.getOutput()
-    if (shell.getRc() != 0) {
-      println out
-      throw new GradleException("Build ecctl failed!")
-    }
-
-    assert file("$buildDir/ecctl/bin/ecctl").exists()
+    downloadTarFile("https://download.elastic.co/downloads/ecctl/v1.0.0-beta1/ecctl_v1.0.0-beta1_linux_amd64.tar.gz",
+                    "ecctl_v1.0.0-beta1_linux_amd64.tar.gz",
+                    "$buildDir/ecctl")
   }
 }
 
@@ -419,7 +423,7 @@ task ecctl_platform_upload() {
     println "In ${name}"
     def zipFile = "$buildDir/cloud-assets/${getenv_var['ver_whole']}.zip"
     ShellCommand shell = new ShellCommand("./ecctl platform stack upload " + zipFile,
-                                          "$buildDir/ecctl/bin")
+                                          "$buildDir/ecctl")
     shell.waitFor()
     def out = shell.getOutput()
     if (shell.getRc() != 0) {
@@ -441,7 +445,7 @@ task ecctl_create_deployment() {
                                           " --name " + name +
                                           " --version " + "${getenv_var['ver_whole']}" +
                                           " --track",
-                                          "$buildDir/ecctl/bin")
+                                          "$buildDir/ecctl")
     shell.waitFor()
     def out = shell.getOutput()
     if (shell.getRc() != 0) {
@@ -495,6 +499,6 @@ task ece_run_kibana_tests(type: GradleBuild) {
     println "In ${name}"
     tasks = ['getenv_var', 'install_ece', 'build_stackpack',
              'build_cloudimage_elasticsearch', 'build_cloudimage_kibana',
-             'build_ecctl', 'ecctl_platform_upload', 'ecctl_create_deployment',
+             'get_ecctl', 'ecctl_platform_upload', 'ecctl_create_deployment',
              ':common:run_kibana_tests']
 }
