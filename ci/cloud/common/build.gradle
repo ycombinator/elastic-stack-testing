@@ -69,9 +69,13 @@ task run_kibana_tests {
         envList.add("TEST_ES_USER=" + rootProject.props.es_username)
         envList.add("TEST_ES_PASS=" + rootProject.props.es_password)
 
-        if (rootProject.props.hasProperty('tls_reject')) {
+        if (rootProject.hasProperty('tls_reject')) {
             envList.add("NODE_TLS_REJECT_UNAUTHORIZED=0")
         }
+
+        println "************"
+        println System.getenv()
+        println "************"
 
         // Run Kibana tests
         println "Running Kibana Tests...."

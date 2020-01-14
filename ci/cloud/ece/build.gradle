@@ -483,7 +483,6 @@ task ecctl_create_deployment() {
     file.append("elasticsearch_url=" + es_url + "\n")
     file.append("es_username=" + es_username + "\n")
     file.append("es_password=" + es_password + "\n")
-    file.append("tls_reject=" + "true\n")
 
     Properties properties = new Properties()
     file.withInputStream {
@@ -492,6 +491,7 @@ task ecctl_create_deployment() {
 
     rootProject.ext.props = properties
     rootProject.ext.cluster_id = id
+    rootProject.ext.tls_reject = "true"
   }
 }
 
