@@ -77,6 +77,10 @@ task run_kibana_tests {
         println System.getenv()
         println "************"
 
+        println "************"
+        println envList
+        println "************"
+        
         // Run Kibana tests
         println "Running Kibana Tests...."
         ShellCommand shell = new ShellCommand("./jenkins_kibana_tests.sh cloud " + System.env.JOB, "$buildDir/kibana", envList)
