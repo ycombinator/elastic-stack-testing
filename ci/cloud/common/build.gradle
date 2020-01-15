@@ -71,6 +71,7 @@ task run_kibana_tests {
 
         if (rootProject.hasProperty('tls_reject')) {
             envList.add("NODE_TLS_REJECT_UNAUTHORIZED=0")
+            envList.add("TEST_IGNORE_CERT_ERRORS=1")
         }
 
         println "************"
@@ -80,7 +81,7 @@ task run_kibana_tests {
         println "************"
         println envList
         println "************"
-        
+
         // Run Kibana tests
         println "Running Kibana Tests...."
         ShellCommand shell = new ShellCommand("./jenkins_kibana_tests.sh cloud " + System.env.JOB, "$buildDir/kibana", envList)

@@ -533,6 +533,10 @@ function check_git_changes() {
   if [ "$_git_changes" ]; then
     echo_error_exit "'yarn kbn bootstrap' caused changes to the following files:\n$_git_changes"
   fi
+  # Hack for testing now, will do something official later
+  if [[ ! -z $TEST_IGNORE_CERT_ERRORS ]]; then
+     sed -i "s/chromeOptions.push('headless', 'disable-gpu');/chromeOptions.push('headless', 'disable-gpu', 'ignore-certificate-errors');/g" "test/functional/services/remote/webdriver.ts"
+  fi
 }
 
 # -----------------------------------------------------------------------------
@@ -933,7 +937,7 @@ function run_visual_tests_oss() {
   check_percy_pkg
   run_ci_setup
   set_percy_branch
- 
+
   TEST_KIBANA_BUILD=oss
   install_kibana
 
@@ -955,7 +959,7 @@ function run_visual_tests_default() {
   check_percy_pkg
   run_ci_setup
   set_percy_branch
-  
+
   TEST_KIBANA_BUILD=default
   install_kibana
 
@@ -1095,7 +1099,7 @@ Glb_YarnNetworkTimeout=0
 # Source pre-defined groups
 source ./group_defs.sh
 
-# set GCS_UPLOAD_PREFIX env 
+# set GCS_UPLOAD_PREFIX env
 export GCS_UPLOAD_PREFIX="internal-ci-artifacts/jobs/${JOB_NAME}/${BUILD_NUMBER}"
 
 case "$TEST_GROUP" in
