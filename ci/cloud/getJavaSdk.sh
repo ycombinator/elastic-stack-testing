@@ -24,13 +24,13 @@ downloadResponse=$(curl -L -H "Accept: application/octet-stream" ${assetUrlWithA
 
 echo "Download java vault driver"
 cd ${libsDir}
-wget "http://central.maven.org/maven2/com/bettercloud/vault-java-driver/3.1.0/vault-java-driver-3.1.0.jar"
+wget "https://repo.maven.apache.org/maven2/com/bettercloud/vault-java-driver/3.1.0/vault-java-driver-3.1.0.jar"
 
 echo "Download apache http client"
 cd ${libsDir}
-wget "http://central.maven.org/maven2/org/apache/httpcomponents/httpclient/4.5.7/httpclient-4.5.7.jar"
-wget "http://central.maven.org/maven2/org/apache/httpcomponents/httpcore/4.4.11/httpcore-4.4.11.jar"
+wget "https://repo.maven.apache.org/maven2/org/apache/httpcomponents/httpclient/4.5.7/httpclient-4.5.7.jar"
+wget "https://repo.maven.apache.org/maven2/org/apache/httpcomponents/httpcore/4.4.11/httpcore-4.4.11.jar"
 
 echo "Download json"
 cd ${libsDir}
-wget http://central.maven.org/maven2/org/json/json/20180813/json-20180813.jar
+wget "https://repo.maven.apache.org/maven2/org/json/json/20180813/json-20180813.jar"
