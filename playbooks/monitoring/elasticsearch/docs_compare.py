@@ -2,7 +2,6 @@
 Usage:
   python docs_compare.py /path/to/internal/docs /path/to/metricbeat/docs
 '''
-
 from docs_compare_util import check_parity
 
 def handle_special_case_index_recovery(internal_doc, metricbeat_doc):
@@ -46,6 +45,14 @@ def handle_special_case_cluster_stats(internal_doc, metricbeat_doc):
 
     metricbeat_doc["stack_stats"]["xpack"]["ilm"]["policy_stats"] = new_policy_stats
     metricbeat_doc["stack_stats"]["xpack"]["ilm"]["policy_count"] = len(new_policy_stats)
+
+    # Metricbeat modules will automatically strip out keys that contain a null value
+    # and `license.max_resource_units` is only available on certain license levels.
+    # The `_cluster/stats` api will return a `null` entry for this key if the license level
+    # does not have a `max_resouce_units` which causes Metricbeat to strip it out
+    # If that happens, just assume parity between the two
+    if 'max_resource_units' in internal_doc['license'] and internal_doc['license']['max_resource_units'] == None:
+      internal_doc['license'].pop('max_resource_units')
 
 def handle_special_case_node_stats(internal_doc, metricbeat_doc):
     # Metricbeat-indexed docs of `type:node_stats` fake the `source_node` field since its required

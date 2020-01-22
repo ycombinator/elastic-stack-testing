@@ -134,7 +134,7 @@ def check_diff(diff_item, allowed_diffs_in_metricbeat_docs):
   diff_children = diff_item[2]
 
   for diff_child in diff_children:
-    diff_path = diff_parent_path + '.' + diff_child[0]
+    diff_path = diff_parent_path + '.' + str(diff_child[0])
     diff_path = diff_path.strip('.')
 
     if diff_path not in allowed_diffs_in_metricbeat_docs:
