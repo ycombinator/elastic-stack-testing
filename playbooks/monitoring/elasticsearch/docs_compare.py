@@ -2,7 +2,6 @@
 Usage:
   python docs_compare.py /path/to/internal/docs /path/to/metricbeat/docs
 '''
-
 from docs_compare_util import check_parity
 
 def handle_special_case_index_recovery(internal_doc, metricbeat_doc):
@@ -46,6 +45,31 @@ def handle_special_case_cluster_stats(internal_doc, metricbeat_doc):
 
     metricbeat_doc["stack_stats"]["xpack"]["ilm"]["policy_stats"] = new_policy_stats
     metricbeat_doc["stack_stats"]["xpack"]["ilm"]["policy_count"] = len(new_policy_stats)
+
+    # Metricbeat modules will automatically strip out keys that contain a null value
+    # and `license.max_resource_units` is only available on certain license levels.
+    # The `_cluster/stats` api will return a `null` entry for this key if the license level
+    # does not have a `max_resouce_units` which causes Metricbeat to strip it out
+    # If that happens, just assume parity between the two
+    if 'max_resource_units' in internal_doc['license'] and internal_doc['license']['max_resource_units'] == None:
+      internal_doc['license'].pop('max_resource_units')
+
+
+    # The `field_types` field returns a list of what field types exist in all existing mappings
+    # When running the parity tests, it is likely that the indices change between when we query
+    # internally collected documents versus when we query Metricbeat collected documents. These
+    # two may or may not match as a result. 
+    # To get around this, we know that the parity tests query internally collected documents first
+    # so we will ensure that all `field_types` that exist from that source also exist in the 
+    # Metricbeat `field_types` (It is very likely the Metricbeat `field_types` will contain more)
+    internal_contains_all_in_metricbeat = True
+    for field_type in internal_doc["stack_stats"]["xpack"]["index"]["mappings"]["field_types"]:
+      if not field_type in metricbeat_doc["stack_stats"]["xpack"]["index"]["mappings"]["field_types"]:
+        internal_contains_all_in_metricbeat = False
+        break
+    
+    if internal_contains_all_in_metricbeat:
+      internal_doc["stack_stats"]["xpack"]["index"]["mappings"]["field_types"] = metricbeat_doc["stack_stats"]["xpack"]["index"]["mappings"]["field_types"]
 
 def handle_special_case_node_stats(internal_doc, metricbeat_doc):
     # Metricbeat-indexed docs of `type:node_stats` fake the `source_node` field since its required
