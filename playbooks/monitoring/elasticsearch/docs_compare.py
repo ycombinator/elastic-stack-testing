@@ -63,13 +63,14 @@ def handle_special_case_cluster_stats(internal_doc, metricbeat_doc):
     # so we will ensure that all `field_types` that exist from that source also exist in the 
     # Metricbeat `field_types` (It is very likely the Metricbeat `field_types` will contain more)
     internal_contains_all_in_metricbeat = True
-    for field_type in internal_doc["stack_stats"]["xpack"]["index"]["mappings"]["field_types"]:
-      if not field_type in metricbeat_doc["stack_stats"]["xpack"]["index"]["mappings"]["field_types"]:
-        internal_contains_all_in_metricbeat = False
-        break
-    
-    if internal_contains_all_in_metricbeat:
-      internal_doc["stack_stats"]["xpack"]["index"]["mappings"]["field_types"] = metricbeat_doc["stack_stats"]["xpack"]["index"]["mappings"]["field_types"]
+    if 'indices' in internal_doc:
+      for field_type in internal_doc["indices"]["mappings"]["field_types"]:
+        if not field_type in metricbeat_doc["indices"]["mappings"]["field_types"]:
+          internal_contains_all_in_metricbeat = False
+          break
+      
+      if internal_contains_all_in_metricbeat:
+        internal_doc["indices"]["mappings"]["field_types"] = metricbeat_doc["indices"]["mappings"]["field_types"]
 
 def handle_special_case_node_stats(internal_doc, metricbeat_doc):
     # Metricbeat-indexed docs of `type:node_stats` fake the `source_node` field since its required
