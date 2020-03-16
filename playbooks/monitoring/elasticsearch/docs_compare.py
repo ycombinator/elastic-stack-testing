@@ -31,17 +31,15 @@ def handle_special_case_cluster_stats(internal_doc, metricbeat_doc):
     # usage stats associated with the Metricbeat-created ILM policy.
     policy_stats = metricbeat_doc["stack_stats"]["xpack"]["ilm"]["policy_stats"]
 
-    # The Metricbeat ILM policy is the one with exactly one phase: hot
     new_policy_stats = []
     for policy_stat in policy_stats:
       policy_phases = list(policy_stat["phases"].keys())
-      num_phases = len(policy_phases)
-      if num_phases != 1:
-        new_policy_stats.append(policy_stat)
+
+      # This will capture the ILM policy introduced by running Metricbeat
+      if len(policy_phases) == 1 and policy_phases[0] == 'hot' and policy_stat["indices_managed"] == 1:
         continue
-      if policy_phases[0] != 'hot':
-        new_policy_stats.append(policy_stat)
-        continue
+      
+      new_policy_stats.append(policy_stat)
 
     metricbeat_doc["stack_stats"]["xpack"]["ilm"]["policy_stats"] = new_policy_stats
     metricbeat_doc["stack_stats"]["xpack"]["ilm"]["policy_count"] = len(new_policy_stats)
