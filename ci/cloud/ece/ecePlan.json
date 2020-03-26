@@ -1,0 +1,106 @@
+{
+    "name": "ESTF Cluster",
+    "resources": {
+        "elasticsearch": [
+            {
+                "display_name": "ESTF Elasticsearch Cluster",
+                "ref_id": "estf-es-cluster",
+                "plan": {
+                    "deployment_template": {
+                        "id": "default"
+                    },
+                    "elasticsearch": {
+                        "version": "7.5.0"
+                    },
+                    "cluster_topology": [
+                        {
+                            "instance_configuration_id": "data.default",
+                            "memory_per_node": 1024,
+                            "node_count_per_zone": 1,
+                            "node_type": {
+                                "data": true,
+                                "ingest": true,
+                                "master": true,
+                                "ml": false
+                            },
+                            "zone_count": 1
+                        },
+                        {
+                          "elasticsearch": {
+                            "enabled_built_in_plugins": [],
+                            "system_settings": {
+                              "auto_create_index": true,
+                              "destructive_requires_name": false,
+                              "enable_close_index": true,
+                              "http": {
+                                "compression": true,
+                                "cors_allow_credentials": false,
+                                "cors_enabled": false,
+                                "cors_max_age": 1728000
+                              },
+                              "monitoring_collection_interval": -1,
+                              "monitoring_history_duration": "3d",
+                              "reindex_whitelist": [],
+                              "scripting": {
+                                "inline": {
+                                  "enabled": true
+                                },
+                                "stored": {
+                                  "enabled": true
+                                }
+                              },
+                              "use_disk_threshold": true
+                            }
+                          },
+                          "instance_configuration_id": "ml",
+                          "node_type": {
+                            "data": false,
+                            "ingest": false,
+                            "master": false,
+                            "ml": true
+                          },
+                          "size": {
+                            "resource": "memory",
+                            "value": 1024
+                          },
+                          "zone_count": 1
+                      }
+                    ]
+                }
+            }
+        ],
+        "kibana": [
+            {
+                "display_name": "ESTF Kibana Instance",
+                "ref_id": "estf-kibana-instance",
+                "elasticsearch_cluster_ref_id": "estf-es-cluster",
+                "plan": {
+                    "kibana": {
+                        "version": "7.5.0",
+                        "user_settings_override_json": {
+                           "kibana.disableWelcomeScreen": true,
+                           "server.uuid": "5b2de169-2785-441b-ae8c-186a1936b17d",
+                           "timelion.ui.enabled": true,
+                           "xpack.encryptedSavedObjects.encryptionKey": "DkdXazszSCYexXqz4YktBGHCRkV6hyNK",
+                           "xpack.maps.preserveDrawingBuffer": true,
+                           "xpack.maps.showMapsInspectorAdapter": true,
+                           "xpack.reporting.csv.maxSizeBytes": 2850,
+                           "xpack.reporting.queue.pollInterval": 3000,
+                           "xpack.security.encryptionKey": "wuGNaIhoMpk5sO4UBxgr3NyW1sFcLgIf",
+                           "telemetry.banner": false
+                        }
+                    },
+                    "cluster_topology": [
+                        {
+                            "instance_configuration_id": "kibana",
+                            "memory_per_node": 1024,
+                            "node_count_per_zone": 1,
+                            "zone_count": 1
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
+

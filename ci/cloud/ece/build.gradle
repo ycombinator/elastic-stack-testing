@@ -1,0 +1,505 @@
+/*
+ * @description: Gradle script for ECE testing.
+ *
+ * @author: Liza Mae Dayoub
+ *
+ */
+
+import org.estf.gradle.ShellCommand
+import org.ajoberstar.grgit.Grgit
+
+plugins {
+  id 'org.ajoberstar.grgit' version '1.7.2' apply false
+}
+
+group 'org.estf.cloud'
+version '1.0'
+
+apply plugin: 'groovy'
+
+repositories {
+    mavenCentral()
+}
+
+/*
+ ***********************************************************************************
+ Check environment variables
+ ***********************************************************************************
+ */
+task getenv_var {
+  doFirst {
+    assert(System.env.ESTF_KIBANA_VERSION &&
+           System.env.ESTF_CLOUD_VERSION &&
+           System.env.ESTF_BUILD_HASH)
+    ext.kibana_ver = System.env.ESTF_KIBANA_VERSION
+    ext.cloud_ver =  System.env.ESTF_CLOUD_VERSION
+    ext.build_hash = System.env.ESTF_BUILD_HASH
+    ext.homedir = System.env.HOME
+    ext.ver_whole = "$cloud_ver-$build_hash"
+    ext.datadir = "$homedir/data"
+  }
+}
+
+/*
+ ***********************************************************************************
+ Install ECE
+ ***********************************************************************************
+ */
+
+// *********************************************************************************
+task create_ece_dir() {
+  doFirst {
+    mkdir "$buildDir/ece"
+    mkdir "${getenv_var['datadir']}"
+  }
+}
+
+// *********************************************************************************
+def downloadShellFile(link, name, dirname) {
+  exec {
+    workingDir dirname
+    commandLine 'curl', '-s',  link, '-o', name
+  }
+  exec {
+    workingDir dirname
+    commandLine 'chmod', '+x', name
+  }
+  //Workaround for infra #16779
+  exec {
+      workingDir dirname
+      commandLine 'sed', '-i', '/verifyHostPreconditions$/d', name
+  }
+}
+
+// *********************************************************************************
+task install_ece(dependsOn: create_ece_dir) {
+  doFirst {
+    def match = ""
+    downloadShellFile('https://download.elastic.co/cloud/elastic-cloud-enterprise.sh',
+                      'elastic-cloud-enterprise.sh',
+                      "$buildDir/ece")
+    ShellCommand shell = new ShellCommand("./elastic-cloud-enterprise.sh install --host-storage-path ${getenv_var['datadir']}",
+                                          "$buildDir/ece")
+    shell.waitFor()
+    def out = shell.getOutput()
+    if (shell.getRc() != 0) {
+      println out
+      throw new GradleException("ECE installation failed!")
+    }
+
+    def ind = out.indexOf('Elastic Cloud Enterprise installation completed successfully')
+    if (ind >= 0) {
+       println out.substring(ind)
+    }
+
+    match = (out =~ /Admin username: admin[\r\n]+Password: (.*)/)
+    if (match.find()) {
+      ext.admin_password = match.group(1)
+    }
+    match = (out =~ /http\:(.*)/)
+    if (match.find()) {
+      ext.ip = match.group(0)
+    }
+
+    def ecctl_homedir = System.env.HOME + "/.ecctl"
+    mkdir ecctl_homedir
+
+    File file = new File(ecctl_homedir + "/config.json")
+    file.append("{\n")
+    file.append("\"user\": \"admin\",\n")
+    file.append("\"pass\": \"${admin_password}\",\n")
+    file.append("\"host\": \"${ip}\",\n")
+    file.append("\"output\": \"json\"\n")
+    file.append("}\n")
+  }
+}
+
+/*
+ ***********************************************************************************
+ Build Cloud Assets
+ ***********************************************************************************
+ */
+
+// *********************************************************************************
+task get_cloud_assets_repo {
+  doFirst {
+    println "In ${name}"
+    java.lang.System.setProperty("org.ajoberstar.grgit.auth.session.config.StrictHostKeyChecking", "no")
+    def grgit = Grgit.clone(dir: "$buildDir/cloud-assets",
+                            uri: 'git@github.com:elastic/cloud-assets.git',
+                            refToCheckout: "${getenv_var['kibana_ver']}")
+    println grgit.describe()
+  }
+}
+
+/*
+ ***********************************************************************************
+ General Methods
+ ***********************************************************************************
+ */
+
+// *********************************************************************************
+def getTempDir = { ->
+  def s = new ByteArrayOutputStream()
+  exec {
+    commandLine 'mktemp', '-d'
+    standardOutput = s
+  }
+  return s.toString().trim()
+}
+
+// *********************************************************************************
+def dockerImageExists(name) {
+  def s = new ByteArrayOutputStream()
+  exec {
+    commandLine 'docker', 'images', '-q', name
+    standardOutput = s
+  }
+  if (s.toString().trim().length() > 0) {
+    return true
+  }
+  return false
+}
+
+// *********************************************************************************
+def _populate_build(args) {
+  return tasks.create(name: args.name) {
+    println "In ${name}"
+    ShellCommand shell = new ShellCommand("./populate-build-dir.sh ${getenv_var['cloud_ver']} ${getenv_var['build_hash']} " + args.tmpdir,
+                                          args.dirname)
+    shell.waitFor()
+    def out = shell.getOutput()
+    if (shell.getRc() != 0) {
+      println out
+      throw new GradleException("Populate build failed!")
+    }
+    def match = (out =~ /\[SUCCESS\] You can run \.\/build.sh locally now with[\r\n]*(.*)[\r\n]*/)
+    if (match.find()) {
+      ext.runCmd = match.group(1)
+    }
+  }
+}
+
+// *********************************************************************************
+def _build_image(args) {
+  return tasks.create(name: args.name) {
+    println "In ${name}"
+    ShellCommand shell = new ShellCommand(args.runCmd, args.dirname)
+    shell.waitFor()
+    def out = shell.getOutput()
+    if (shell.getRc() != 0) {
+      println out
+      throw new GradleException("Build image failed!")
+    }
+    def match = (out =~ /(.*): SUCCESS/)
+    if (match.find()) {
+      ext.dockerImage = match.group(1)
+    }
+  }
+}
+
+// *********************************************************************************
+def _update_dockerfile(args) {
+  return tasks.create(name: args.name) {
+    println "In ${name}"
+    def f = new File(args.filename)
+    f.text = f.text.replaceAll("FROM.*", "FROM " + args.dockerImage)
+    if (args.rmKibanaPermissions) {
+      f.text = f.text.replaceAll("RUN chown.*", "")
+      f.text = f.text.replaceAll("find /kibana/optimize.*", "")
+    }
+  }
+}
+
+/*
+ ***********************************************************************************
+ Build stack pack
+ ***********************************************************************************
+ */
+
+// *********************************************************************************
+task build_stackpack(dependsOn: get_cloud_assets_repo) {
+  doFirst {
+    println "In ${name}"
+    def ver = "${getenv_var['ver_whole']}"
+    ShellCommand shell = new ShellCommand("make build-stackpack VERSION=$ver " +
+                                          "ELASTICSEARCH_IMAGE=docker.elastic.co/cloud-ci/elasticsearch:$ver " +
+                                          "KIBANA_IMAGE=docker.elastic.co/cloud-ci/kibana:$ver " +
+                                          "APM_IMAGE=docker.elastic.co/cloud-ci/apm:$ver " +
+                                          "APPSEARCH_IMAGE=docker.elastic.co/swiftype/app-search:$ver ",
+                                          "$buildDir/cloud-assets")
+    shell.waitFor()
+    if (shell.getRc() != 0) {
+      throw new GradleException("Build stack pack failed!")
+    }
+
+    assert file("$buildDir/cloud-assets/${ver}.zip").exists()
+  }
+}
+
+/*
+ ***********************************************************************************
+ Build Base Image
+ ***********************************************************************************
+ */
+
+// *********************************************************************************
+task build_baseimage() {
+  doFirst {
+    ext.dockerImage = "docker.elastic.co/cloud-ci/baseimage:${getenv_var['ver_whole']}"
+    if (! dockerImageExists(dockerImage)) {
+      _build_image([name: "gen_${name}",
+                    dirname: "$buildDir/cloud-assets/docker/base/baseimage",
+                    runCmd: "./build.sh ${getenv_var['ver_whole']}"])
+    }
+  }
+}
+
+/*
+ ***********************************************************************************
+ Build Base Image: Elasticsearch
+ ***********************************************************************************
+ */
+
+// *********************************************************************************
+task update_elasticsearch_dockerfile(dependsOn: build_baseimage) {
+  doFirst {
+    _update_dockerfile([name: "gen_${name}",
+                        filename: "$buildDir/cloud-assets/docker/elasticsearch/baseimage/Dockerfile",
+                        dockerImage: build_baseimage.dockerImage])
+  }
+}
+
+// *********************************************************************************
+task populate_build_elasticsearch(dependsOn: update_elasticsearch_dockerfile) {
+  doFirst {
+    ext.tmpdir = getTempDir()
+    _populate_build([name: "gen_${name}",
+                     dirname: "$buildDir/cloud-assets/docker/elasticsearch/baseimage",
+                     tmpdir: tmpdir])
+  }
+}
+
+// *********************************************************************************
+task build_baseimage_elasticsearch(dependsOn: populate_build_elasticsearch) {
+  doFirst {
+    ext.dockerImage = "docker.elastic.co/cloud-ci/cloud-elasticsearch-base:${getenv_var['cloud_ver']}"
+    if (! dockerImageExists(dockerImage)) {
+      _build_image([name: "gen_${name}",
+                    dirname: "$buildDir/cloud-assets/docker/elasticsearch/baseimage",
+                    runCmd: "./build.sh ${getenv_var['ver_whole']} " + populate_build_elasticsearch.tmpdir])
+    }
+  }
+}
+
+/*
+ ***********************************************************************************
+ Build Cloud Image: Elasticsearch
+ ***********************************************************************************
+ */
+
+// *********************************************************************************
+task build_cloudimage_elasticsearch(dependsOn: build_baseimage_elasticsearch) {
+  doFirst {
+    ext.dockerImage = "docker.elastic.co/cloud-ci/elasticsearch:${getenv_var['ver_whole']}"
+    if (! dockerImageExists(dockerImage)) {
+      _build_image([name: "gen_${name}",
+                    dirname: "$buildDir/cloud-assets/docker/elasticsearch/cloudimage",
+                    runCmd: "./build.sh ${getenv_var['cloud_ver']} ${getenv_var['build_hash']} " + getTempDir()])
+    }
+  }
+}
+
+/*
+ ***********************************************************************************
+ Build Base Image: Kibana
+ ***********************************************************************************
+ */
+
+// *********************************************************************************
+task update_kibana_dockerfile(dependsOn: build_baseimage) {
+  doFirst {
+    _update_dockerfile([name: "gen_${name}",
+                        filename: "$buildDir/cloud-assets/docker/kibana/baseimage/Dockerfile",
+                        dockerImage: build_baseimage.dockerImage,
+                        rmKibanaPermissions: "yes"])
+  }
+}
+
+// *********************************************************************************
+task populate_build_kibana(dependsOn: update_kibana_dockerfile) {
+  doFirst {
+    ext.tmpdir = getTempDir()
+    _populate_build([name: "gen_${name}",
+                     dirname: "$buildDir/cloud-assets/docker/kibana/baseimage",
+                     tmpdir: tmpdir])
+  }
+}
+
+// *********************************************************************************
+task build_baseimage_kibana(dependsOn: populate_build_kibana) {
+  doFirst {
+    ext.dockerImage = "docker.elastic.co/cloud-ci/cloud-kibana-base:${getenv_var['cloud_ver']}"
+    if (! dockerImageExists(dockerImage)) {
+      _build_image([name: "gen_${name}",
+                    dirname: "$buildDir/cloud-assets/docker/kibana/baseimage",
+                    runCmd: "./build.sh ${getenv_var['ver_whole']} " + populate_build_kibana.tmpdir])
+    }
+  }
+}
+
+/*
+ ***********************************************************************************
+ Build Cloud Image: Kibana
+ ***********************************************************************************
+ */
+
+// *********************************************************************************
+task build_cloudimage_kibana(dependsOn: build_baseimage_kibana) {
+  doFirst {
+    ext.dockerImage = "docker.elastic.co/cloud-ci/kibana:${getenv_var['ver_whole']}"
+    if (! dockerImageExists(dockerImage)) {
+      _build_image([name: "gen_${name}",
+                    dirname: "$buildDir/cloud-assets/docker/kibana/cloudimage",
+                    runCmd: "./build.sh ${getenv_var['cloud_ver']} ${getenv_var['build_hash']} " + getTempDir()])
+    }
+  }
+}
+
+/*
+ ***********************************************************************************
+ ECCTL
+ ***********************************************************************************
+ */
+
+// *********************************************************************************
+def getIP() {
+  ShellCommand shell = new ShellCommand("hostname -i", "$buildDir")
+  shell.waitFor()
+  def out = shell.getOutput()
+  if (shell.getRc() != 0) {
+    println out
+    throw new GradleException("Get IP failed!")
+  }
+  return out
+}
+
+// *********************************************************************************
+task create_ecctl_dir() {
+  doFirst {
+    mkdir "$buildDir/ecctl"
+  }
+}
+
+// *********************************************************************************
+def downloadTarFile(link, name, dirname) {
+  exec {
+    workingDir dirname
+    commandLine 'curl', '-s',  link, '-o', name
+  }
+  exec {
+    workingDir dirname
+    commandLine 'tar', 'xzf', name
+  }
+  exec {
+    workingDir dirname
+    commandLine 'rm', name
+  }
+}
+
+// *********************************************************************************
+task get_ecctl(dependsOn: create_ecctl_dir) {
+  doFirst {
+    println "In ${name}"
+    downloadTarFile("https://download.elastic.co/downloads/ecctl/v1.0.0-beta1/ecctl_v1.0.0-beta1_linux_amd64.tar.gz",
+                    "ecctl_v1.0.0-beta1_linux_amd64.tar.gz",
+                    "$buildDir/ecctl")
+  }
+}
+
+// *********************************************************************************
+task ecctl_platform_upload() {
+  doFirst {
+    println "In ${name}"
+    def zipFile = "$buildDir/cloud-assets/${getenv_var['ver_whole']}.zip"
+    ShellCommand shell = new ShellCommand("./ecctl platform stack upload " + zipFile,
+                                          "$buildDir/ecctl")
+    shell.waitFor()
+    def out = shell.getOutput()
+    if (shell.getRc() != 0) {
+      println out
+      throw new GradleException("ECCTL upload failed!")
+    }
+  }
+}
+
+// *********************************************************************************
+task ecctl_create_deployment() {
+  doFirst {
+    println "In ${name}"
+    def match = ""
+    def plan = "$projectDir/ecePlan.json"
+    def name = "ESTF__" + UUID.randomUUID().toString()
+    def ip =  getIP()
+    ShellCommand shell = new ShellCommand("./ecctl deployment create -f " + plan +
+                                          " --name " + name +
+                                          " --version " + "${getenv_var['ver_whole']}" +
+                                          " --track",
+                                          "$buildDir/ecctl")
+    shell.waitFor()
+    def out = shell.getOutput()
+    if (shell.getRc() != 0) {
+      println out
+      throw new GradleException("ECCTL create deployment failed!")
+    }
+
+    match = (out =~ /\"username\": \"(.*)\"/)
+    if (match.find()) {
+      ext.es_username = match.group(1)
+    }
+
+    match = (out =~ /\"password\": \"(.*)\"/)
+    if (match.find()) {
+      ext.es_password = match.group(1)
+    }
+
+    match = (out =~ /"id": "(.*)",[\r\n]+[\s]+"name":/)
+    if (match.find()) {
+      ext.id = match.group(1)
+    }
+
+    match = (out =~ /"id": "(.*)",[\r\n]+[\s]+"kind": "elasticsearch"/)
+    if (match.find()) {
+      ext.es_url = 'https://' + match.group(1) + '.' + ip + '.ip.es.io:9243'
+    }
+
+    match = (out =~ /"id": "(.*)",[\r\n]+[\s]+"kind": "kibana"/)
+    if (match.find()) {
+      ext.kbn_url = 'https://' + match.group(1) + '.' + ip + '.ip.es.io:9243'
+    }
+
+    File file = new File("$buildDir" + "/" + id + ".properties")
+    file.write("kibana_url=" + kbn_url + "\n")
+    file.append("elasticsearch_url=" + es_url + "\n")
+    file.append("es_username=" + es_username + "\n")
+    file.append("es_password=" + es_password + "\n")
+
+    Properties properties = new Properties()
+    file.withInputStream {
+        properties.load(it)
+    }
+
+    rootProject.ext.props = properties
+    rootProject.ext.cluster_id = id
+    rootProject.ext.tls_reject = "true"
+  }
+}
+
+// *********************************************************************************
+task ece_run_kibana_tests(type: GradleBuild) {
+    println "In ${name}"
+    tasks = ['getenv_var', 'install_ece', 'build_stackpack',
+             'build_cloudimage_elasticsearch', 'build_cloudimage_kibana',
+             'get_ecctl', 'ecctl_platform_upload', 'ecctl_create_deployment',
+             ':common:run_kibana_tests']
+}

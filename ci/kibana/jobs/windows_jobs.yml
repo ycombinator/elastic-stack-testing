@@ -1,0 +1,13 @@
+JOB:
+  - ossGrp1
+  - ossGrp2
+  - ossGrp3
+  - xpackGrp1
+  - xpackGrp2
+  - xpackGrp3
+  - xpackGrp4
+  - xpackExtGrp1
+  - xpackExtGrp2
+  - xpackExtGrp3
+
+exclude: ~

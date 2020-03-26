@@ -1,0 +1,128 @@
+/*
+    @description: Build tasks for cloud provisioning
+
+    @author: Liza Dayoub
+
+ */
+
+import org.estf.gradle.CreateCloudCluster
+import org.estf.gradle.DeleteCloudCluster
+import org.estf.gradle.EditCloudCluster
+import org.estf.gradle.UpgradeCloudCluster
+import org.estf.gradle.UploadData
+
+// *********************************************************************************
+// Generate setup cloud cluster task
+def genSetupTask(testname) {
+    return tasks.create("setup_" + testname, CreateCloudCluster) {
+        stackVersion = System.env.ESTF_CLOUD_VERSION
+        esUserSettings = System.env.ESTF_ES_USER_SETTINGS
+        kibanaUserSettings = System.env.ESTF_KIBANA_USER_SETTINGS
+        kibanaUserSettingsOverride = new File('product/settings/kibana.yml').getText('UTF-8')
+    }
+}
+
+// *********************************************************************************
+// Generate cleanup cloud cluster task
+def genCleanupTask(testname, cluster_id) {
+    return tasks.create("cleanup_" + testname, DeleteCloudCluster) {
+        clusterId = cluster_id
+    }
+}
+
+// *********************************************************************************
+// Generate edit cloud cluster task
+def genEditTask(testname, cluster_id, kibana_cluster_id, disable_scripts) {
+    return tasks.create("edit_" + testname, EditCloudCluster) {
+        clusterId = cluster_id
+        kibanaClusterId = kibana_cluster_id
+        esScriptSettings = disable_scripts
+        upgradeStackVersion = System.env.ESTF_UPGRADE_CLOUD_VERSION
+        esUserSettings = System.env.ESTF_ES_USER_SETTINGS
+        kibanaUserSettings = System.env.ESTF_KIBANA_USER_SETTINGS
+    }
+}
+
+// *********************************************************************************
+// Generate upgrade cloud task
+def genUpgradeTask(testname, cluster_id, kibana_cluster_id, major_upgrade) {
+    return tasks.create("upgrade_" + testname, UpgradeCloudCluster) {
+        clusterId = cluster_id
+        kibanaClusterId = kibana_cluster_id
+        upgradeStackVersion = System.env.ESTF_UPGRADE_CLOUD_VERSION
+    }
+}
+
+// *********************************************************************************
+task saas_setup {
+    doFirst {
+        // Setup cloud cluster
+        def _setup_task = genSetupTask(rootProject.test_task)
+        _setup_task.execute()
+
+        // Load properties file
+        def propFile = _setup_task.getPropertiesFile()
+        Properties properties = new Properties()
+        File propertiesFile = new File(propFile.trim())
+        propertiesFile.withInputStream {
+            properties.load(it)
+        }
+
+        rootProject.ext.props = properties
+        rootProject.ext.cluster_id = _setup_task.getClusterId()
+        rootProject.ext.kibana_cluster_id = _setup_task.getKibanaClusterId()
+    }
+}
+
+// *********************************************************************************
+task saas_cleanup {
+    doFirst {
+        if (rootProject.hasProperty('cluster_id')) {
+            def _cleanup_task = genCleanupTask(rootProject.test_task,
+                                               rootProject.cluster_id)
+            _cleanup_task.execute()
+        }
+    }
+}
+
+// *********************************************************************************
+task upload_bank_data(type: UploadData) {
+    doFirst {
+        esBaseUrl = rootProject.props.elasticsearch_url
+        kbnBaseUrl = rootProject.props.kibana_url
+        username = rootProject.props.es_username
+        password = rootProject.props.es_password
+    }
+}
+
+// *********************************************************************************
+task saas_upgrade_run_kibana_tests {
+    rootProject.ext.test_task = "${name}"
+    doFirst {
+        // Upload data
+        upload_bank_data.execute()
+
+        // Upgrade cloud cluster
+        def cluster_id = rootProject.cluster_id
+        def kibana_cluster_id = rootProject.kibana_cluster_id
+
+        def _upgrade_task = genUpgradeTask(rootProject.test_task,
+                                           cluster_id, kibana_cluster_id, true)
+        _upgrade_task.execute()
+        tasks.getByPath(':common:run_kibana_tests').execute()
+    }
+}
+
+// *********************************************************************************
+task saas_run_kibana_tests {
+    rootProject.ext.test_task = "${name}"
+    doFirst {
+        tasks.getByPath(':common:run_kibana_tests').execute()
+    }
+}
+
+saas_run_kibana_tests.dependsOn saas_setup
+saas_run_kibana_tests.finalizedBy saas_cleanup
+
+saas_upgrade_run_kibana_tests.dependsOn saas_setup
+saas_upgrade_run_kibana_tests.finalizedBy saas_cleanup

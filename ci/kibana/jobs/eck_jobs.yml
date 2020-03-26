@@ -1,0 +1,13 @@
+TASK:
+  - eck_run_kibana_tests
+JOB:
+  - ossGrp1
+  - ossGrp2
+  - ossGrp3
+  - xpackGrp1
+  - xpackGrp2
+  - xpackGrp3
+  - xpackGrp4
+  - xpackExt
+
+exclude: ~

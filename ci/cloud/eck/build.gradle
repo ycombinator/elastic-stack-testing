@@ -1,0 +1,499 @@
+/*
+ * @description: Gradle script for ECK testing.
+ *
+ * @author: Liza Mae Dayoub
+ *
+ */
+
+import org.estf.gradle.ShellCommand
+import org.ajoberstar.grgit.Grgit
+import org.estf.gradle.EckCredentials
+
+plugins {
+  id 'org.ajoberstar.grgit' version '1.7.2' apply false
+}
+
+group 'org.estf.cloud'
+version '1.0'
+
+apply plugin: 'groovy'
+
+repositories {
+    mavenCentral()
+}
+
+/*
+ ***********************************************************************************
+ Common
+ ***********************************************************************************
+ */
+def runShell(cmd, dir) {
+  ShellCommand shell = new ShellCommand(cmd, dir)
+  shell.waitFor()
+  def out = shell.getOutput()
+  if (shell.getRc() != 0) {
+    println out
+    throw new GradleException('Error running command: ' + cmd)
+  }
+  return out
+}
+
+/*
+ ***********************************************************************************
+ Check environment variables
+ ***********************************************************************************
+ */
+task getenv_var {
+  doFirst {
+    assert(System.env.ESTF_KIBANA_VERSION &&
+           System.env.ESTF_CLOUD_VERSION &&
+           System.env.ESTF_BUILD_HASH)
+    ext.kibana_ver = System.env.ESTF_KIBANA_VERSION
+    ext.cloud_ver =  System.env.ESTF_CLOUD_VERSION
+    ext.build_hash = System.env.ESTF_BUILD_HASH
+    ext.region = System.env.ESTF_CLOUD_REGION ?: "us-central1-a"
+    ext.homedir = System.env.HOME
+    ext.gc_project = "elastic-automation"
+    ext.whole_ver = "$cloud_ver-$build_hash"
+    ext.gcr_es = "gcr.io/$gc_project/elasticsearch:$whole_ver"
+    ext.gcr_kbn = "gcr.io/$gc_project/kibana:$whole_ver"
+  }
+}
+
+// *********************************************************************************
+task gcloud_auth() {
+  doFirst {
+    EckCredentials creds = new EckCredentials()
+    creds.dir = "$projectDir"
+    creds.vaultAuth()
+    def filename = creds.getFileName()
+    def username = creds.getUserName()
+    def out = runShell("gcloud auth activate-service-account " + username +
+                      " --key-file " + filename +
+                      " --project " + "${getenv_var['gc_project']}",
+                      "$projectDir")
+  }
+}
+
+
+// *********************************************************************************
+task dockr_login() {
+  doFirst {
+    EckCredentials creds = new EckCredentials()
+    creds.dir = "$projectDir"
+    creds.vaultAuth()
+    def filename = creds.getFileName()
+    def out = runShell('docker login -u _json_key -p "' + filename +
+                       '" https://gcr.io', "$projectDir")
+  }
+}
+
+/*
+ ***********************************************************************************
+  Kubernetes / Kubectl
+ ***********************************************************************************
+ */
+
+// *********************************************************************************
+def downloadKubectl(dirname) {
+  exec {
+    workingDir dirname
+    commandLine 'curl', '-LOs',
+      'https://storage.googleapis.com/kubernetes-release/release/v1.17.2/bin/linux/amd64/kubectl'
+  }
+  exec {
+    workingDir dirname
+    commandLine 'chmod', '+x', 'kubectl'
+  }
+}
+
+// *********************************************************************************
+task create_container() {
+  doFirst {
+    downloadKubectl("$projectDir")
+    def num = Math.abs(new Random().nextInt() % 25000) + 1
+    def name = "estf-cluster-" + num.toString()
+    def out = runShell("gcloud container clusters create " + name +
+                       " --zone " + "${getenv_var['region']}" +
+                       " --num-nodes 1" +
+                       " --project " + "${getenv_var['gc_project']}" +
+                       " --machine-type n1-highmem-4" +
+                       " --no-enable-basic-auth" +
+                       " --no-issue-client-certificate" +
+                       " --enable-ip-alias",
+                       "$projectDir")
+    def match = (out =~ /${name}(.*)RUNNING/)
+    if (! match.find()) {
+       throw new GradleException("Google container create failed!")
+    }
+    rootProject.ext.cluster_name = name
+  }
+}
+
+// *********************************************************************************
+task delete_container() {
+  doFirst {
+    def out = runShell("gcloud container clusters delete " + rootProject.ext.cluster_name +
+                       " --zone " + "${getenv_var['region']}" +
+                       " --project " + "${getenv_var['gc_project']}" +
+                       " --quiet",
+                       "$projectDir")
+    def match = (out =~ /Deleted/)
+    if (! match.find()) {
+       throw new GradleException("Google container delete failed!")
+    }
+  }
+}
+
+/*
+ ***********************************************************************************
+  ECK
+ ***********************************************************************************
+ */
+
+// *********************************************************************************
+task install_eck() {
+  doFirst {
+    def out = runShell("./kubectl apply -f" +
+                       "https://download.elastic.co/downloads/eck/1.0.0/all-in-one.yaml",
+                       "$projectDir")
+  }
+}
+
+/*
+ ***********************************************************************************
+  Common
+ ***********************************************************************************
+ */
+
+// *********************************************************************************
+def updateSpec(filename, image) {
+    File file = new File(filename)
+    String fileContents = file.getText('UTF-8')
+    fileContents = fileContents.replace('<version>', "${getenv_var['cloud_ver']}")
+    fileContents = fileContents.replace('<image>', image)
+    file.write(fileContents)
+}
+
+/*
+ ***********************************************************************************
+  Elasticsearch
+ ***********************************************************************************
+ */
+
+// *********************************************************************************
+def waitForElasticsearch() {
+  long finish = System.currentTimeMillis() + 180000;
+  def isRunning = false
+  while (System.currentTimeMillis() < finish) {
+    def out = runShell('./kubectl get elasticsearch', "$projectDir")
+    def match = (out =~ /green(.*)Ready/)
+    if (match.find()) {
+      isRunning = true
+      break
+    }
+    Thread.sleep(10000);
+  }
+  if (! isRunning) {
+    throw new GradleException("Elasticsearch failed to come up!")
+  }
+}
+
+// *********************************************************************************
+task deploy_elasticsearch_cluster() {
+  doFirst {
+    updateSpec("$projectDir/es-spec.yml", "${getenv_var['gcr_es']}")
+    def out = runShell("./kubectl apply -f" + "$projectDir/es-spec.yml",
+                       "$projectDir")
+    def match = (out =~ /elasticsearch(.*)created/)
+    if (! match.find()) {
+     throw new GradleException("Deploy Elasticsearch failed!")
+    }
+
+    waitForElasticsearch()
+  }
+}
+
+// *********************************************************************************
+def getElasticsearchPassword(dirname) {
+  def s = new ByteArrayOutputStream()
+  exec {
+    workingDir dirname
+    commandLine './kubectl', 'get', 'secret', 'estfk8-es-elastic-user',
+                "-o=jsonpath='{.data.elastic}'"
+    standardOutput = s
+  }
+  def password = s.toString().trim()
+  def len = password.length() - 1
+  byte[] decoded = Base64.getDecoder().decode(password.substring(1,len))
+  return new String(decoded)
+}
+
+// *********************************************************************************
+def getExternalIp(svc_name) {
+
+  def out = runShell('./kubectl get svc', "$projectDir")
+  def match = (out =~ /$svc_name(.*) ((?:[0-9]{1,3}\.){3}[0-9]{1,3})(.*) ((?:[0-9]{1,3}\.){3}[0-9]{1,3})/)
+  if (match.find()) {
+    return match.group(4).trim()
+  }
+  throw new GradleException("Unable to get exernal IP for service: " + svc_name)
+}
+
+// *********************************************************************************
+task get_credentials() {
+  doFirst {
+
+    ext.username = 'elastic'
+    ext.password = getElasticsearchPassword("$projectDir")
+    ext.elasticsearch_url = "https://" + getExternalIp('estfk8-es-http') + ":9200"
+    ext.kibana_url = "https://" + getExternalIp('estfk8-kb-http') + ":5601"
+
+    File file = new File("$projectDir" + "/" + rootProject.ext.cluster_name + ".properties")
+    file.write("es_username=" + username + "\n")
+    file.append("es_password=" + password + "\n")
+    file.append("kibana_url=" + kibana_url + "\n")
+    file.append("elasticsearch_url=" + elasticsearch_url + "\n")
+
+    Properties properties = new Properties()
+    file.withInputStream {
+        properties.load(it)
+    }
+
+    rootProject.ext.props = properties
+    rootProject.ext.tls_reject = "true"
+  }
+}
+
+// *********************************************************************************
+task request_elasticsearch() {
+  doFirst {
+    def username = get_credentials.username
+    def password = get_credentials.password
+    def es_url = get_credentials.elasticsearch_url
+    def out = runShell('curl -u ' + username + ':' + password +
+                       ' -k ' + es_url, "$projectDir")
+    println out
+  }
+}
+
+/*
+ ***********************************************************************************
+  Kibana
+ ***********************************************************************************
+ */
+
+// *********************************************************************************
+def waitForKibana() {
+  long finish = System.currentTimeMillis() + 180000;
+  def isRunning = false
+  while (System.currentTimeMillis() < finish) {
+    def out = runShell("./kubectl get kibana", "$projectDir")
+    def match = (out =~ /green/)
+    if (match.find()) {
+      isRunning = true
+      break
+    }
+    Thread.sleep(10000);
+  }
+  if (! isRunning) {
+    throw new GradleException("Kibana failed to come up!")
+  }
+}
+
+// *********************************************************************************
+task deploy_kibana_cluster() {
+  doFirst {
+    updateSpec("$projectDir/kbn-spec.yml", "${getenv_var['gcr_kbn']}")
+    def out = runShell("./kubectl apply -f" + "$projectDir/kbn-spec.yml",
+                       "$projectDir")
+    def match = (out =~ /kibana(.*)created/)
+    if (! match.find()) {
+     throw new GradleException("Deploy Kibana failed!")
+    }
+    waitForKibana()
+  }
+}
+
+// *********************************************************************************
+task stop_forward_kbn_port() {
+  doFirst {
+    if (tasks.start_forward_kbn_port.process) {
+      tasks.start_forward_kbn_port.process.destroy()
+    }
+  }
+}
+
+// *********************************************************************************
+task start_forward_kbn_port() {
+  doFirst {
+    ext.process = new ProcessBuilder()
+                      .directory(projectDir)
+                      .command("./kubectl", "port-forward", "--request-timeout=4h",
+                               "service/estfk8-kb-http", "5601")
+                      .start()
+    Thread.sleep(2000)
+  }
+}
+
+// *********************************************************************************
+task request_kibana() {
+  doFirst {
+    def username = get_credentials.username
+    def password = get_credentials.password
+    def kbn_url = get_credentials.kibana_url
+    def out = runShell('curl -u ' + username + ':' + password +
+                       ' -k ' + kbn_url + '/api/status',
+                       "$projectDir")
+    println out
+  }
+}
+
+// *********************************************************************************
+task activate_trial_license() {
+  doFirst {
+    def out = runShell("./kubectl apply -f" + "$projectDir/trial-license-spec.yml",
+                       "$projectDir")
+    def match = (out =~ /eck-trial-license created/)
+    if (! match.find()) {
+     throw new GradleException("Activate trial license failed!")
+    }
+    Thread.sleep(2000)
+  }
+}
+
+/*
+ ***********************************************************************************
+  Docker Images
+ ***********************************************************************************
+ */
+
+// *********************************************************************************
+def gcrImageExists(name) {
+  String [] s = name.split(':')
+  def out = runShell('gcloud container images list-tags ' + s[0], "$projectDir")
+  if (out.indexOf(s[1]) < 0) {
+    return false
+  }
+  return true
+}
+
+// *********************************************************************************
+def downloadDockerImage(url) {
+  exec {
+    commandLine 'curl', '-LOs', url
+  }
+}
+
+// *********************************************************************************
+def loadDockerImage(name) {
+  exec {
+    commandLine 'docker', 'load', '--input', name
+  }
+}
+
+// *********************************************************************************
+def tagDockerImage(img, gcr_img) {
+  exec {
+    commandLine 'docker', 'tag', img, gcr_img
+  }
+}
+
+// *********************************************************************************
+task docker_load_tag() {
+
+  doFirst {
+
+    def staging_base = "https://staging.elastic.co/${getenv_var['whole_ver']}"
+    def snapshot_base = "https://snapshots.elastic.co/${getenv_var['whole_ver']}"
+
+    def es_path = "/downloads/elasticsearch/elasticsearch-${getenv_var['cloud_ver']}"
+    def kbn_path = "/downloads/kibana/kibana-${getenv_var['cloud_ver']}"
+
+    def docker_path = "-docker-image.tar.gz"
+    def docker_snapshot = "-SNAPSHOT-$docker_path"
+
+    def es_docker_image = "docker.elastic.co/elasticsearch/elasticsearch:${getenv_var['cloud_ver']}"
+    def kbn_docker_image = "docker.elastic.co/kibana/kibana:${getenv_var['cloud_ver']}"
+
+    URL url_staging_es = new URL(staging_base + es_path + docker_path)
+    URL url_staging_kbn = new URL (staging_base + kbn_path + docker_path)
+
+    URL url_snapshot_es = new URL(snapshot_base + es_path + docker_snapshot)
+    URL url_snapshot_kbn = new URL(snapshot_base + kbn_path + docker_snapshot)
+
+    if (url_staging_es.openConnection().getResponseCode() == 200 &&
+        url_staging_kbn.openConnection().getResponseCode() == 200) {
+
+        downloadDockerImage(url_staging_es.toString())
+        downloadDockerImage(url_staging_kbn.toString())
+
+        loadDockerImage(new File(url_staging_es.getPath()).getName())
+        loadDockerImage(new File(url_staging_kbn.getPath()).getName())
+
+    } else if (url_snapshot_es.openConnection().getResponseCode() == 200 &&
+               url_snapshot_kbn.openConnection().getResponseCode() == 200) {
+
+        downloadDockerImage(url_snapshot_es.toString())
+        downloadDockerImage(url_snapshot_kbn.toString())
+
+        loadDockerImage(new File(url_snapshot_es.getPath()).getName())
+        loadDockerImage(new File(url_snapshot_kbn.getPath()).getName())
+
+        es_docker_image = es_docker_image + '-SNAPSHOT'
+        kbn_docker_image = kbn_docker_image + '-SNAPSHOT'
+
+    } else {
+      throw new GradleException("Images do not exist for version and hash")
+    }
+
+    tagDockerImage(es_docker_image, "${getenv_var['gcr_es']}")
+    tagDockerImage(kbn_docker_image, "${getenv_var['gcr_kbn']}")
+
+  }
+}
+
+// *********************************************************************************
+task docker_push_gcr_es(type: Exec) {
+  onlyIf {
+    ! gcrImageExists("${getenv_var['gcr_es']}")
+  }
+  doFirst {
+    commandLine 'docker', 'push', "${getenv_var['gcr_es']}"
+  }
+}
+
+// *********************************************************************************
+task docker_push_gcr_kbn(type: Exec) {
+  onlyIf {
+    ! gcrImageExists("${getenv_var['gcr_kbn']}")
+  }
+  doFirst {
+    commandLine 'docker', 'push', "${getenv_var['gcr_kbn']}"
+  }
+}
+
+// *********************************************************************************
+task eck_push_gcr_images(type: GradleBuild) {
+  println "In ${name}"
+  tasks = ['getenv_var', 'docker_login', 'docker_load_tag',
+           'docker_push_gcr_es', 'docker_push_gcr_kbn']
+}
+
+// *********************************************************************************
+task eck_run_kibana_tests(dependsOn: getenv_var) {
+  doFirst {
+    gcloud_auth.execute()
+    create_container.execute()
+    install_eck.execute()
+    deploy_elasticsearch_cluster.execute()
+    deploy_kibana_cluster.execute()
+    activate_trial_license.execute()
+    get_credentials.execute()
+    request_elasticsearch.execute()
+    request_kibana.execute()
+    tasks.getByPath(':common:run_kibana_tests').execute()
+  }
+}
+
+eck_run_kibana_tests.finalizedBy delete_container

@@ -1,0 +1,10 @@
+kibana.disableWelcomeScreen: true
+server.uuid: 5b2de169-2785-441b-ae8c-186a1936b17d
+timelion.ui.enabled: true
+xpack.encryptedSavedObjects.encryptionKey: DkdXazszSCYexXqz4YktBGHCRkV6hyNK
+xpack.maps.preserveDrawingBuffer: true
+xpack.maps.showMapsInspectorAdapter: true
+xpack.reporting.csv.maxSizeBytes: 2850
+xpack.reporting.queue.pollInterval: 3000
+xpack.security.encryptionKey: wuGNaIhoMpk5sO4UBxgr3NyW1sFcLgIf
+telemetry.banner: false
