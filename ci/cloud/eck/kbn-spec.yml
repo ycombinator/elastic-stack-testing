@@ -17,6 +17,11 @@ spec:
     xpack.reporting.queue.pollInterval: 3000
     xpack.security.encryptionKey: wuGNaIhoMpk5sO4UBxgr3NyW1sFcLgIf
     telemetry.banner: false
+    xpack.endpoint.enabled: true,
+    xpack.reporting.csv.enablePanelActionDownload: true
+    xpack.reporting.capture.maxAttempts: 1
+    xpack.security.session.idleTimeout: 3600000
+    xpack.reporting.csv.checkForFormulas: false
   elasticsearchRef:
     name: estfk8
   http:

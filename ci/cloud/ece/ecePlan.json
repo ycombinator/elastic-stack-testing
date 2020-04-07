@@ -78,7 +78,7 @@
                     "kibana": {
                         "version": "7.5.0",
                         "user_settings_override_json": {
-                           "kibana.disableWelcomeScreen": true,
+                           "home.disableWelcomeScreen": true,
                            "server.uuid": "5b2de169-2785-441b-ae8c-186a1936b17d",
                            "timelion.ui.enabled": true,
                            "xpack.encryptedSavedObjects.encryptionKey": "DkdXazszSCYexXqz4YktBGHCRkV6hyNK",
@@ -87,7 +87,12 @@
                            "xpack.reporting.csv.maxSizeBytes": 2850,
                            "xpack.reporting.queue.pollInterval": 3000,
                            "xpack.security.encryptionKey": "wuGNaIhoMpk5sO4UBxgr3NyW1sFcLgIf",
-                           "telemetry.banner": false
+                           "telemetry.banner": false,
+                           "xpack.endpoint.enabled": true,
+                           "xpack.reporting.csv.enablePanelActionDownload": true,
+                           "xpack.reporting.capture.maxAttempts": 1,
+                           "xpack.security.session.idleTimeout": 3600000,
+                           "xpack.reporting.csv.checkForFormulas": false
                         }
                     },
                     "cluster_topology": [

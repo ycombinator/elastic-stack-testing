@@ -226,6 +226,7 @@ task build_stackpack(dependsOn: get_cloud_assets_repo) {
                                           "ELASTICSEARCH_IMAGE=docker.elastic.co/cloud-ci/elasticsearch:$ver " +
                                           "KIBANA_IMAGE=docker.elastic.co/cloud-ci/kibana:$ver " +
                                           "APM_IMAGE=docker.elastic.co/cloud-ci/apm:$ver " +
+                                          "ENTERPRISE_SEARCH_IMAGE=docker.elastic.co/swiftype/enterprise-search:$ver " +
                                           "APPSEARCH_IMAGE=docker.elastic.co/swiftype/app-search:$ver ",
                                           "$buildDir/cloud-assets")
     shell.waitFor()
