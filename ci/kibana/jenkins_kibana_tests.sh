@@ -322,7 +322,7 @@ function get_kibana_url() {
 
   # Set the elasticsearch snapshot for functional tests
   Glb_Es_Url="$_host/$_es_path/$Glb_Es_Pkg_Name"
-  export ES_SNAPSHOT_MANIFEST="$Glb_Es_Url"
+  export KBN_ES_SNAPSHOT_URL="$Glb_Es_Url"
   echo_info "Elasticsearch URL: $Glb_Es_Url"
 
   readonly Glb_Kibana_Url Glb_Es_Url
