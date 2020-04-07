@@ -293,8 +293,9 @@ function get_kibana_pkg() {
   fi
 
   Glb_Pkg_Name="kibana${_pkgType}-${Glb_Kibana_Version}-${_pkgName}"
+  Glb_Es_Pkg_Name="elasticsearch${_pkgType}-${Glb_Kibana_Version}-${_pkgName}"
 
-  readonly Glb_Pkg_Name
+  readonly Glb_Pkg_Name Glb_Es_Pkg_Name
 }
 
 # ----------------------------------------------------------------------------
@@ -308,6 +309,7 @@ function get_kibana_url() {
 
   local _host="https://${Glb_Build_Server}.elastic.co"
   local _path="downloads/kibana"
+  local _es_path="downloads/elasticsearch"
 
   Glb_Kibana_Url="$_host/$_path/$Glb_Pkg_Name"
 
@@ -318,7 +320,12 @@ function get_kibana_url() {
 
   echo_info "Kibana URL: $Glb_Kibana_Url"
 
-  readonly Glb_Kibana_Url
+  # Set the elasticsearch snapshot for functional tests
+  Glb_Es_Url="$_host/$_es_path/$Glb_Es_Pkg_Name"
+  export ES_SNAPSHOT_MANIFEST="$Glb_Es_Url"
+  echo_info "Elasticsearch URL: $Glb_Es_Url"
+
+  readonly Glb_Kibana_Url Glb_Es_Url
 }
 
 # ----------------------------------------------------------------------------
