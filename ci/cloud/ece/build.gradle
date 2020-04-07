@@ -288,7 +288,7 @@ task build_baseimage_elasticsearch(dependsOn: populate_build_elasticsearch) {
     if (! dockerImageExists(dockerImage)) {
       _build_image([name: "gen_${name}",
                     dirname: "$buildDir/cloud-assets/docker/elasticsearch/baseimage",
-                    runCmd: "./build.sh ${getenv_var['ver_whole']} " + populate_build_elasticsearch.tmpdir])
+                    runCmd: "./build.sh ${getenv_var['cloud_ver']} ${getenv_var['build_hash']} " + populate_build_elasticsearch.tmpdir])
     }
   }
 }
@@ -344,7 +344,7 @@ task build_baseimage_kibana(dependsOn: populate_build_kibana) {
     if (! dockerImageExists(dockerImage)) {
       _build_image([name: "gen_${name}",
                     dirname: "$buildDir/cloud-assets/docker/kibana/baseimage",
-                    runCmd: "./build.sh ${getenv_var['ver_whole']} " + populate_build_kibana.tmpdir])
+                    runCmd: "./build.sh ${getenv_var['cloud_ver']} ${getenv_var['build_hash']} " + populate_build_kibana.tmpdir])
     }
   }
 }
