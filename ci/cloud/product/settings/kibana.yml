@@ -8,7 +8,6 @@ xpack.reporting.csv.maxSizeBytes: 2850
 xpack.security.encryptionKey: "wuGNaIhoMpk5sO4UBxgr3NyW1sFcLgIf"
 xpack.encryptedSavedObjects.encryptionKey: "DkdXazszSCYexXqz4YktBGHCRkV6hyNK"
 timelion.ui.enabled: true
-xpack.endpoint.enabled: true
 xpack.reporting.csv.enablePanelActionDownload: true
 xpack.reporting.capture.maxAttempts: 1
 xpack.security.session.idleTimeout: 3600000
