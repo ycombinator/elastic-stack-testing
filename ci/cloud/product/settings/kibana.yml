@@ -12,3 +12,6 @@ xpack.reporting.csv.enablePanelActionDownload: true
 xpack.reporting.capture.maxAttempts: 1
 xpack.security.session.idleTimeout: 3600000
 xpack.reporting.csv.checkForFormulas: false
+xpack.endpoint.enabled: true
+xpack.ingestManager.enabled: true
+xpack.endpoint.alertResultListDefaultDateRange.from: 2018-01-10T00:00:00.000Z
