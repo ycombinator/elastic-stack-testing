@@ -7,7 +7,7 @@ ghOwner="${GH_OWNER:?GH_OWNER needs to be set!}"
 ghToken="${GH_TOKEN:?GH_TOKEN needs to be set!}"
 sdkVersion="1.2.0-SNAPSHOT"
 
-getReleaseByTagUrl="https://api.github.com/repos/${ghOwner}/cloud-sdk-java/releases/tags/v${sdkVersion}?access_token=${ghToken}"
+getReleaseByTagUrl="https://api.github.com/repos/${ghOwner}/cloud-sdk-java/releases/tags/v${sdkVersion}"
 
 if [ ! -d ${libsDir} ]; then
 	echo "Creating libs directory..."
@@ -16,10 +16,10 @@ if [ ! -d ${libsDir} ]; then
 fi
 
 echo "Download cloud java sdk"
-getReleaseByTagResponse=$(curl -s ${getReleaseByTagUrl})
-assetName=$(curl -s ${getReleaseByTagUrl} | python -c "import sys, json; print(json.load(sys.stdin)['assets'][0]['name'])")
-assetUrl=$(curl -s ${getReleaseByTagUrl}  | python -c "import sys, json; print(json.load(sys.stdin)['assets'][0]['url'])")
-assetUrlWithAuth="${assetUrl}?access_token=${ghToken}"
+getReleaseByTagResponse=$(curl -H "Authorization: token ${ghToken}" -s ${getReleaseByTagUrl})
+assetName=$(curl -H "Authorization: token ${ghToken}" -s ${getReleaseByTagUrl} | python -c "import sys, json; print(json.load(sys.stdin)['assets'][0]['name'])")
+assetUrl=$(curl -H "Authorization: token ${ghToken}" -s ${getReleaseByTagUrl}  | python -c "import sys, json; print(json.load(sys.stdin)['assets'][0]['url'])")
+assetUrlWithAuth="${assetUrl}"
 downloadResponse=$(curl -L -H "Accept: application/octet-stream" ${assetUrlWithAuth} -o ${libsDir}/${assetName})
 
 echo "Download java vault driver"
