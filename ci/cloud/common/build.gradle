@@ -49,11 +49,18 @@ task get_jenkins_exe (type: Copy) {
 }
 
 // *********************************************************************************
+task get_kibana_commit(type:Exec) {
+  workingDir "$buildDir/kibana"
+  commandLine 'git', 'log', '--pretty=oneline', '--abbrev-commit', '-n', '1'
+}
+
+// *********************************************************************************
 task run_kibana_tests {
     doFirst {
 
         get_kibana_repo.execute()
         get_jenkins_exe.execute()
+        get_kibana_commit.execute()
 
         // Add system environment variables
         def envList = []

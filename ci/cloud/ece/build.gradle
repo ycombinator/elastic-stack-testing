@@ -493,6 +493,26 @@ task ecctl_create_deployment() {
     rootProject.ext.props = properties
     rootProject.ext.cluster_id = id
     rootProject.ext.tls_reject = "true"
+
+    // Print information about elasticsearch and kibana
+    def kbn_url = new URL(properties.kibana_url).openConnection();
+    def es_url =  new URL(properties.elasticsearch_url).openConnection();
+    String userpass = properties.es_username + ":" + properties.es_password;
+    String basicAuth = "Basic " + new String(Base64.getEncoder().encode(userpass.getBytes()));
+    println("---------- KIBANA INFO ----------")
+    kbn_url.setRequestProperty ("Authorization", basicAuth);
+    def kbnGetRC = kbn_url.getResponseCode();
+    println(kbnGetRC);
+    if(kbnGetRC.equals(200)) {
+        println(kbn_url.getInputStream().getText());
+    }
+    println("---------- ELASTICSEARCH INFO --------")
+    es_url.setRequestProperty ("Authorization", basicAuth);
+    def esGetRC = es_url.getResponseCode();
+    println(esGetRC);
+    if(esGetRC.equals(200)) {
+        println(es_url.getInputStream().getText());
+    }
   }
 }
 

@@ -262,18 +262,26 @@ task get_credentials() {
 
     rootProject.ext.props = properties
     rootProject.ext.tls_reject = "true"
-  }
-}
 
-// *********************************************************************************
-task request_elasticsearch() {
-  doFirst {
-    def username = get_credentials.username
-    def password = get_credentials.password
-    def es_url = get_credentials.elasticsearch_url
-    def out = runShell('curl -u ' + username + ':' + password +
-                       ' -k ' + es_url, "$projectDir")
-    println out
+    // Print information about elasticsearch and kibana
+    def kbn_url = new URL(properties.kibana_url).openConnection();
+    def es_url =  new URL(properties.elasticsearch_url).openConnection();
+    String userpass = properties.es_username + ":" + properties.es_password;
+    String basicAuth = "Basic " + new String(Base64.getEncoder().encode(userpass.getBytes()));
+    println("---------- KIBANA INFO ----------")
+    kbn_url.setRequestProperty ("Authorization", basicAuth);
+    def kbnGetRC = kbn_url.getResponseCode();
+    println(kbnGetRC);
+    if(kbnGetRC.equals(200)) {
+        println(kbn_url.getInputStream().getText());
+    }
+    println("---------- ELASTICSEARCH INFO --------")
+    es_url.setRequestProperty ("Authorization", basicAuth);
+    def esGetRC = es_url.getResponseCode();
+    println(esGetRC);
+    if(esGetRC.equals(200)) {
+        println(es_url.getInputStream().getText());
+    }
   }
 }
 
@@ -333,19 +341,6 @@ task start_forward_kbn_port() {
                                "service/estfk8-kb-http", "5601")
                       .start()
     Thread.sleep(2000)
-  }
-}
-
-// *********************************************************************************
-task request_kibana() {
-  doFirst {
-    def username = get_credentials.username
-    def password = get_credentials.password
-    def kbn_url = get_credentials.kibana_url
-    def out = runShell('curl -u ' + username + ':' + password +
-                       ' -k ' + kbn_url + '/api/status',
-                       "$projectDir")
-    println out
   }
 }
 
@@ -490,8 +485,6 @@ task eck_run_kibana_tests(dependsOn: getenv_var) {
     deploy_kibana_cluster.execute()
     activate_trial_license.execute()
     get_credentials.execute()
-    request_elasticsearch.execute()
-    request_kibana.execute()
     tasks.getByPath(':common:run_kibana_tests').execute()
   }
 }
