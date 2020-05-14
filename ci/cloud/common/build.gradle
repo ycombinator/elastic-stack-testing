@@ -50,8 +50,9 @@ task get_jenkins_exe (type: Copy) {
 
 // *********************************************************************************
 task get_kibana_commit(type:Exec) {
-  workingDir "$buildDir/kibana"
-  commandLine 'git', 'log', '--pretty=oneline', '--abbrev-commit', '-n', '1'
+    println("---------- KIBANA REPO COMMIT INFO ----------")
+    workingDir "$buildDir/kibana"
+    commandLine 'git', 'log', '--pretty=oneline', '--abbrev-commit', '-n', '1'
 }
 
 // *********************************************************************************

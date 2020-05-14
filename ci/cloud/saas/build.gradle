@@ -73,7 +73,7 @@ task saas_setup {
         rootProject.ext.kibana_cluster_id = _setup_task.getKibanaClusterId()
 
         // Print information about elasticsearch and kibana
-        def kbn_url = new URL(properties.kibana_url).openConnection();
+        def kbn_url = new URL(properties.kibana_url + "/api/status").openConnection();
         def es_url =  new URL(properties.elasticsearch_url).openConnection();
         String userpass = properties.es_username + ":" + properties.es_password;
         String basicAuth = "Basic " + new String(Base64.getEncoder().encode(userpass.getBytes()));
