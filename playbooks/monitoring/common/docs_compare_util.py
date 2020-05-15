@@ -31,15 +31,15 @@ def log_parity_error(message):
     
 def check_usage():
   if (len(sys.argv) < 3):
-      log_error("Usage: python docs_compare.py /path/to/internal/docs /path/to/metricbeat/docs\n")
+      log_error("Usage: python docs_compare.py /path/to/legacy/docs /path/to/metricbeat/docs\n")
       sys.exit(1)
 
-def get_internal_docs_path():
-  internal_docs_path = sys.argv[1]
-  if not os.path.exists(internal_docs_path):
-    log_error("Internally-indexed documents path does not exist: " + internal_docs_path + "\n")
+def get_legacy_docs_path():
+  legacy_docs_path = sys.argv[1]
+  if not os.path.exists(legacy_docs_path):
+    log_error("Legacy-indexed documents path does not exist: " + legacy_docs_path + "\n")
     sys.exit(11)
-  return internal_docs_path
+  return legacy_docs_path
 
 def get_metricbeat_docs_path():
   metricbeat_docs_path = sys.argv[2]
@@ -56,11 +56,11 @@ def get_doc_types(docs_path):
         doc_types.append(name)
     return doc_types
 
-def check_num_doc_types(internal_doc_types, metricbeat_doc_types):
-  if len(internal_doc_types) > len(metricbeat_doc_types):
-      diff_elements = set(internal_doc_types) - set(metricbeat_doc_types)
-      log_parity_error("Found more internally-indexed document types than metricbeat-indexed document types.\n \
-              Document types indexed by internal collection but not by Metricbeat collection: {}".format(pprint.pformat(diff_elements)))
+def check_num_doc_types(legacy_doc_types, metricbeat_doc_types):
+  if len(legacy_doc_types) > len(metricbeat_doc_types):
+      diff_elements = set(legacy_doc_types) - set(metricbeat_doc_types)
+      log_parity_error("Found more legacy-indexed document types than metricbeat-indexed document types.\n \
+              Document types indexed by legacy collection but not by Metricbeat collection: {}".format(pprint.pformat(diff_elements)))
 
 def get_doc(docs_path, doc_type):
     with open(os.path.join(docs_path, doc_type + ".json")) as f:
@@ -148,24 +148,24 @@ def check_parity(handle_special_cases = lambda t, i, m: None, allowed_insertions
 
   check_usage()
 
-  internal_docs_path = get_internal_docs_path()
+  legacy_docs_path = get_legacy_docs_path()
   metricbeat_docs_path = get_metricbeat_docs_path()
 
-  internal_doc_types = get_doc_types(internal_docs_path)
+  legacy_doc_types = get_doc_types(legacy_docs_path)
   metricbeat_doc_types = get_doc_types(metricbeat_docs_path)
 
-  check_num_doc_types(internal_doc_types, metricbeat_doc_types)
+  check_num_doc_types(legacy_doc_types, metricbeat_doc_types)
 
   num_errors = 0
-  for doc_type in internal_doc_types:
-      internal_doc = get_doc(internal_docs_path, doc_type)
+  for doc_type in legacy_doc_types:
+      legacy_doc = get_doc(legacy_docs_path, doc_type)
       metricbeat_doc = get_doc(metricbeat_docs_path, doc_type)
 
-      handle_special_cases(doc_type, internal_doc, metricbeat_doc)
+      handle_special_cases(doc_type, legacy_doc, metricbeat_doc)
 
       unexpected_insertions = []
       unexpected_deletions = []
-      for diff_item in diff(internal_doc, metricbeat_doc):
+      for diff_item in diff(legacy_doc, metricbeat_doc):
         diff_type = diff_item[0]
 
         if diff_type == 'add':
@@ -175,7 +175,7 @@ def check_parity(handle_special_cases = lambda t, i, m: None, allowed_insertions
           unexpected_deletions.extend(check_diff(diff_item, allowed_deletions_from_metricbeat_docs))
 
       if len(unexpected_insertions) == 0 and len(unexpected_deletions) == 0:
-        log_ok("Metricbeat-indexed doc for type='" + doc_type + "' has expected parity with internally-indexed doc.")
+        log_ok("Metricbeat-indexed doc for type='" + doc_type + "' has expected parity with legacy-indexed doc.")
         continue
 
       if len(unexpected_insertions) > 0:
@@ -188,8 +188,8 @@ def check_parity(handle_special_cases = lambda t, i, m: None, allowed_insertions
           log_parity_error("Metricbeat-indexed doc for type='" + doc_type + "' has unexpected deletion: " + deletion)
           num_errors = num_errors + 1
 
-      print("*** Internally-indexed doc for type='" + doc_type + "': ***")
-      print(internal_doc)
+      print("*** Legacy-indexed doc for type='" + doc_type + "': ***")
+      print(legacy_doc)
 
       print("*** Metricbeat-indexed doc for type='" + doc_type + "': ***")
       print(metricbeat_doc)

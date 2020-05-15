@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------------------------------------------------------
-# Playbook: Test for parity between metricbeat-indexes and internally-indexed Monitoring docs
+# Playbook: Test for parity between metricbeat-indexes and legacy-indexed Monitoring docs
 #
 # Author: shaunak@elastic.co
 #----------------------------------------------------------------------------------------------------------------------
@@ -53,7 +53,7 @@
         state: directory
         path: "{{ monitoring_docs_dir }}/elasticsearch/{{ item }}/"
       with_items:
-        - internal
+        - legacy
         - metricbeat
       delegate_to: localhost
 
@@ -63,7 +63,7 @@
       vars:
         ait_role: xpack_elasticsearch_install_gencert_config_start_verify
 
-    - name: Enable internal monitoring collection
+    - name: Enable legacy monitoring collection
       uri:
         method: PUT
         url: "https://{{ current_host_ip }}:{{ elasticsearch_port }}/_cluster/settings"
@@ -94,7 +94,7 @@
     - name: Write sample docs to temp files
       copy:
         content: "{{ item._source }}"
-        dest: "{{ monitoring_docs_dir }}/elasticsearch/internal/{{ item._source.type }}.json"
+        dest: "{{ monitoring_docs_dir }}/elasticsearch/legacy/{{ item._source.type }}.json"
       with_items: "{{ xpack_elasticsearch_monitoring_sample_docs.json.hits.hits }}"
       delegate_to: localhost
 
@@ -187,6 +187,6 @@
       vars:
         ait_action: elasticsearch_shutdown
 
-    - name: Compare internally-indexed and metricbeat-indexed documents for parity
-      shell: 'python {{ playbook_dir }}/docs_compare.py {{ monitoring_docs_dir }}/elasticsearch/internal {{ monitoring_docs_dir }}/elasticsearch/metricbeat'
+    - name: Compare legacy-indexed and metricbeat-indexed documents for parity
+      shell: 'python {{ playbook_dir }}/docs_compare.py {{ monitoring_docs_dir }}/elasticsearch/legacy {{ monitoring_docs_dir }}/elasticsearch/metricbeat'
       delegate_to: localhost

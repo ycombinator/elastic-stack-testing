@@ -2,8 +2,10 @@
 
 ### Motivation
 
-Traditionally, Elasticsearch, Kibana, Logstash, and Beats have internally collected their own monitoring data and
-shipped it to Elasticsearch. We refer to this traditional method as **internal collection** or **native collection**.
+Traditionally, Elasticsearch, Kibana, Logstash, and Beats have collected their own monitoring data and
+shipped it to the Elasticsearch *production* cluster, which has then forwarded the data to the Elasticsearch
+*monitoring* cluster (which could be the same as the *production* cluster). We refer to this traditional method
+of monitoring as **legacy collection**.
 
 For several reasons that are outside the scope of this document, we want to moving data collection and shipping to an 
 external agent, something that runs separately but along side each Elasticsearch node, Kibana instance, Logstash
@@ -12,7 +14,7 @@ Kibana, Logstash, and Beats to collect monitoring data and ship it to Elasticsea
 **Metricbeat collection**.
 
 Our goal is for the Stack Monitoring UI in Kibana to work regardless of which collection method is used. This goal
-can be accomplished by ensuring that the documents indexed by the internal collection method are identical in 
+can be accomplished by ensuring that the documents indexed by the legacy collection method are identical in 
 structure to those indexed by Metricbeat collection. The tests in this folder assert that this parity is maintained.
 
 **NOTE**: At this time Metricbeat collection only works for Elasticsearch, Kibana, and Beats. As such, this folder only
@@ -28,22 +30,22 @@ Each product's tests follow this general high-level approach:
 
 1. Install Elasticsearch
 1. Install product
-1. Enable internal collection
-1. Run the product for 30 seconds to collect monitoring data internally and index it into the Monitoring index for 
+1. Enable legacy collection
+1. Run the product for 30 seconds to collect monitoring data and index it into the Monitoring index for 
    that product
 1. Stop the product
 1. Download sample documents from the product's Monitoring index
-1. Disable internal collection
+1. Disable legacy collection
 1. Install Metricbeat
 1. Enable Metricbeat collection for the product
 1. Start the product
 1. Start Metricbeat
-1. Run the product and Metricbeat for 30 seconds to collect monitoring externally and index it into the Monitoring 
+1. Run the product and Metricbeat for 30 seconds to collect monitoring data and index it into the Monitoring 
    index for that product
 1. Stop the product
 1. Stop Metricbeat
 1. Download sample documents from the product's Monitoring index
-1. Compare the internally-collected documents with Metricbeat-collected documents and verify parity of structure
+1. Compare the legacy-collected documents with Metricbeat-collected documents and verify parity of structure
 
 ### Diagnosing test failures
 
@@ -55,7 +57,7 @@ snapshot URL that were used. Snapshot URLs look like `https://snapshots.elastic.
 
 Tests can fail for multiple reasons. The most common ones are that the very last step in the test process failed — 
 that documents of the same type did not have structural parity with each other. This type of failure usually 
-indicates that code needs to be updated in either the product's internal collection mechanisms or in the Metricbeat 
+indicates that code needs to be updated in either the product's legacy collection mechanisms or in the Metricbeat 
 module for the product.
 
 At other times, tests fail because the product could not be configured or run correctly. This type of failure usually 
@@ -109,23 +111,23 @@ See the sections below on how to run the tests locally and some useful diagnosis
 ##### Parity failures
 
 As mentioned in the test steps earlier, the test downloads sample documents from the product's Monitoring index twice 
-— once after internal collection and once after Metricbeat collection. Then the two sets of documents are compared
+— once after legacy collection and once after Metricbeat collection. Then the two sets of documents are compared
 for structural parity.
 
 The downloaded documents are stored under the `ait_workspace/monitoring/$PRODUCT` folder, where `$PRODUCT` is the 
 product being monitored, e.g. `elasticsearch`. Under this folder are two sub-folders, 
-`internal` and `metricbeat`, corresponding to the two collection approaches. Under each of these folders are the 
+`legacy` and `metricbeat`, corresponding to the two collection approaches. Under each of these folders are the 
 various types of documents collected by each collection approach. There is a JSON file for each type of document, and 
 "type" here corresponds to the value of the `type` field in the indexed documents. The contents of each JSON file are 
 a sample document of that type.
 
-The first thing to check is that the number and names of documents under the `internal` and `metridbeat` folders are 
+The first thing to check is that the number and names of documents under the `legacy` and `metridbeat` folders are 
 the same. If there are fewer documents under one folder than the other, then that likely means that some types of 
 documents did not get collected and indexed by one of the approaches and further investigation is needed.
 
 If the number and names match up, then go back and look at the error message from the failed play in the test run 
 output. It will indicate which type of document failed the parity test. Find the files with this type name in the 
-`internal` and `metricbeat` folders. Compare their contents for structural differences using a tool such as 
+`legacy` and `metricbeat` folders. Compare their contents for structural differences using a tool such as 
 http://www.jsondiff.com/. 
 
 Note that certain structural differences are actually expected, therefore okay. For instance, Metricbeat-collected 
@@ -135,7 +137,7 @@ and look for the variable named `allowed_insertions`.
 
 After ignoring the expected structural differences, you'll be left with the unexpected structural differences. 
 Depending on what you find here, you'll need to file issues in the `elastic/$PRODUCT`'s repository (requiring changes 
-in the `$PRODUCT`'s internal collection code) or the `elastic/beats` repository (requiring changes in the
+in the `$PRODUCT`'s legacy collection code) or the `elastic/beats` repository (requiring changes in the
 `$PRODUCT`'s Metricbeat module code).
 
 ##### Setup failures
